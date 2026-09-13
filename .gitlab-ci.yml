@@ -11,6 +11,10 @@ variables:
 
 .flutter_linux:
   image: "$FLUTTER_CI_IMAGE"
+  tags:
+    - docker
+    - ct102
+    - local
   cache:
     key:
       files:
