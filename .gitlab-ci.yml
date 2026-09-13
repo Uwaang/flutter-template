@@ -26,6 +26,8 @@ variables:
     - flutter --version
     - flutter pub get
     - dart run tool/create_ci_env.dart
+    - flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+    - dart run build_runner build --delete-conflicting-outputs
 
 .verify_rules:
   rules:
@@ -49,8 +51,6 @@ quality:
   stage: verify
   script:
     - dart format --output=none --set-exit-if-changed lib test integration_test tool
-    - flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
-    - dart run build_runner build --delete-conflicting-outputs
     - git diff --exit-code
     - flutter analyze
     - flutter test
@@ -133,6 +133,8 @@ windows_release:
     - flutter --version
     - flutter pub get
     - dart run tool/create_ci_env.dart
+    - flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+    - dart run build_runner build --delete-conflicting-outputs
     - flutter config --enable-windows-desktop
   script:
     - flutter build windows --release -t lib/main_production.dart
@@ -155,6 +157,8 @@ ios_release:
     - flutter --version
     - flutter pub get
     - dart run tool/create_ci_env.dart
+    - flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+    - dart run build_runner build --delete-conflicting-outputs
   script:
     - flutter build ipa --release -t lib/main_production.dart --flavor production --obfuscate --split-debug-info=build/ios/symbols
   artifacts:
