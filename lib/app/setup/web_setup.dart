@@ -1,11 +1,11 @@
 import 'package:flutter_app/app/setup/flavor.dart';
-import 'package:universal_html/html.dart';
+import 'package:web/web.dart';
 
 class WebSetup {
   WebSetup._();
 
   static void setup({required Flavor flavor}) {
-    final script = ScriptElement();
+    final script = document.createElement('script');
 
     switch (flavor) {
       case Flavor.develop:

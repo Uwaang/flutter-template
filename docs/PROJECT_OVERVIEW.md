@@ -144,6 +144,7 @@ Helpers worth knowing:
 - Flutter SDK pinning is managed through `.fvmrc`.
 - App versioning and Flutter constraints are declared in `pubspec.yaml`.
 - The repo includes `release_notes.txt` plus build commands for Android and iOS release artifacts.
+- `.gitlab-ci.yml` adds self-hosted JavaScript/WebAssembly web verification and optional native artifact jobs; see `docs/GITLAB_CI.md`.
 - `README.md` documents the template's default release branching and tagging flow, but real projects may customize it.
 
 ## Files To Treat Carefully

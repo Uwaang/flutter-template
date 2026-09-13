@@ -378,6 +378,11 @@ To make sure we use consistent formatting and that the app is buildable, we run 
 - `flutter analyze`
 - `flutter build apk`
 This way we are ensuring that at least the Android version is buildable. We are also building only debug version of the app as the build is faster.
+
+## GitLab CI
+Self-hosted GitLab support is available through `.gitlab-ci.yml`. The default Linux path validates formatting, generated code, analysis, tests, a normal JavaScript web build, and a WebAssembly web build. Native Linux, Android, Windows, and iOS artifact jobs are kept separate so runner and signing requirements do not block ordinary verification.
+
+See [`docs/GITLAB_CI.md`](docs/GITLAB_CI.md) for runner expectations, secret handling, and the WebAssembly compatibility policy.
 <!-- ################################################## -->
 
 ## Theming
