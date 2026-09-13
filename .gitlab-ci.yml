@@ -1,0 +1,161 @@
+stages:
+  - verify
+  - build
+  - package
+
+variables:
+  # Matches .fvmrc. Keep this explicit so CI does not silently drift from the
+  # template SDK version.
+  FLUTTER_CI_IMAGE: "ghcr.io/cirruslabs/flutter:3.44.0"
+  PUB_CACHE: "$CI_PROJECT_DIR/.pub-cache"
+
+.flutter_linux:
+  image: "$FLUTTER_CI_IMAGE"
+  cache:
+    key:
+      files:
+        - pubspec.lock
+    paths:
+      - .pub-cache/
+      - .dart_tool/
+  before_script:
+    - flutter --version
+    - flutter pub get
+    - dart run tool/create_ci_env.dart
+
+.verify_rules:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+
+.manual_native_rules:
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: manual
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+    - if: '$CI_COMMIT_BRANCH'
+      when: manual
+
+quality:
+  extends:
+    - .flutter_linux
+    - .verify_rules
+  stage: verify
+  script:
+    - dart format --output=none --set-exit-if-changed lib test integration_test tool
+    - flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+    - dart run build_runner build --delete-conflicting-outputs
+    - git diff --exit-code
+    - flutter analyze
+    - flutter test
+
+web_js:
+  extends:
+    - .flutter_linux
+    - .verify_rules
+  stage: build
+  needs: [quality]
+  script:
+    - flutter build web --release -t lib/main_production.dart
+  artifacts:
+    name: "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG-web-js"
+    expire_in: 7 days
+    paths:
+      - build/web/
+
+web_wasm:
+  extends:
+    - .flutter_linux
+    - .verify_rules
+  stage: build
+  needs: [quality]
+  script:
+    - flutter build web --wasm --release -t lib/main_production.dart
+  artifacts:
+    name: "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG-web-wasm"
+    expire_in: 7 days
+    paths:
+      - build/web/
+
+linux_release:
+  extends:
+    - .flutter_linux
+    - .manual_native_rules
+  stage: package
+  needs: [quality]
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+    - flutter --version
+    - flutter pub get
+    - dart run tool/create_ci_env.dart
+    - flutter config --enable-linux-desktop
+  script:
+    - flutter build linux --release -t lib/main_production.dart
+    - tar -C build/linux/x64/release/bundle -czf "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-linux-x64.tar.gz" .
+  artifacts:
+    name: "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG-linux"
+    expire_in: 7 days
+    paths:
+      - "*-linux-x64.tar.gz"
+
+android_release:
+  extends:
+    - .flutter_linux
+    - .manual_native_rules
+  stage: package
+  needs: [quality]
+  script:
+    - test -f android/app/google-services.json || (echo "Restore Android Firebase config before release builds." && exit 1)
+    - test -f android/extras/keystores/release.properties || (echo "Restore Android release signing files before release builds." && exit 1)
+    - flutter build appbundle --release -t lib/main_production.dart --flavor production --obfuscate --split-debug-info=build/app/outputs/symbols
+  artifacts:
+    name: "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG-android"
+    expire_in: 7 days
+    paths:
+      - build/app/outputs/bundle/productionRelease/*.aab
+      - build/app/outputs/symbols/
+
+windows_release:
+  extends: .manual_native_rules
+  stage: package
+  tags:
+    - windows
+    - flutter
+  needs: [quality]
+  before_script:
+    - flutter --version
+    - flutter pub get
+    - dart run tool/create_ci_env.dart
+    - flutter config --enable-windows-desktop
+  script:
+    - flutter build windows --release -t lib/main_production.dart
+  artifacts:
+    name: "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG-windows"
+    expire_in: 7 days
+    paths:
+      - build/windows/x64/runner/Release/
+
+# iOS intentionally uses a macOS shell runner rather than a Docker image.
+# Signing/export configuration remains project-specific.
+ios_release:
+  extends: .manual_native_rules
+  stage: package
+  tags:
+    - macos
+    - flutter
+  needs: [quality]
+  before_script:
+    - flutter --version
+    - flutter pub get
+    - dart run tool/create_ci_env.dart
+  script:
+    - flutter build ipa --release -t lib/main_production.dart --flavor production --obfuscate --split-debug-info=build/ios/symbols
+  artifacts:
+    name: "$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG-ios"
+    expire_in: 7 days
+    paths:
+      - build/ios/ipa/*.ipa
+      - build/ios/symbols/

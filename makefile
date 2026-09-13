@@ -53,7 +53,11 @@ generateIosProductionIpa: # Clean everything and build iOS IPA
 
 generateWebProduction: # Clean everything and build Web
 	@make clean
-	@fvm flutter build web -t lib/main_production.dart --web-renderer canvaskit
+	@fvm flutter build web -t lib/main_production.dart
+
+generateWebProductionWasm: # Clean everything and build Web with WebAssembly
+	@make clean
+	@fvm flutter build web --wasm -t lib/main_production.dart
 
 # This requires to have firebase-tools installed globally on the system.
 # npm install -g firebase-tools
