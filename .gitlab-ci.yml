@@ -17,11 +17,11 @@ variables:
     - local
   cache:
     key:
+      prefix: "flutter-pub-v2"
       files:
         - pubspec.lock
     paths:
       - .pub-cache/
-      - .dart_tool/
   before_script:
     - flutter --version
     - flutter pub get
