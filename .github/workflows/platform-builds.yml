@@ -90,17 +90,6 @@ jobs:
         run: |
           python3 tool/prepare_native_ci.py android
           printf '\norg.gradle.workers.max=2\norg.gradle.daemon=false\nkotlin.compiler.execution.strategy=in-process\n' >> android/gradle.properties
-          # Compile-only fixture: the generated registrant names plugins that
-          # are not shipped on the profile runtime classpath. Do not change the
-          # app's checked-in ProGuard rules or claim runtime compatibility.
-          printf '\n' >> android/app/proguard-rules.pro
-          cat >> android/app/proguard-rules.pro <<'EOF'
-          -dontwarn com.aboutyou.dart_packages.sign_in_with_apple.SignInWithApplePlugin
-          -dontwarn com.aheaditec.freerasp.FreeraspPlugin
-          -dontwarn com.baseflow.permissionhandler.PermissionHandlerPlugin
-          -dontwarn com.github.dart_lang.jni.JniPlugin
-          -dontwarn pl.leancode.patrol.PatrolPlugin
-          EOF
       - name: Apple synthetic configuration
         if: matrix.target == 'macos' || matrix.target == 'ios'
         run: python3 tool/prepare_native_ci.py apple
