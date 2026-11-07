@@ -1,0 +1,12 @@
+{
+  "name": "flutter-template-web-runtime-smoke",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Minimal startup smoke checks against compiled Flutter web artifacts",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0"
+  }
+}
