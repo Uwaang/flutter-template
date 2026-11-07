@@ -123,6 +123,13 @@ android {
         profile {
             signingConfig signingConfigs.debug
 
+            if (System.getenv('FLUTTER_TEMPLATE_COMPILE_ONLY') == '1') {
+                firebaseCrashlytics {
+                    mappingFileUploadEnabled = false
+                    nativeSymbolUploadEnabled = false
+                }
+            }
+
             minifyEnabled true
             shrinkResources true
 
