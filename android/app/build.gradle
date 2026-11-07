@@ -130,8 +130,12 @@ android {
                 }
             }
 
-            minifyEnabled true
-            shrinkResources true
+            // Profile builds are debuggable. Flutter 3.44 copies this setting
+            // into Android plugin library profile variants, and minifying those
+            // libraries can remove GeneratedPluginRegistrant entry points.
+            // Keep release shrinking enabled in the separate release build type.
+            minifyEnabled false
+            shrinkResources false
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
