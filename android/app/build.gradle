@@ -58,6 +58,10 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        // Profile smoke builds share production's launcher assets, not its signing.
+        productionProfile {
+            res.srcDirs += 'src/productionRelease/res'
+        }
     }
 
     signingConfigs {

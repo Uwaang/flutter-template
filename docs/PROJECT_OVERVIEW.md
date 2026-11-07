@@ -141,6 +141,8 @@ Helpers worth knowing:
 - `make generateIosProductionIpa`
 
 ## Versioning And Releases
+
+- GitHub hosted compile checks and the selected-branch publication policy are documented in `docs/PUBLIC_CI.md`. Personal Windows provisioning stays on the private lab branch.
 - Flutter SDK pinning is managed through `.fvmrc`.
 - App versioning and Flutter constraints are declared in `pubspec.yaml`.
 - The repo includes `release_notes.txt` plus build commands for Android and iOS release artifacts.

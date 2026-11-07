@@ -1,0 +1,138 @@
+name: Platform Builds
+
+on:
+  push:
+    branches: [main, master, scrum-430-public-ci]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: platform-builds-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_TEMPLATE_COMPILE_ONLY: '1'
+  COCOAPODS_DISABLE_STATS: 'true'
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: python3 -m unittest discover -s tool -p 'test_*.py'
+      - run: flutter pub get
+      - run: dart run tool/create_ci_env.dart
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test tool
+      - run: flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - run: git diff --exit-code
+      - run: flutter analyze
+      - run: flutter test
+
+  build:
+    name: Build ${{ matrix.target }}
+    needs: quality
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - target: web-js
+            os: ubuntu-24.04
+          - target: web-wasm
+            os: ubuntu-24.04
+          - target: linux
+            os: ubuntu-24.04
+          - target: windows
+            os: windows-2022
+          - target: android
+            os: ubuntu-24.04
+          - target: macos
+            os: macos-15
+          - target: ios
+            os: macos-15
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Linux desktop dependencies
+        if: matrix.target == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+      - uses: actions/setup-java@v4
+        if: matrix.target == 'android'
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: flutter pub get
+      - run: dart run tool/create_ci_env.dart
+      - name: Android synthetic configuration
+        if: matrix.target == 'android'
+        run: |
+          python3 tool/prepare_native_ci.py android
+          printf '\norg.gradle.workers.max=2\norg.gradle.daemon=false\nkotlin.compiler.execution.strategy=in-process\n' >> android/gradle.properties
+      - name: Apple synthetic configuration
+        if: matrix.target == 'macos' || matrix.target == 'ios'
+        run: python3 tool/prepare_native_ci.py apple
+      - run: flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - name: Build and stage runtime files
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          mkdir -p ci-artifacts
+          case "$TARGET" in
+            web-js)
+              flutter build web --release -t lib/main_production.dart
+              tar -czf ci-artifacts/web-js.tar.gz -C build/web .
+              ;;
+            web-wasm)
+              flutter build web --wasm --release -t lib/main_production.dart
+              tar -czf ci-artifacts/web-wasm.tar.gz -C build/web .
+              ;;
+            linux)
+              flutter build linux --release -t lib/main_production.dart
+              tar -czf ci-artifacts/linux.tar.gz -C build/linux/x64/release/bundle .
+              ;;
+            windows)
+              flutter build windows --release -t lib/main_production.dart
+              python tool/package_windows_ci.py
+              ;;
+            android)
+              flutter build appbundle --profile -t lib/main_production.dart --flavor production
+              cp build/app/outputs/bundle/productionProfile/*.aab ci-artifacts/
+              ;;
+            macos)
+              flutter build macos --release -t lib/main_production.dart
+              (cd build/macos/Build/Products/Release && tar -czf "$GITHUB_WORKSPACE/ci-artifacts/macos.tar.gz" ./*.app)
+              ;;
+            ios)
+              flutter build ios --release --no-codesign --flavor production -t lib/main_production.dart
+              (cd build/ios/iphoneos && tar -czf "$GITHUB_WORKSPACE/ci-artifacts/ios-unsigned.tar.gz" ./*.app)
+              ;;
+          esac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: compile-only-${{ matrix.target }}
+          path: ci-artifacts/*
+          if-no-files-found: error
+          retention-days: 7

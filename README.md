@@ -1,4 +1,12 @@
 # Flutter Template
+
+## Public Build Mirror
+
+This MIT-licensed STRV derivative uses GitLab as its source of truth and GitHub
+for hosted, compile-only platform checks. Read [the public CI guide](docs/PUBLIC_CI.md)
+before enabling workflows or handling the inherited encrypted sample fixtures.
+No personal Windows lab branch or old VM build archive is part of the mirror.
+
 - [Project notes](#project-notes)
 
 - [Our values](#our-values)
