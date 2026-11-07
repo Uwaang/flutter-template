@@ -61,7 +61,8 @@ jobs:
           - target: macos
             os: macos-15
           - target: ios
-            os: macos-15
+            # device_info_plus >= 12.4 uses NSProcessInfo.iOSAppOnVision (Xcode 26 SDK).
+            os: macos-26
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -92,6 +93,7 @@ jobs:
           # Compile-only fixture: the generated registrant names plugins that
           # are not shipped on the profile runtime classpath. Do not change the
           # app's checked-in ProGuard rules or claim runtime compatibility.
+          printf '\n' >> android/app/proguard-rules.pro
           cat >> android/app/proguard-rules.pro <<'EOF'
           -dontwarn com.aboutyou.dart_packages.sign_in_with_apple.SignInWithApplePlugin
           -dontwarn com.aheaditec.freerasp.FreeraspPlugin
