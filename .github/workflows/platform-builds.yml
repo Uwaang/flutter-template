@@ -91,6 +91,14 @@ jobs:
           python3 tool/prepare_native_ci.py android
           # Use the repository's Gradle defaults on GitHub-hosted runners.
           # CT102's former 3 GiB single-worker limits do not apply here.
+      - name: Android resource snapshot before build
+        if: matrix.target == 'android'
+        run: |
+          echo "CPU cores: $(nproc)"
+          free -h
+          for f in /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.events; do
+            if [ -r "$f" ]; then echo "=== $f ==="; cat "$f"; fi
+          done
       - name: Apple synthetic configuration
         if: matrix.target == 'macos' || matrix.target == 'ios'
         run: python3 tool/prepare_native_ci.py apple
@@ -139,6 +147,13 @@ jobs:
               (cd build/ios/iphoneos && tar -czf "$GITHUB_WORKSPACE/ci-artifacts/ios-unsigned.tar.gz" ./*.app)
               ;;
           esac
+      - name: Android resource snapshot after build (including failure)
+        if: ${{ always() && matrix.target == 'android' }}
+        run: |
+          free -h
+          for f in /sys/fs/cgroup/memory.current /sys/fs/cgroup/memory.events; do
+            if [ -r "$f" ]; then echo "=== $f ==="; cat "$f"; fi
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: compile-only-${{ matrix.target }}
