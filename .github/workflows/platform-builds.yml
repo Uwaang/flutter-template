@@ -89,9 +89,26 @@ jobs:
         run: |
           python3 tool/prepare_native_ci.py android
           printf '\norg.gradle.workers.max=2\norg.gradle.daemon=false\nkotlin.compiler.execution.strategy=in-process\n' >> android/gradle.properties
+          # Compile-only fixture: the generated registrant names plugins that
+          # are not shipped on the profile runtime classpath. Do not change the
+          # app's checked-in ProGuard rules or claim runtime compatibility.
+          cat >> android/app/proguard-rules.pro <<'EOF'
+          -dontwarn com.aboutyou.dart_packages.sign_in_with_apple.SignInWithApplePlugin
+          -dontwarn com.aheaditec.freerasp.FreeraspPlugin
+          -dontwarn com.baseflow.permissionhandler.PermissionHandlerPlugin
+          -dontwarn com.github.dart_lang.jni.JniPlugin
+          -dontwarn pl.leancode.patrol.PatrolPlugin
+          EOF
       - name: Apple synthetic configuration
         if: matrix.target == 'macos' || matrix.target == 'ios'
         run: python3 tool/prepare_native_ci.py apple
+      - name: Re-resolve stale macOS CocoaPods lock for compile-only CI
+        if: matrix.target == 'macos'
+        run: |
+          # The committed lockfile pins Firebase 12.13 while current FlutterFire
+          # plugins require 12.14. Keep production resolution unchanged here;
+          # regenerate and commit the macOS lock on a macOS host separately.
+          rm -f macos/Podfile.lock
       - run: flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
       - run: dart run build_runner build --delete-conflicting-outputs
       - name: Build and stage runtime files
