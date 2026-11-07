@@ -39,6 +39,13 @@ def prepare(root, target):
         }
         write_fixture(root / 'android/app/google-services.json', json.dumps(config, indent=2).encode())
     elif target == 'apple':
+        # The Xcode flavor configurations include these generated files.
+        # Keep them secret-free and scoped to compile-only preparation.
+        xcconfig = b'// Synthetic compile-only configuration; no credentials.\n'
+        write_fixture(root / 'ios/Flutter/.env.xcconfig', xcconfig)
+        for flavor in ['develop', 'staging', 'production']:
+            write_fixture(root / f'ios/Flutter/.env.{flavor}.xcconfig', xcconfig)
+
         for flavor in ['develop', 'staging', 'production']:
             suffix = '' if flavor == 'production' else '.' + flavor
             config = {
