@@ -32,6 +32,10 @@ class NativeFixturesTest(unittest.TestCase):
                 config = plistlib.loads(path.read_bytes())
                 self.assertFalse(config['IS_ANALYTICS_ENABLED'])
                 self.assertEqual(config['API_KEY'], 'ci-placeholder-not-a-credential')
+            for suffix in ['', '.develop', '.staging', '.production']:
+                path = root / f'ios/Flutter/.env{suffix}.xcconfig'
+                self.assertTrue(path.is_file())
+                self.assertIn(b'no credentials', path.read_bytes())
 
     def test_existing_config_is_not_overwritten(self):
         with tempfile.TemporaryDirectory() as directory:
