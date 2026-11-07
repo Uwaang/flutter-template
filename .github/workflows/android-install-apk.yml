@@ -1,0 +1,48 @@
+name: Installable Android APK (compile-only fixture)
+
+on:
+  push:
+    branches: [build/scrum-430-installable-apk]
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    name: Build Android APK (profile, debug signed)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      FLUTTER_TEMPLATE_COMPILE_ONLY: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: flutter pub get
+      - run: dart run tool/create_ci_env.dart
+      - name: Prepare synthetic Android configuration
+        run: python3 tool/prepare_native_ci.py android
+      - run: flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - name: Build APK for manual installation
+        run: |
+          set -euo pipefail
+          flutter build apk --profile -t lib/main_production.dart --flavor production
+          mkdir -p ci-artifacts
+          find build/app/outputs/flutter-apk -maxdepth 1 -type f -name '*.apk' -print
+          cp build/app/outputs/flutter-apk/app-production-profile.apk ci-artifacts/
+          sha256sum ci-artifacts/*.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installable-android-profile-apk-synthetic-config
+          path: ci-artifacts/*.apk
+          if-no-files-found: error
+          retention-days: 7
