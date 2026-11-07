@@ -20,6 +20,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
       - uses: subosito/flutter-action@v2
         with:
           flutter-version-file: .fvmrc
@@ -45,15 +48,15 @@ jobs:
           print('PLUGIN_METADATA_ANDROID_COUNT:', len(names))
           print('PLUGIN_METADATA_ANDROID_NAMES:', ', '.join(names))
           PY
-          ./gradlew projects --console=plain --no-daemon > "$RUNNER_TEMP/gradle-projects.txt" 2>&1
+          gradle projects --console=plain --no-daemon > "$RUNNER_TEMP/gradle-projects.txt" 2>&1
           grep -E "^Project |^\\+--- Project|^\\--- Project|^Root project|^\\|" "$RUNNER_TEMP/gradle-projects.txt" | head -90 || true
           for kind in Compile Runtime; do
             config="productionProfile${kind}Classpath"
-            ./gradlew :app:dependencies --configuration "$config" --console=plain --no-daemon > "$RUNNER_TEMP/${config}.txt" 2>&1
+            gradle :app:dependencies --configuration "$config" --console=plain --no-daemon > "$RUNNER_TEMP/${config}.txt" 2>&1
             echo "=== $config: projects linked ==="
             grep -E "project :(firebase|device_info|package_info|share_plus|shared_preferences|url_launcher|app_settings|google_sign_in|flutter_plugin|jni_flutter|sign_in_with_apple|freerasp|patrol)" "$RUNNER_TEMP/${config}.txt" | head -100 || true
             echo "=== $config: all plugin project refs ==="
             grep -E -m 80 'project :' "$RUNNER_TEMP/${config}.txt" || true
           done
           echo "=== profile variant fallback ==="
-          ./gradlew :app:properties --console=plain --no-daemon | grep -E 'buildType|profile|runtimeClasspath' | head -25 || true
+          gradle :app:properties --console=plain --no-daemon | grep -E 'buildType|profile|runtimeClasspath' | head -25 || true
