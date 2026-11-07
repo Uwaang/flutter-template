@@ -89,7 +89,8 @@ jobs:
         if: matrix.target == 'android'
         run: |
           python3 tool/prepare_native_ci.py android
-          printf '\norg.gradle.workers.max=2\norg.gradle.daemon=false\nkotlin.compiler.execution.strategy=in-process\n' >> android/gradle.properties
+          # Use the repository's Gradle defaults on GitHub-hosted runners.
+          # CT102's former 3 GiB single-worker limits do not apply here.
       - name: Apple synthetic configuration
         if: matrix.target == 'macos' || matrix.target == 'ios'
         run: python3 tool/prepare_native_ci.py apple
