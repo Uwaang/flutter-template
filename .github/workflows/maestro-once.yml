@@ -1,0 +1,74 @@
+name: One-time Android Maestro startup evaluation (SCRUM-435)
+
+on:
+  push:
+    branches: [qa/scrum-435-maestro-android-once]
+    paths:
+      - .github/workflows/maestro-once.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-startup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: flutter pub get
+      - run: dart run tool/create_ci_env.dart
+      - run: python3 tool/prepare_native_ci.py android
+      - run: flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - name: Compile profile APK with synthetic CI config
+        run: flutter build apk --profile --flavor production -t lib/main_production.dart
+      - name: Install Maestro CLI
+        run: |
+          curl -fsSL https://get.maestro.mobile.dev | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - name: Enable KVM for Android emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install APK and run the existing single Maestro flow
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          script: |
+            set +e
+            adb install -r build/app/outputs/flutter-apk/app-production-profile.apk
+            install_code=$?
+            if [ "$install_code" -eq 0 ]; then
+              maestro test qa/mobile/startup.yaml
+              result=$?
+            else
+              result=$install_code
+            fi
+            mkdir -p qa/mobile/evidence
+            adb exec-out screencap -p > qa/mobile/evidence/screenshot.png || true
+            adb logcat -d -v time | grep -E 'Flutter|flutter|Firebase|AndroidRuntime|FATAL EXCEPTION|FreeRASP|Talsec|SignIn' | tail -n 500 > qa/mobile/evidence/logcat-excerpt.txt || true
+            echo "result=$result" > qa/mobile/evidence/outcome.txt
+            exit "$result"
+      - name: Upload diagnostic evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-maestro-startup-evidence
+          path: qa/mobile/evidence/
+          if-no-files-found: warn
+          retention-days: 7
