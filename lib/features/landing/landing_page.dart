@@ -19,6 +19,12 @@ import 'package:package_info_plus/package_info_plus.dart';
 /// - Check for force update - Not letting users into the app, preventing further data loading.
 /// - Check if there is a user signed in - Authentication-based navigation
 /// - Deeplink handling - Handle deeplink and navigate to the correct screen.
+void _qaLandingStage(String stage) {
+  if (const bool.fromEnvironment('QA_STARTUP_TRACE')) {
+    debugPrint('[QA_STARTUP] $stage');
+  }
+}
+
 @RoutePage()
 class LandingPage extends ConsumerStatefulWidget {
   const LandingPage({super.key});
@@ -46,9 +52,9 @@ class _LandingPageState extends ConsumerState<LandingPage> {
   }
 
   Future<void> _handleLandingPageNavigation() async {
-    if (const bool.fromEnvironment('QA_STARTUP_TRACE')) debugPrint('[QA_STARTUP] landing begin');
+    _qaLandingStage('landing begin');
     final forceUpdateRequired = await _handleForceUpdate();
-    if (const bool.fromEnvironment('QA_STARTUP_TRACE')) debugPrint('[QA_STARTUP] landing force-update done');
+    _qaLandingStage('landing force-update done');
     if (!mounted) return;
 
     if (forceUpdateRequired) {
@@ -56,9 +62,9 @@ class _LandingPageState extends ConsumerState<LandingPage> {
       return;
     }
 
-    if (const bool.fromEnvironment('QA_STARTUP_TRACE')) debugPrint('[QA_STARTUP] landing current-user begin');
+    _qaLandingStage('landing current-user begin');
     final currentUser = await ref.read(currentUserStateProvider.future);
-    if (const bool.fromEnvironment('QA_STARTUP_TRACE')) debugPrint('[QA_STARTUP] landing current-user done');
+    _qaLandingStage('landing current-user done');
 
     if (!mounted) return;
 
@@ -75,9 +81,9 @@ class _LandingPageState extends ConsumerState<LandingPage> {
 
   Future<bool> _handleForceUpdate() async {
     if (AppPlatform.isMobile && Firebase.apps.isNotEmpty) {
-      if (const bool.fromEnvironment('QA_STARTUP_TRACE')) debugPrint('[QA_STARTUP] remote-config begin');
+      _qaLandingStage('remote-config begin');
       final firebaseRemoteConfigService = await ref.read(firebaseRemoteConfigServiceProvider.future);
-      if (const bool.fromEnvironment('QA_STARTUP_TRACE')) debugPrint('[QA_STARTUP] remote-config done');
+      _qaLandingStage('remote-config done');
       final minBuildNumber = firebaseRemoteConfigService.getMinSupportedBuildNumber();
       final packageInfo = await PackageInfo.fromPlatform();
 
