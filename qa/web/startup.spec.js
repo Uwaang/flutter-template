@@ -3,13 +3,11 @@ const { test, expect } = require('@playwright/test');
 test('compiled Flutter app reaches the authentication screen', async ({ page }, testInfo) => {
   const pageErrors = [];
   const consoleErrors = [];
-  const startupStages = [];
   const failedRequests = [];
 
   page.on('pageerror', (error) => pageErrors.push(error.stack || String(error)));
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text());
-    if (message.text().includes('STARTUP_STAGE:')) startupStages.push(message.text());
   });
   page.on('requestfailed', (request) => {
     failedRequests.push(`${request.method()} ${request.url()}: ${request.failure()?.errorText || 'failed'}`);
@@ -33,8 +31,6 @@ test('compiled Flutter app reaches the authentication screen', async ({ page }, 
   } finally {
     await testInfo.attach('browser-diagnostics.txt', {
       body: Buffer.from([
-        'STARTUP STAGES', ...startupStages,
-        '',
         'PAGE ERRORS', ...pageErrors,
         '',
         'CONSOLE ERRORS', ...consoleErrors,
