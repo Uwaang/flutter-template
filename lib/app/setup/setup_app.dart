@@ -49,6 +49,7 @@ Future<void> setupApp({required Flavor flavor}) async {
   );
 
   // Setup Firebase
+  debugPrint('STARTUP_STAGE: firebase');
   await _setupFirebase(flavor: flavor);
   await _setupFirebaseCrashlytics();
   await _setupFirebaseRemoteConfig();
@@ -56,12 +57,15 @@ Future<void> setupApp({required Flavor flavor}) async {
   await _setupLocalNotificationsService();
 
   // Setup Google Sign In
+  debugPrint('STARTUP_STAGE: google_sign_in');
   await GoogleSignIn.instance.initialize();
 
   // Setup FreeRASP Security
+  debugPrint('STARTUP_STAGE: freerasp');
   await _setupRASP(flavor: flavor);
 
   // Web support
+  debugPrint('STARTUP_STAGE: web_platform');
   await _setupWebPlatform(flavor: flavor);
 
   // Desktop support
@@ -72,10 +76,12 @@ Future<void> setupApp({required Flavor flavor}) async {
   PaintingBinding.instance.imageCache.maximumSizeBytes = 200 << 20; // Equals to 200 MB of cache
 
   // Load Theme Mode from DB before starting app
+  debugPrint('STARTUP_STAGE: theme_mode');
   await providerContainer.read(themeModeProvider.future);
 
   // Setup reactive Edge-to-Edge support across all platforms
   await CustomSystemBarsTheme.setupSystemBarsTheme(providerContainer: providerContainer);
+  debugPrint('STARTUP_STAGE: complete');
 }
 
 // TODO(strv): Support it or remove it!
