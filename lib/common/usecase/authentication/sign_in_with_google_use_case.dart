@@ -16,6 +16,9 @@ Future<void> signInWithGoogleUseCase(Ref ref) async {
     Flogger.d('[Authentication] Sign in with Google started');
 
     final googleSignIn = GoogleSignIn.instance;
+    // Initialize the optional provider only on explicit sign-in. Unsupported
+    // platforms or missing OAuth configuration must not block app startup.
+    await googleSignIn.initialize();
 
     // Subtitle: Step 1 - Logout from Current Google account if any
     await googleSignIn.signOut();
