@@ -24,7 +24,9 @@ test('compiled Flutter app reaches the authentication screen', async ({ page }, 
     // Flutter Web paints on a canvas. Enable its accessibility DOM before
     // asking Playwright to locate the real user-facing login screen.
     const accessibility = page.getByRole('button', { name: 'Enable accessibility' });
-    if (await accessibility.count()) await accessibility.click();
+    // Flutter's semantics activator is intentionally positioned off-screen.
+    // Dispatch the activation event without requiring a visible pointer target.
+    if (await accessibility.count()) await accessibility.dispatchEvent('click');
 
     await expect(page.getByText('Mock Sign In', { exact: true }), 'login UI must be reachable').toBeVisible({ timeout: 10_000 });
     expect(pageErrors, 'uncaught browser exceptions are not an acceptable startup').toEqual([]);
