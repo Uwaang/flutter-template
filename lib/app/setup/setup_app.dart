@@ -20,7 +20,14 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:freerasp/freerasp.dart';
 import 'package:window_manager/window_manager.dart';
 
+const bool _qaStartupTrace = bool.fromEnvironment('QA_STARTUP_TRACE');
+
+void _qaStartupStage(String stage) {
+  if (_qaStartupTrace) debugPrint('[QA_STARTUP] $stage');
+}
+
 Future<void> setupApp({required Flavor flavor}) async {
+  _qaStartupStage('setup begin');
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   if (!kIsWeb) {
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -34,9 +41,11 @@ Future<void> setupApp({required Flavor flavor}) async {
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
+  _qaStartupStage('orientations done');
 
   // Configure Flavor
   await Configuration.setup(flavor: flavor);
+  _qaStartupStage('configuration done');
 
   // Load secrets from .env file and override with specific flavor file
   await dotenv.load(
@@ -47,9 +56,14 @@ Future<void> setupApp({required Flavor flavor}) async {
     },
   );
 
+  _qaStartupStage('dotenv done');
+
   // Setup Firebase
+  _qaStartupStage('firebase begin');
   await _setupFirebase(flavor: flavor);
+  _qaStartupStage('firebase done');
   await _setupFirebaseCrashlytics();
+  _qaStartupStage('crashlytics done');
   await _setupFirebaseRemoteConfig();
   await _setupFirebaseMessaging();
   await _setupLocalNotificationsService();
@@ -59,7 +73,9 @@ Future<void> setupApp({required Flavor flavor}) async {
   // users from reaching even the mock sign-in screen.
 
   // Setup FreeRASP Security
+  _qaStartupStage('rasp begin');
   await _setupRASP(flavor: flavor);
+  _qaStartupStage('rasp done');
 
   // Web support
   await _setupWebPlatform(flavor: flavor);
@@ -72,10 +88,13 @@ Future<void> setupApp({required Flavor flavor}) async {
   PaintingBinding.instance.imageCache.maximumSizeBytes = 200 << 20; // Equals to 200 MB of cache
 
   // Load Theme Mode from DB before starting app
+  _qaStartupStage('theme begin');
   await providerContainer.read(themeModeProvider.future);
+  _qaStartupStage('theme done');
 
   // Setup reactive Edge-to-Edge support across all platforms
   await CustomSystemBarsTheme.setupSystemBarsTheme(providerContainer: providerContainer);
+  _qaStartupStage('setup done');
 }
 
 // TODO(strv): Support it or remove it!
@@ -203,7 +222,10 @@ Future<void> _setupRASP({required Flavor flavor}) async {
 
   //  Attach listener and Start freeRASP
   await Talsec.instance.attachListener(callback);
+  _qaStartupStage('rasp listener attached');
+  _qaStartupStage('rasp start begin');
   await Talsec.instance.start(config);
+  _qaStartupStage('rasp start done');
 }
 
 Future<void> _setupWebPlatform({required Flavor flavor}) async {
