@@ -50,22 +50,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
-          script: |
-            set +e
-            apk=$(find ci-apk -type f -name '*.apk' | head -n 1)
-            adb install -r "$apk"
-            install_code=$?
-            if [ "$install_code" -eq 0 ]; then
-              maestro test qa/mobile/startup.yaml
-              result=$?
-            else
-              result=$install_code
-            fi
-            mkdir -p qa/mobile/evidence
-            adb exec-out screencap -p > qa/mobile/evidence/screenshot.png || true
-            adb logcat -d -v time | grep -E 'Flutter|flutter|Firebase|AndroidRuntime|FATAL EXCEPTION|FreeRASP|Talsec|SignIn' | tail -n 500 > qa/mobile/evidence/logcat-excerpt.txt || true
-            echo "result=$result" > qa/mobile/evidence/outcome.txt
-            exit "$result"
+          script: bash qa/mobile/run-once.sh
       - name: Upload diagnostic evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
