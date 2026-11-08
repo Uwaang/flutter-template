@@ -18,7 +18,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:freerasp/freerasp.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:window_manager/window_manager.dart';
 
 Future<void> setupApp({required Flavor flavor}) async {
@@ -56,9 +55,9 @@ Future<void> setupApp({required Flavor flavor}) async {
   await _setupFirebaseMessaging();
   await _setupLocalNotificationsService();
 
-  // Setup Google Sign In
-  debugPrint('STARTUP_STAGE: google_sign_in');
-  await GoogleSignIn.instance.initialize();
+  // Google Sign-In is initialized when the user requests Google authentication.
+  // Requiring an OAuth client ID at app startup prevents unauthenticated web
+  // users from reaching even the mock sign-in screen.
 
   // Setup FreeRASP Security
   debugPrint('STARTUP_STAGE: freerasp');
