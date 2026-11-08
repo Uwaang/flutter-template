@@ -15,15 +15,24 @@ result=$?
 if [[ "$result" -eq 0 ]]; then
   adb shell am force-stop com.strv.flutter.template
   adb shell monkey -p com.strv.flutter.template -c android.intent.category.LAUNCHER 1
-  sleep 15
-  adb shell uiautomator dump /sdcard/qa-window.xml
-  adb exec-out cat /sdcard/qa-window.xml > "$evidence/ui-hierarchy.xml"
-  if grep -q 'Mock Sign In' "$evidence/ui-hierarchy.xml"; then
-    echo "PASS: Mock Sign In visible in Android UI hierarchy"
-    result=0
-  else
-    echo "FAIL: Mock Sign In not present in Android UI hierarchy"
-    result=1
+
+  # Firebase Remote Config allows 60 seconds for the initial fetch.
+  # Poll the real UI rather than failing a healthy startup at 15 seconds.
+  result=1
+  for attempt in $(seq 1 10); do
+    sleep 10
+    elapsed=$((attempt * 10))
+    adb shell uiautomator dump /sdcard/qa-window.xml
+    adb exec-out cat /sdcard/qa-window.xml > "$evidence/ui-hierarchy.xml"
+    if grep -q 'Mock Sign In' "$evidence/ui-hierarchy.xml"; then
+      echo "PASS: Mock Sign In visible in Android UI hierarchy (after >= ${elapsed}s)"
+      result=0
+      break
+    fi
+    echo "Not yet visible after >= ${elapsed}s; continuing startup check"
+  done
+  if [[ "$result" -ne 0 ]]; then
+    echo "FAIL: Mock Sign In not present after >= 100s in Android UI hierarchy"
   fi
 fi
 
