@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/app/configuration/configuration.dart';
 import 'package:flutter_app/app/setup/flavor.dart';
-import 'package:flutter_app/core/analytics/crashlytics_manager.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 /// Wrapper over the Talker package.
@@ -29,7 +28,6 @@ class Flogger {
   };
 
   static void v(dynamic message, {Object? exception, StackTrace? stackTrace, DateTime? time}) {
-    CrashlyticsManager.logMessage(message);
     talker.logCustom(
       _CustomLog(
         message.toString(),
@@ -42,7 +40,6 @@ class Flogger {
   }
 
   static void d(dynamic message, {Object? exception, StackTrace? stackTrace, DateTime? time}) {
-    CrashlyticsManager.logMessage(message);
     talker.logCustom(
       _CustomLog(
         message.toString(),
@@ -55,7 +52,6 @@ class Flogger {
   }
 
   static void i(dynamic message, {Object? exception, StackTrace? stackTrace, DateTime? time}) {
-    CrashlyticsManager.logMessage(message);
     talker.logCustom(
       _CustomLog(
         message.toString(),
@@ -68,7 +64,6 @@ class Flogger {
   }
 
   static void w(dynamic message, {Object? exception, StackTrace? stackTrace, DateTime? time}) {
-    CrashlyticsManager.logNonCritical(exception, stack: stackTrace, message: message.toString());
     talker.logCustom(
       _CustomLog(
         message.toString(),
@@ -81,7 +76,6 @@ class Flogger {
   }
 
   static void e(dynamic message, {Object? exception, StackTrace? stackTrace, DateTime? time}) {
-    CrashlyticsManager.logNonCritical(exception, stack: stackTrace, message: message.toString());
     talker.logCustom(
       _CustomLog(
         message.toString(),
