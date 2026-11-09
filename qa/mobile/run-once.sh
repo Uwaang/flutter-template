@@ -26,6 +26,14 @@ adb exec-out cat /sdcard/qa-home.xml > "$evidence/home-before.xml" || true
 adb exec-out screencap -p > "$evidence/home-before.png" || true
 adb shell dumpsys activity activities > "$evidence/activity-before.txt" || true
 
+# Fresh Google APIs emulators can report boot_completed before the launcher
+# finishes drawing. Recheck the HOME UI once, before installing our APK.
+sleep 15
+adb shell uiautomator dump /sdcard/qa-home-settled.xml || true
+adb exec-out cat /sdcard/qa-home-settled.xml > "$evidence/home-settled.xml" || true
+adb exec-out screencap -p > "$evidence/home-settled.png" || true
+adb shell dumpsys activity activities > "$evidence/activity-home-settled.txt" || true
+
 adb install -r "$apk"
 result=$?
 if [[ "$result" -eq 0 ]]; then
