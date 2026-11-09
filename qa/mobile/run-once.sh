@@ -9,15 +9,30 @@ if [[ -z "$apk" ]]; then
   exit 2
 fi
 
+# Inspect the emulator *before* installing the app. The previous run showed
+# "Pixel Launcher isn't responding", so distinguish host/emulator health from
+# the app's own startup state without disabling any app security checks.
 set +e
+{
+  echo "sys.boot_completed: $(adb shell getprop sys.boot_completed)"
+  echo "Android SDK: $(adb shell getprop ro.build.version.sdk)"
+  echo "Free memory (kB):"
+  adb shell cat /proc/meminfo | head -n 6
+} > "$evidence/emulator-before.txt" 2>&1
+adb shell input keyevent KEYCODE_HOME
+sleep 3
+adb shell uiautomator dump /sdcard/qa-home.xml
+adb exec-out cat /sdcard/qa-home.xml > "$evidence/home-before.xml" || true
+adb exec-out screencap -p > "$evidence/home-before.png" || true
+adb shell dumpsys activity activities > "$evidence/activity-before.txt" || true
+
 adb install -r "$apk"
 result=$?
 if [[ "$result" -eq 0 ]]; then
   adb shell am force-stop com.strv.flutter.template
   adb shell monkey -p com.strv.flutter.template -c android.intent.category.LAUNCHER 1
 
-  # Firebase Remote Config allows 60 seconds for the initial fetch.
-  # Poll the real UI rather than failing a healthy startup at 15 seconds.
+  # Keep the previous 100-second window to make consecutive runs comparable.
   result=1
   for attempt in $(seq 1 10); do
     sleep 10
@@ -37,6 +52,15 @@ if [[ "$result" -eq 0 ]]; then
 fi
 
 adb exec-out screencap -p > "$evidence/screenshot.png" || true
-adb logcat -d -v time | grep -E 'Flutter|flutter|Firebase|AndroidRuntime|FATAL EXCEPTION|FreeRASP|Talsec|SignIn' | tail -n 500 > "$evidence/logcat-excerpt.txt" || true
+adb shell dumpsys activity activities > "$evidence/activity-after.txt" || true
+adb shell dumpsys meminfo com.strv.flutter.template > "$evidence/app-memory.txt" || true
+adb shell dumpsys meminfo com.google.android.apps.nexuslauncher > "$evidence/launcher-memory.txt" || true
+adb shell pidof com.strv.flutter.template > "$evidence/app-pid.txt" || true
+
+# Preserve context as well as the targeted trace, including potential Android
+# system_server / launcher ANR messages omitted by the previous Flutter-only filter.
+adb logcat -d -v time | tail -n 5000 > "$evidence/logcat-tail.txt" || true
+adb logcat -d -v time | grep -Ei 'QA_STARTUP|Flutter|Firebase|AndroidRuntime|FATAL EXCEPTION|FreeRASP|Talsec|SignIn|ANR|not responding|lmkd|lowmemorykiller|ActivityManager|ActivityTaskManager' | tail -n 1200 > "$evidence/logcat-excerpt.txt" || true
+
 echo "result=$result" | tee "$evidence/outcome.txt"
 exit "$result"
