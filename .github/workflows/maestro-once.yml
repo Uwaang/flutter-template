@@ -1,4 +1,4 @@
-name: One-time Android startup stage diagnostics (SCRUM-435)
+name: One-time FreeRASP vs emulator health diagnostic (SCRUM-435)
 
 on:
   push:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   mobile-startup:
-    name: Trace Android startup (Firebase / RASP / landing)
+    name: Trace FreeRASP attach and emulator health
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
@@ -62,7 +62,7 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Run Android emulator startup check and collect trace
+      - name: Verify preflight emulator health and trace Android startup
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -74,7 +74,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qa-android-startup-stage-evidence
+          name: qa-android-rasp-emulator-health-evidence
           path: qa/mobile/evidence/
           if-no-files-found: warn
           retention-days: 7
