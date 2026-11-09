@@ -2,6 +2,9 @@ import 'dart:io';
 
 const _ciEnv = '''
 API_HOST_URL=https://example.invalid
+SUPABASE_URL=
+SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_OAUTH_REDIRECT_URL=
 APP_ID=com.example.flutter_template
 APPLE_ID=000000000
 APPLE_TEAM_ID=CI00000000

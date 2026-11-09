@@ -14,6 +14,7 @@ import 'package:flutter_app/app/theme/custom_system_bars_theme.dart';
 import 'package:flutter_app/common/provider/theme_mode_provider.dart';
 import 'package:flutter_app/core/analytics/crashlytics_manager.dart';
 import 'package:flutter_app/core/flogger.dart';
+import 'package:flutter_app/core/supabase/supabase_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -46,6 +47,10 @@ Future<void> setupApp({required Flavor flavor}) async {
       Flavor.production => ['.env-production'],
     },
   );
+
+  // Supabase session storage is initialized before the legacy Firebase services.
+  // Missing configuration is allowed only for synthetic/manual mock template UI.
+  await SupabaseService.initialize();
 
   // Setup Firebase
   await _setupFirebase(flavor: flavor);
