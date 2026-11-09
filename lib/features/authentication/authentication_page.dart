@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/app/navigation/app_router.dart';
 import 'package:flutter_app/common/component/custom_app_bar.dart';
 import 'package:flutter_app/core/supabase/supabase_service.dart';
+import 'package:flutter_app/core/flogger.dart';
 import 'package:flutter_app/features/authentication/authentication_event.dart';
 import 'package:flutter_app/features/authentication/authentication_page_content.dart';
 import 'package:flutter_app/features/authentication/authentication_state.dart';
@@ -26,12 +27,19 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
   void initState() {
     super.initState();
     if (SupabaseService.isConfigured) {
-      _authStateSubscription = SupabaseService.client.auth.onAuthStateChange.listen((state) {
-        if (!mounted) return;
-        if (state.event == AuthChangeEvent.signedIn || state.event == AuthChangeEvent.tokenRefreshed) {
-          ref.read(authenticationStateProvider.notifier).completeSupabaseSignIn();
-        }
-      });
+      _authStateSubscription = SupabaseService.client.auth.onAuthStateChange.listen(
+        (state) {
+          if (!mounted) return;
+          if (state.event == AuthChangeEvent.signedIn && state.session != null) {
+            ref.read(authenticationStateProvider.notifier).completeSupabaseSignIn();
+          }
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          // Auth refresh failures (e.g. offline) surface as stream errors.
+          // They should be reported, never crash the app's event zone.
+          Flogger.e('[Authentication] Auth state stream error: $error', exception: error, stackTrace: stackTrace);
+        },
+      );
     }
   }
 
