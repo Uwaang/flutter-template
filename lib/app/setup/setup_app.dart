@@ -181,6 +181,7 @@ Future<void> _setupRASP({required Flavor flavor}) async {
   // Only Mobile platforms are supported!
   if (!AppPlatform.isMobile) return;
 
+  _qaStartupStage('rasp config begin');
   final config = TalsecConfig(
     isProd: flavor == Flavor.production && !kDebugMode,
     watcherMail: 'michal.urbanek@strv.com',
@@ -205,6 +206,8 @@ Future<void> _setupRASP({required Flavor flavor}) async {
     ),
   );
 
+  _qaStartupStage('rasp config done');
+
   // Setting up callbacks
   final callback = ThreatCallback(
     onAppIntegrity: () => CrashlyticsManager.logNonCritical('App integrity'),
@@ -220,7 +223,10 @@ Future<void> _setupRASP({required Flavor flavor}) async {
     onUnofficialStore: () => CrashlyticsManager.logNonCritical('Unofficial store'),
   );
 
+  _qaStartupStage('rasp callbacks done');
+
   //  Attach listener and Start freeRASP
+  _qaStartupStage('rasp attach begin');
   await Talsec.instance.attachListener(callback);
   _qaStartupStage('rasp listener attached');
   _qaStartupStage('rasp start begin');
