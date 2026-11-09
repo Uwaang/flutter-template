@@ -2,7 +2,7 @@ name: Android Runtime Smoke PoC (SCRUM-435)
 
 on:
   push:
-    branches: [qa/scrum-430-minimal-smoke]
+    branches: [qa/scrum-430-minimal-smoke, feat/scrum-437-supabase-first]
     paths:
       - .github/workflows/android-runtime-smoke.yml
       - qa/mobile/prepare_ci_env.py
