@@ -30,6 +30,41 @@ for attempt in $(seq 1 10); do
     found=1
     break
   fi
+
+  # An Android *system* ANR dialog can cover a correctly rendered Flutter UI.
+  # Only dismiss the known Pixel Launcher dialog; never dismiss app failures.
+  if grep -q "Pixel Launcher isn" "$evidence/ui-hierarchy.xml"; then
+    coords="$(python3 - "$evidence/ui-hierarchy.xml" <<'PY'
+import re
+import sys
+import xml.etree.ElementTree as ET
+
+try:
+    root = ET.parse(sys.argv[1]).getroot()
+except (ET.ParseError, OSError):
+    sys.exit(0)
+
+nodes = list(root.iter("node"))
+if not any(n.get("text") == "Pixel Launcher isn't responding" for n in nodes):
+    sys.exit(0)
+for node in nodes:
+    if node.get("resource-id") == "android:id/aerr_close" and node.get("text") == "Close app":
+        match = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", node.get("bounds", ""))
+        if match:
+            x1, y1, x2, y2 = map(int, match.groups())
+            print(f"{(x1 + x2) // 2} {(y1 + y2) // 2}")
+        break
+PY
+)"
+    if [[ "$coords" =~ ^[0-9]+\ [0-9]+$ ]]; then
+      echo "WARN: Pixel Launcher ANR covered app UI; closing *launcher* dialog once"
+      adb exec-out screencap -p > "$evidence/launcher-anr.png" || true
+      read -r tap_x tap_y <<< "$coords"
+      adb shell input tap "$tap_x" "$tap_y" || true
+      sleep 2
+      adb shell am start -n com.strv.flutter.template/.MainActivity || true
+    fi
+  fi
 done
 
 adb exec-out screencap -p > "$evidence/screenshot.png" || true
