@@ -3,9 +3,7 @@ name: Generate Supabase migration lockfile (SCRUM-437 one-time)
 on:
   push:
     branches: [feat/scrum-437-supabase-first]
-    paths:
-      - pubspec.yaml
-      - .github/workflows/scrum-437-lock-once.yml
+  workflow_dispatch:
 
 permissions:
   contents: read
