@@ -214,10 +214,8 @@
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
-				59C5CF67298AEB4C00ECB1CC /* Copy google service info plist */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
-				79D6AB152D55246700956A4F /* Crashlytics */,
 				3849EEE320E0362DB50845C2 /* [CP] Embed Pods Frameworks */,
 				84F82AF3D9B0F5CBD4E27175 /* [CP] Copy Pods Resources */,
 			);
@@ -345,47 +343,8 @@
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
 		};
-		59C5CF67298AEB4C00ECB1CC /* Copy google service info plist */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Copy google service info plist";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-				shellScript = "# Get a reference to the destination location for the GoogleService-Info.plist\n# This is the default location where Firebase init code expects to find GoogleService-Info.plist file.\nPLIST_DESTINATION=${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app\n\necho \"ℹ️ Plist destination ${PLIST_DESTINATION}\"\n\necho \"ℹ️ Configuration ${CONFIGURATION}\"\n\necho \"ℹ️ Project dir ${PROJECT_DIR}\"\n\n# We have named our Build Configurations as Debug-dev, Debug-prod etc.\n# Here, dev and prod are the scheme names. This kind of naming is required by Flutter for flavors to work.\n# We are using the $CONFIGURATION variable available in the Xcode build environment to get the build configuration.\nif [ \"${CONFIGURATION}\" == \"Debug-production\" ] || [ \"${CONFIGURATION}\" == \"Profile-production\" ] || [ \"${CONFIGURATION}\" == \"Release-production\" ]; then\n    cp \"${PROJECT_DIR}/config/production/GoogleService-Info.plist\" \"${PLIST_DESTINATION}/GoogleService-Info.plist\"\n    echo \"✅ Production plist copied\"\n    exit 0\nelif [ \"${CONFIGURATION}\" == \"Debug-develop\" ] || [ \"${CONFIGURATION}\" == \"Profile-develop\" ] || [ \"${CONFIGURATION}\" == \"Release-develop\" ]; then\n    cp \"${PROJECT_DIR}/config/develop/GoogleService-Info.plist\" \"${PLIST_DESTINATION}/GoogleService-Info.plist\"\n    echo \"✅ Development plist copied\"\n    exit 0\nelif [ \"${CONFIGURATION}\" == \"Debug-staging\" ] || [ \"${CONFIGURATION}\" == \"Profile-staging\" ] || [ \"${CONFIGURATION}\" == \"Release-staging\" ]; then\n    cp \"${PROJECT_DIR}/config/staging/GoogleService-Info.plist\" \"${PLIST_DESTINATION}/GoogleService-Info.plist\"\n    echo \"✅ Staging plist copied\"\n    exit 0\nelse\n    echo \"💔 Info plist was not copied\"\n    exit 1\nfi\n";
-		};
-		79D6AB152D55246700956A4F /* Crashlytics */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
-				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
-			);
-			name = Crashlytics;
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-				shellScript = "if [ \"${FLUTTER_TEMPLATE_COMPILE_ONLY:-0}\" = \"1\" ]; then\n  echo \"Compile-only CI: skipping Crashlytics symbol upload\"\n  exit 0\nfi\n# This script phase must be the last one.\n\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n\n# The step above is the only requirement Crashlytics needs for uploading dSYM files,\n# but since we have multiple projects, we run upload-symbols manually to guarantee\n# the dSYMs are uploaded for the active environment.\necho \"ℹ️ Running Crashlytics script for ${CONFIGURATION}\";\n\nif [ \"${CONFIGURATION}\" == \"Debug-production\" ] || [ \"${CONFIGURATION}\" == \"Profile-production\" ] || [ \"${CONFIGURATION}\" == \"Release-production\" ]; then\n    \"${PODS_ROOT}/FirebaseCrashlytics/upload-symbols\" \\\n    -gsp \"${PROJECT_DIR}/config/production/GoogleService-Info.plist\" \\\n    -p ios \"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}\"\n    echo \"✅ Production symbols uploaded\"\n    exit 0\nelif [ \"${CONFIGURATION}\" == \"Debug-develop\" ] || [ \"${CONFIGURATION}\" == \"Profile-develop\" ] || [ \"${CONFIGURATION}\" == \"Release-develop\" ]; then\n    \"${PODS_ROOT}/FirebaseCrashlytics/upload-symbols\" \\\n    -gsp \"${PROJECT_DIR}/config/develop/GoogleService-Info.plist\" \\\n    -p ios \"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}\"\n    echo \"✅ Develop symbols uploaded\"\n    exit 0\nelif [ \"${CONFIGURATION}\" == \"Debug-staging\" ] || [ \"${CONFIGURATION}\" == \"Profile-staging\" ] || [ \"${CONFIGURATION}\" == \"Release-staging\" ]; then\n    \"${PODS_ROOT}/FirebaseCrashlytics/upload-symbols\" \\\n    -gsp \"${PROJECT_DIR}/config/staging/GoogleService-Info.plist\" \\\n    -p ios \"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}\"\n    echo \"✅ Staging symbols uploaded\"\n    exit 0\nelse\n    echo \"💔 Symbols were not uploaded\"\n    exit 1\nfi\n";
-		};
+
+
 		84F82AF3D9B0F5CBD4E27175 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

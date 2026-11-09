@@ -2,9 +2,6 @@ plugins {
     id "com.android.application"
     id "dev.flutter.flutter-gradle-plugin"
 
-    // For Firebase App Distribution
-    id "com.google.firebase.appdistribution"
-    id "com.google.firebase.crashlytics"
 }
 
 def localProperties = new Properties()
@@ -112,8 +109,6 @@ android {
     }
 
     buildTypes {
-        // We are using the same bundle ID for debug and profile, so that they
-        // can point to same firebase project.
         debug {
             signingConfig signingConfigs.debug
 
@@ -122,13 +117,6 @@ android {
         }
         profile {
             signingConfig signingConfigs.debug
-
-            if (System.getenv('FLUTTER_TEMPLATE_COMPILE_ONLY') == '1') {
-                firebaseCrashlytics {
-                    mappingFileUploadEnabled = false
-                    nativeSymbolUploadEnabled = false
-                }
-            }
 
             // Profile builds are debuggable. Flutter 3.44 copies this setting
             // into Android plugin library profile variants, and minifying those
@@ -147,27 +135,11 @@ android {
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
            
-            // TODO(strv): Remove or change to true, once Firebase is set-up correctly
-            firebaseCrashlytics {
-                mappingFileUploadEnabled = false
-                unstrippedNativeLibsDir file("build/app/intermediates/merged_native_libs/productionRelease/out/lib")
-            }
-
             ndk {
                 debugSymbolLevel 'FULL'
             }
 
-            firebaseAppDistribution {
-                artifactType="APK"
-                releaseNotesFile="../release_notes.txt"
-                serviceCredentialsFile="firebase_app_distribution_service_account.json"
-                groups="developers"
-            }
 
-            firebaseCrashlytics {
-                nativeSymbolUploadEnabled true
-                mappingFileUploadEnabled true
-            }
         }
     }
 
@@ -186,5 +158,3 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
 
-// This section must appear at the bottom of the file
-apply plugin: 'com.google.gms.google-services'

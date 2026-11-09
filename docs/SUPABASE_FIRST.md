@@ -53,3 +53,20 @@ Baseline: GitHub Draft PR #1 and Draft PR #2. Work on isolated
 `feat/scrum-437-supabase-first` branched from PR #2, then review GitLab
 canonical synchronization and merge order separately. Do not merge without
 the SCRUM-437 acceptance checklist.
+
+## Native OAuth callback template
+
+For Android, iOS and macOS, the template registers the URI scheme
+`fluttertemplate` with host `login-callback`. Configure
+`SUPABASE_OAUTH_REDIRECT_URL=fluttertemplate://login-callback` in real
+local flavor environment files and add that exact URL to your Supabase Auth
+redirect allow list. A real Supabase project plus Google/Apple provider
+credentials are required for functional OAuth E2E validation.
+
+Windows/Linux may require platform-specific protocol handler registration.
+These desktop OAuth callbacks have **not** been proven end-to-end. Keep the
+same UseCase API, but do not claim authenticated desktop runtime support yet.
+
+Supabase Auth anonymous users are *authenticated* principals. If later
+introducing database tables, RLS must distinguish `is_anonymous`, but
+**this task creates no database tables or CRUD methods**.
