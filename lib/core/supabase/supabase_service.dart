@@ -26,7 +26,7 @@ class SupabaseService {
     }
     final parsed = Uri.tryParse(url);
     if (parsed == null || parsed.scheme != 'https' || parsed.host.isEmpty) {
-      throw FormatException('SUPABASE_URL must be an HTTPS URL.');
+      throw const FormatException('SUPABASE_URL must be an HTTPS URL.');
     }
 
     await Supabase.initialize(url: url, publishableKey: publishableKey);

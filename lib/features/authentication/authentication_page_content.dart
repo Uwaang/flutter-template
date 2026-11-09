@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/common/component/custom_button/custom_button_primary.dart';
 import 'package:flutter_app/common/extension/async_value.dart';
-import 'package:flutter_app/features/authentication/authentication_state.dart';
 import 'package:flutter_app/core/supabase/supabase_service.dart';
+import 'package:flutter_app/features/authentication/authentication_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthenticationPageContent extends ConsumerWidget {

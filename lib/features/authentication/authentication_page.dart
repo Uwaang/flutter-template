@@ -30,7 +30,10 @@ class _AuthenticationPageState extends ConsumerState<AuthenticationPage> {
       _authStateSubscription = SupabaseService.client.auth.onAuthStateChange.listen(
         (state) {
           if (!mounted) return;
-          if (state.event == AuthChangeEvent.signedIn && state.session != null) {
+          // A restored expired session may become valid after background refresh.
+          if ((state.event == AuthChangeEvent.signedIn || state.event == AuthChangeEvent.tokenRefreshed) &&
+              state.session != null &&
+              !state.session!.isExpired) {
             ref.read(authenticationStateProvider.notifier).completeSupabaseSignIn();
           }
         },

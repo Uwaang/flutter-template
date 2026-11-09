@@ -51,7 +51,7 @@ sealed class CustomException with _$CustomException implements Exception {
       }
       return CustomException.withMessage(message: error.message);
     } else if (error is StateError) {
-      return CustomException.withMessage(message: error.message.toString());
+      return CustomException.withMessage(message: error.message);
     } else {
       return const CustomException.general();
     }
