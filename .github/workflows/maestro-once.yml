@@ -38,18 +38,52 @@ jobs:
       - run: python3 tool/prepare_native_ci.py android
       - run: flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
       - run: dart run build_runner build --delete-conflicting-outputs
-      - name: Pin official direct Gradle download and verify distribution
+      - name: Download and verify pinned Gradle distribution before build
+        shell: bash
         run: |
+          set -euo pipefail
+          zip="$RUNNER_TEMP/gradle-8.14.3-bin.zip"
+          expected="bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531"
+
+          # These official URLs may redirect to GitHub Releases, which has
+          # intermittently returned HTTP 504. Retry downloads rather than
+          # relying on a single silent Java Wrapper redirect.
+          downloaded=0
+          for url in \
+            "https://downloads.gradle.org/distributions/gradle-8.14.3-bin.zip" \
+            "https://services.gradle.org/distributions/gradle-8.14.3-bin.zip"; do
+            if curl --fail --location --show-error --silent \
+              --retry 2 --retry-delay 5 --retry-all-errors \
+              --connect-timeout 20 --max-time 120 \
+              --output "$zip" "$url"; then
+              downloaded=1
+              break
+            fi
+            echo "::warning::Gradle download failed from $url; trying another official endpoint"
+            rm -f "$zip"
+          done
+          if [[ "$downloaded" -ne 1 ]]; then
+            echo "::error::Could not download Gradle 8.14.3 from official hosts"
+            exit 1
+          fi
+          printf '%s  %s\n' "$expected" "$zip" | sha256sum --check
+
+          # QA runner only: point Wrapper to the *verified local archive*.
+          # Keep the repository's Gradle version and file unchanged.
           python3 - <<'PY'
           from pathlib import Path
+          import os
           path = Path('android/gradle/wrapper/gradle-wrapper.properties')
-          data = path.read_text()
+          source = path.read_text()
           old = r'distributionUrl=https\://services.gradle.org/distributions/gradle-8.14.3-bin.zip'
-          new = r'distributionUrl=https\://downloads.gradle.org/distributions/gradle-8.14.3-bin.zip'
-          if data.count(old) != 1 or 'distributionSha256Sum=' in data:
+          if source.count(old) != 1 or 'distributionSha256Sum=' in source:
               raise SystemExit('Unexpected Gradle wrapper properties; refusing to change')
-          path.write_text(data.replace(old, new).rstrip() + '\n'
+          zip_path = (Path(os.environ['RUNNER_TEMP']) / 'gradle-8.14.3-bin.zip').resolve()
+          uri = zip_path.as_uri().replace(':', r'\:')
+          replacement = 'distributionUrl=' + uri
+          path.write_text(source.replace(old, replacement).rstrip() + '\n'
               + 'distributionSha256Sum=bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531\n')
+          print('Gradle Wrapper configured to use locally verified Gradle 8.14.3 ZIP')
           PY
       - name: Build synthetic APK with QA-only startup trace
         run: |
