@@ -1,33 +1,16 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_app/common/provider/current_user_state.dart';
 import 'package:flutter_app/core/flogger.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_app/core/supabase/supabase_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'sign_out_use_case.g.dart';
 
 @riverpod
 Future<void> signOutUseCase(Ref ref) async {
-  final currentUserStateNotifier = ref.read(currentUserStateProvider.notifier);
-  Flogger.d('[Authentication] Going to sign out current user');
-
-  // Title: Clear current user state
-  await currentUserStateNotifier.updateCurrentUser(null);
-
-  // Title: Try to sign out from Google - if any
-  try {
-    await GoogleSignIn.instance.signOut();
-  } on MissingPluginException catch (error) {
-    Flogger.e('[Authentication] Sign Out MissingPluginException $error');
-  } on PlatformException catch (error) {
-    Flogger.e('[Authentication] Sign Out PlatformException $error');
-  } on Exception catch (error) {
-    Flogger.e('[Authentication] Sign Out Exception $error');
+  Flogger.d('[Authentication] Signing out');
+  if (SupabaseService.isConfigured) {
+    await SupabaseService.client.auth.signOut();
   }
-
-  // Title: Sign out from Firebase
-  await FirebaseAuth.instance.signOut();
-
-  Flogger.d('[Authentication] Sign out complete');
+  // The local mock profile is also removed if Supabase is not configured.
+  await ref.read(currentUserStateProvider.notifier).updateCurrentUser(null);
 }
