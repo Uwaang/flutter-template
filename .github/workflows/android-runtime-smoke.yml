@@ -110,6 +110,14 @@ jobs:
           arch: x86_64
           profile: pixel_6
           script: bash qa/mobile/run_once.sh
+      - name: Upload verified debug-signed APK for manual device test
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-android-profile-apk-manual-device-test
+          path: build/app/outputs/flutter-apk/app-production-profile.apk
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload screen and failure diagnostics
         if: always()
         uses: actions/upload-artifact@v4
