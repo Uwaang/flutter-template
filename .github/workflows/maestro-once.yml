@@ -1,4 +1,4 @@
-name: One-time Android emulator health baseline (SCRUM-435)
+name: One-time traced Android startup + Gradle cache (SCRUM-435)
 
 on:
   push:
@@ -9,40 +9,110 @@ on:
 
 permissions:
   contents: read
-  actions: read
 
 concurrency:
   group: android-qa-once
   cancel-in-progress: true
 
 jobs:
-  emulator-baseline:
-    name: Inspect emulator before and after known APK
+  mobile-startup:
+    name: Trace FreeRASP on settled emulator
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 45
+    env:
+      FLUTTER_TEMPLATE_COMPILE_ONLY: '1'
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Reuse the previously compiled APK (no Flutter / Gradle build)
-        uses: actions/download-artifact@v4
+      - uses: actions/setup-java@v4
         with:
-          name: qa-fixed-android-profile-apk-synthetic-config
-          path: ci-apk
-          run-id: 42497833782
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Verify known APK checksum and single-file fixture
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: flutter pub get
+      - run: dart run tool/create_ci_env.dart
+      - run: python3 tool/prepare_native_ci.py android
+      - run: flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - name: Restore checksum-pinned Gradle distribution ZIP
+        id: gradle-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/gradle-8.14.3-bin.zip
+          key: gradle-dist-8.14.3-bin-${{ runner.os }}-bd71102213493060
+      - name: Fetch pinned Gradle 8.14.3 distribution (cache miss only)
+        if: steps.gradle-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
-          test "$(find ci-apk -maxdepth 1 -name '*.apk' -type f | wc -l)" -eq 1
-          echo '8fca53efd8a5b9f2c061b884914eec65bbd97692e0456d7e04a836ffac9abd2c  ci-apk/app-production-profile.apk' | sha256sum --check
+          zip="$RUNNER_TEMP/gradle-8.14.3-bin.zip"
+          rm -f "$zip"
+          # Official endpoints have repeatedly redirected to GitHub Releases HTTP 504.
+          # The third endpoint is a public mirror. The next step independently
+          # verifies every byte against the checksum published by Gradle.
+          downloaded=0
+          for url in \
+            "https://downloads.gradle.org/distributions/gradle-8.14.3-bin.zip" \
+            "https://services.gradle.org/distributions/gradle-8.14.3-bin.zip" \
+            "https://mirrors.huaweicloud.com/gradle/gradle-8.14.3-bin.zip"; do
+            rm -f "$zip"
+            if curl --fail --location --show-error --silent \
+              --retry 1 --retry-delay 5 --retry-all-errors \
+              --connect-timeout 20 --max-time 150 \
+              --output "$zip" "$url"; then
+              downloaded=1
+              echo "Gradle ZIP downloaded from: $url"
+              break
+            fi
+            echo "::warning::Unable to fetch pinned Gradle ZIP from $url"
+          done
+          if [[ "$downloaded" -ne 1 ]]; then
+            echo "::error::Gradle 8.14.3 ZIP unavailable from all configured endpoints"
+            exit 1
+          fi
+      - name: Verify Gradle ZIP and redirect local wrapper for this run only
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip="$RUNNER_TEMP/gradle-8.14.3-bin.zip"
+          echo 'bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531  '${zip} | sha256sum --check
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          path = Path('android/gradle/wrapper/gradle-wrapper.properties')
+          source = path.read_text()
+          old = r'distributionUrl=https\://services.gradle.org/distributions/gradle-8.14.3-bin.zip'
+          if source.count(old) != 1 or 'distributionSha256Sum=' in source:
+              raise SystemExit('Unexpected Gradle wrapper properties; refusing to change')
+          zip_path = (Path(os.environ['RUNNER_TEMP']) / 'gradle-8.14.3-bin.zip').resolve()
+          uri = zip_path.as_uri().replace(':', r'\:')
+          path.write_text(source.replace(old, 'distributionUrl=' + uri).rstrip() + '\n'
+              + 'distributionSha256Sum=bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531\n')
+          print('QA runner configured to use SHA-256 verified Gradle 8.14.3')
+          PY
+      - name: Cache verified Gradle ZIP (future runs)
+        if: steps.gradle-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/gradle-8.14.3-bin.zip
+          key: gradle-dist-8.14.3-bin-${{ runner.os }}-bd71102213493060
+      - name: Build synthetic APK with QA-only startup trace
+        run: |
+          set -euo pipefail
+          flutter build apk --profile -t lib/main_production.dart --flavor production --dart-define=QA_STARTUP_TRACE=true
+          mkdir -p ci-apk
+          cp build/app/outputs/flutter-apk/app-production-profile.apk ci-apk/
+          sha256sum ci-apk/*.apk
       - name: Enable KVM for Android emulator
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Observe emulator preflight and known APK startup
+      - name: Run Android startup diagnostics with launcher preflight
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -50,11 +120,11 @@ jobs:
           arch: x86_64
           profile: pixel_6
           script: bash qa/mobile/run-once.sh
-      - name: Preserve emulator preflight, UI, and logcat diagnostics
+      - name: Upload emulator screenshots, logs, and startup stages
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qa-emulator-baseline-previous-apk
+          name: qa-android-traced-rasp-evidence
           path: qa/mobile/evidence/
           if-no-files-found: warn
           retention-days: 7
