@@ -3,9 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  firebase_auth
-  firebase_core
-  firebase_remote_config
+  app_links
   permission_handler_windows
   screen_retriever_windows
   share_plus
