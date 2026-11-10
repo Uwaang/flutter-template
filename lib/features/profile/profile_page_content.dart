@@ -9,7 +9,9 @@ import 'package:flutter_app/features/profile/profile_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProfilePageContent extends ConsumerWidget {
-  const ProfilePageContent({super.key});
+  const ProfilePageContent({required this.onSignedOut, super.key});
+
+  final Future<void> Function() onSignedOut;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,7 +20,7 @@ class ProfilePageContent extends ConsumerWidget {
     return state.mapContentState(
       provider: profileStateProvider,
       loading: (loading) => const _LoadingStateWidget(),
-      data: (data) => _DataStateWidget(data: data),
+      data: (data) => _DataStateWidget(data: data, onSignedOut: onSignedOut),
     );
   }
 }
@@ -52,9 +54,10 @@ class _LoadingStateWidget extends ConsumerWidget {
 }
 
 class _DataStateWidget extends ConsumerWidget {
-  const _DataStateWidget({required this.data});
+  const _DataStateWidget({required this.data, required this.onSignedOut});
 
   final ProfileState data;
+  final Future<void> Function() onSignedOut;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -70,7 +73,10 @@ class _DataStateWidget extends ConsumerWidget {
           CustomButtonPrimary(
             text: 'Sign out',
             isLoading: data.isSigningOut,
-            onPressed: () => ref.read(profileStateProvider.notifier).signOut(),
+            onPressed: () async {
+              final success = await ref.read(profileStateProvider.notifier).signOut();
+              if (success) await onSignedOut();
+            },
           ),
         ],
       ),

@@ -33,16 +33,18 @@ class ProfileStateNotifier extends _$ProfileStateNotifier with AutoDisposeStateH
     );
   }
 
-  Future<void> signOut() async {
+  Future<bool> signOut() async {
     setStateData(currentData?.copyWith(isSigningOut: true));
 
     try {
       await ref.read(signOutUseCaseProvider.future);
+      return true;
     } on Exception catch (error) {
       final customException = CustomException.fromErrorObject(error: error);
       Flogger.e('Error: $customException');
+      return false;
+    } finally {
+      setStateData(currentData?.copyWith(isSigningOut: false));
     }
-
-    setStateData(currentData?.copyWith(isSigningOut: false));
   }
 }
