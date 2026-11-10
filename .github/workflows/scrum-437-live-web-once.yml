@@ -4,7 +4,10 @@ name: SCRUM-437 live Web auth once
 on:
   push:
     branches: [feat/scrum-437-supabase-first]
-    paths: [.github/workflows/scrum-437-live-web-once.yml]
+    paths:
+      - .github/workflows/scrum-437-live-web-once.yml
+      - qa/web/live-auth.spec.js
+      - qa/web/spa_server.py
 permissions:
   contents: read
 jobs:

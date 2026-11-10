@@ -26,7 +26,7 @@ npx playwright install chromium
 npm test
 ```
 
-The Playwright config serves `../../build/web` on loopback port 8765.
+The Playwright config serves `../../build/web` on loopback port 8765 using a tiny SPA fallback server. Since the app uses Flutter's path URL strategy, refreshing `/root-route` (and other client routes) must return `index.html`; nonexistent files still return 404.
 The GitHub Actions job does the prerequisite Flutter preparation and runs
 both render modes independently. `qa/web/playwright-report` and
 `qa/web/test-results` capture traces and screenshots on failure.

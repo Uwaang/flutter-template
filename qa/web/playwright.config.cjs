@@ -1,8 +1,5 @@
-const path = require('node:path');
 const { defineConfig } = require('@playwright/test');
 
-const root = path.resolve(__dirname, '../..');
-const webOutput = path.join(root, 'build', 'web');
 
 module.exports = defineConfig({
   testDir: __dirname,
@@ -24,7 +21,7 @@ module.exports = defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: `python3 -m http.server 8765 --bind 127.0.0.1 --directory "${webOutput}"`,
+    command: 'python3 qa/web/spa_server.py',
     url: 'http://127.0.0.1:8765/index.html',
     reuseExistingServer: false,
     timeout: 30_000,
