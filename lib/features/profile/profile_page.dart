@@ -15,7 +15,7 @@ class ProfilePage extends ConsumerWidget {
     ref.listen(
       profileEventNotifierProvider,
       (_, next) => next?.when(
-        signedOut: () => context.router.replaceAll([const LandingRoute()]),
+        signedOut: () => context.router.root.replaceAll([const LandingRoute()]),
         error: (error) => error.showErrorSnackbar(context: context),
       ),
     );

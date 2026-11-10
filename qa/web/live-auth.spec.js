@@ -4,6 +4,7 @@ const { test, expect } = require('@playwright/test');
 // anonymous Auth user. This is a one-off, opt-in, disposable-project check.
 test('live Supabase anonymous login survives reload and sign-out persists', async ({ page }, testInfo) => {
   test.skip(process.env.RUN_SUPABASE_WEB_LIVE !== '1', 'Requires explicit one-time live Supabase QA opt-in');
+  test.setTimeout(120_000);
 
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.stack || String(error)));
@@ -57,6 +58,10 @@ test('live Supabase anonymous login survives reload and sign-out persists', asyn
     const signOut = page.getByText('Sign out', { exact: true });
     await expect(signOut).toBeVisible({ timeout: 20_000 });
     await signOut.click();
+    await expect.poll(hasSavedSession, {
+      message: 'Supabase local Auth session must be removed by sign-out',
+      timeout: 25_000,
+    }).toBe(false);
     await expect(page.getByText('Sign in Anonymously', { exact: true }), 'auth screen after sign-out').toBeVisible({ timeout: 25_000 });
 
     await page.reload({ waitUntil: 'domcontentloaded' });

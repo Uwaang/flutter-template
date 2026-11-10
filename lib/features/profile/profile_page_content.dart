@@ -44,10 +44,7 @@ class _LoadingStateWidget extends ConsumerWidget {
           const SizedBox(height: 12),
           CustomText.shimmerLoading(context: context, sampleText: 'John Doe', style: context.textTheme.headlineLarge),
           const Spacer(),
-          CustomButtonPrimary(
-            text: 'Sign out',
-            onPressed: () {},
-          ),
+          // Do not expose an inert sign-out action while the profile is loading.
         ],
       ),
     );
