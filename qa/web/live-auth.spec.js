@@ -62,6 +62,8 @@ test('live Supabase anonymous login survives reload and sign-out persists', asyn
       message: 'Supabase local Auth session must be removed by sign-out',
       timeout: 25_000,
     }).toBe(false);
+    // Path only; never log tokens or URL query values in the public CI run.
+    console.log('SCRUM-437 signed-out route: ' + new URL(page.url()).pathname);
     await expect(page.getByText('Sign in Anonymously', { exact: true }), 'auth screen after sign-out').toBeVisible({ timeout: 25_000 });
 
     await page.reload({ waitUntil: 'domcontentloaded' });
