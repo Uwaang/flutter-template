@@ -32,29 +32,29 @@ class _DataStateWidget extends ConsumerWidget {
         child: Column(
           children: [
             const Spacer(),
-            if (!SupabaseService.isConfigured) ...[
+            if (!SupabaseService.isConfigured)
               CustomButtonPrimary(
                 text: 'Mock Sign In',
                 onPressed: () => ref.read(authenticationStateProvider.notifier).mockSignIn(),
+              )
+            else ...[
+              CustomButtonPrimary(
+                text: 'Sign in Anonymously',
+                onPressed: () => ref.read(authenticationStateProvider.notifier).signInAnonymously(),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 24),
+              CustomButtonPrimary(
+                text: 'Sign in with Google',
+                isLoading: data.isGoogleSigningIn,
+                onPressed: () => ref.read(authenticationStateProvider.notifier).signInWithGoogle(),
+              ),
+              const SizedBox(height: 8),
+              CustomButtonPrimary(
+                text: 'Sign in with Apple',
+                isLoading: data.isAppleSigningIn,
+                onPressed: () => ref.read(authenticationStateProvider.notifier).signInWithApple(),
+              ),
             ],
-            CustomButtonPrimary(
-              text: 'Sign in Anonymously',
-              onPressed: () => ref.read(authenticationStateProvider.notifier).signInAnonymously(),
-            ),
-            const SizedBox(height: 24),
-            CustomButtonPrimary(
-              text: 'Sign in with Google',
-              isLoading: data.isGoogleSigningIn,
-              onPressed: () => ref.read(authenticationStateProvider.notifier).signInWithGoogle(),
-            ),
-            const SizedBox(height: 8),
-            CustomButtonPrimary(
-              text: 'Sign in with Apple',
-              isLoading: data.isAppleSigningIn,
-              onPressed: () => ref.read(authenticationStateProvider.notifier).signInWithApple(),
-            ),
           ],
         ),
       ),
