@@ -52,7 +52,9 @@ void main() {
         expect(restored.auth.currentSession, isNull);
         expect(restored.auth.currentUser, isNull);
       } finally {
-        await restored?.dispose();
+        if (restored != null) {
+          await restored.dispose();
+        }
         await first.dispose();
       }
     },

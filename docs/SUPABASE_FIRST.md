@@ -92,7 +92,7 @@ $env:RUN_SUPABASE_AUTH_SMOKE = '1'
 $env:SUPABASE_URL = 'https://YOUR-TEST-PROJECT.supabase.co'
 $env:SUPABASE_PUBLISHABLE_KEY = 'YOUR_PUBLIC_PUBLISHABLE_KEY'
 flutter test test/live_supabase_auth_smoke_test.dart
-Remove-Item Env:\\RUN_SUPABASE_AUTH_SMOKE, Env:\\SUPABASE_URL, Env:\\SUPABASE_PUBLISHABLE_KEY
+Remove-Item Env:\RUN_SUPABASE_AUTH_SMOKE, Env:\SUPABASE_URL, Env:\SUPABASE_PUBLISHABLE_KEY
 ```
 
 The public publishable key is expected. **Do not use an API secret,
