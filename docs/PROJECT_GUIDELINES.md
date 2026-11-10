@@ -73,12 +73,12 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 - Keep IO-oriented logic in Riverpod use cases under `lib/common/usecase/`.
 - Use `Flogger` when extra diagnostics are useful in service or integration code.
 
-## Notifications
-- The repo currently uses Firebase Messaging and `flutter_local_notifications`, not OneSignal.
+## Auth, local storage and notifications
+- The only configured default backend is **Supabase Auth**, via `lib/core/supabase/supabase_service.dart`. When URL/key are both absent, first-screen demo uses mock sign-in; a mock user is not a Supabase session.
+- Authorization tokens come from the authenticated Supabase session via `getAuthorizationTokenUseCase`. Google/Apple provider callbacks require external configuration and are not verified on all target devices.
 - Notification payload parsing lives in `lib/common/data/entity/notification_payload_entity.dart`.
-- Notification display and open handling live in `lib/common/provider/notifications_service.dart`.
-- Firebase messaging setup code exists in `lib/common/provider/firebase_messaging_service.dart`.
-- Parts of notification startup are still commented out in `lib/app/setup/setup_app.dart`, so do not assume push notifications are fully enabled in every environment.
+- `flutter_local_notifications` helpers remain in `lib/common/provider/notifications_service.dart`. Firebase Messaging/FCM is **not active**; any inherited Firebase provider filenames must not be taken as evidence of an enabled Firebase SDK.
+- SCRUM-437 expressly excludes creating database tables, migrations, application CRUD, Supabase Storage or Edge Functions. `getDatabaseUserUseCase` / `setDatabaseUserUseCase` refer to the existing **local SharedPreferences** cache, not a Supabase application table.
 
 ## Local Storage
 - SharedPreferences access is centralized in `lib/core/database/shared_preferences.dart`.
@@ -129,7 +129,7 @@ Not every feature needs every file. Simple screens in the template only use `*_p
   - `json_serializable` and `json_annotation`
   - `riverpod_generator` and `riverpod_annotation`
   - `auto_route_generator` and `auto_route`
-- For larger upgrades, inspect native platform files and startup integrations, especially Firebase, iOS pods, Android Gradle config, and generated code.
+- For larger upgrades, inspect native platform files and startup integrations, especially Supabase authentication, iOS pods, Android Gradle config, and generated code.
 
 ## Testing
 - Widget tests live under `test/`.
@@ -138,7 +138,7 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 - `make integration_test` runs `patrol test --flavor develop`.
 - For Android integration tests, ensure `adb` is already available on your shell `PATH`.
 - Add or update tests when the task calls for behavior changes, bug fixes, or new features. Do not assume tests are off-limits.
-- Prefer focused widget tests for shared UI, provider-driven visual states, and user-visible bug fixes. Call `Configuration.setup(flavor: Flavor.develop)` before tests that may read `Configuration.instance`, wrap provider-dependent widgets in `ProviderScope`, override IO-facing providers, include generated localization delegates when using `context.locale`, and avoid real network, Firebase, storage, or platform side effects in widget tests.
+- Prefer focused widget tests for shared UI, provider-driven visual states, and user-visible bug fixes. Call `Configuration.setup(flavor: Flavor.develop)` before tests that may read `Configuration.instance`, wrap provider-dependent widgets in `ProviderScope`, override IO-facing providers, include generated localization delegates when using `context.locale`, and avoid real network, Supabase Auth user creation, storage, or platform side effects in widget tests.
 
 ## Release And Versioning Notes
 - The repo contains release-oriented files and commands such as `release_notes.txt`, Android app bundle generation, and iOS IPA generation.
@@ -155,6 +155,6 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 6. Run `make gen` if the work changed routes, annotations, localization, DTOs, or assets.
 
 ## Template Caveats
-- This repository includes template placeholders and TODOs, especially around Firebase setup, notifications, remote config, and web configuration.
+- This repository includes inherited STRV Firebase setup/release instructions, but those SDKs are not active in the Supabase-first branch. Treat placeholders, local notifications, OAuth callbacks, and web configuration as separate readiness checks.
 - Read `lib/app/setup/setup_app.dart` before treating a service as production-ready.
 - Prefer documenting newly discovered, stable conventions here instead of scattering AI instructions across multiple files.

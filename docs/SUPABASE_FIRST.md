@@ -3,6 +3,29 @@
 **Scope:** Supabase Auth/session becomes the backend entrypoint. This migration
 is separate from the already-green hosted build and runtime smoke PRs.
 
+## Verified QA and remaining boundaries (2026-11-10 KST)
+
+- Real anonymous Supabase Auth client sign-in, refresh-token session restoration,
+  and local sign-out passed an opt-in Flutter SDK test:
+  [SDK run](https://github.com/Uwaang/flutter-template/actions/runs/42776324792).
+- A compiled Flutter Web browser session passed real anonymous login, full
+  reload with session restored, sign-out, signed-out reload, and protected
+  route checks: [one-time Web E2E](https://github.com/Uwaang/flutter-template/actions/runs/42784400895).
+- An Android API 34 emulator passed real anonymous login, **app process
+  relaunch** with session restored, logout, and signed-out relaunch:
+  [one-time Android E2E](https://github.com/Uwaang/flutter-template/actions/runs/42785429226).
+- Hosted quality plus all seven **compile-only** targets passed:
+  [platform matrix](https://github.com/Uwaang/flutter-template/actions/runs/42788052694).
+  Web JS and Web WASM compiled first-screen checks passed:
+  [Web runtime smoke](https://github.com/Uwaang/flutter-template/actions/runs/42788045284).
+- The temporary push-triggered live Web and Android test **workflows were
+  removed after success**. Optional test scripts remain for explicitly
+  authorized runs using a disposable project. Running them can create new
+  `auth.users` records; signing out does not delete those records.
+- **Not verified:** Google/Apple provider OAuth, physical Galaxy/other device,
+  native OAuth callbacks, Windows/macOS/iOS interactive GUI behavior,
+  production signing or app-store distribution.
+
 ## Scope and stop condition
 
 A. SDK, public configuration and session initialization.

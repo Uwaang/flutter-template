@@ -9,7 +9,7 @@ Use this file as the entrypoint for automated work in this repository.
 
 ## Repo Summary
 - This is a Flutter template, not a fully productized app.
-- Core stack: `flutter_riverpod`, `riverpod_annotation`, `freezed`, `json_serializable`, `auto_route`, `dio`, Firebase services, and FVM-managed Flutter.
+- Core stack: `flutter_riverpod`, `riverpod_annotation`, `freezed`, `json_serializable`, `auto_route`, `dio`, Supabase Auth (`supabase_flutter`), freeRASP, and FVM-managed Flutter.
 - The app already includes example features, navigation, theming, codegen, localization, notifications, and release scaffolding.
 - Some integrations are intentionally scaffolded but not fully enabled yet. Check `lib/app/setup/setup_app.dart` before assuming a service is active.
 
@@ -36,7 +36,7 @@ Use this file as the entrypoint for automated work in this repository.
 
 ## Safety Notes
 - Secrets and environment-specific config exist in encrypted and generated forms. Avoid touching `extras/secrets/` or decrypted `.env*` files unless the task clearly requires it.
-- Notifications, Remote Config, and some Firebase wiring are present in the codebase but parts of startup remain commented out in the template.
+- Supabase Auth initializes only with a public project URL/key pair; without it, the first-screen mock is UI-only. Firebase Auth, Messaging, Analytics, Crashlytics and Remote Config are not active SDK integrations. Local notifications remain optional scaffolding.
 - Release and signing files exist in the repo. Treat versioning, tags, branch flow, and build scripts as developer-owned unless the task explicitly asks for release work.
 
 ## Documentation Rule
@@ -47,6 +47,11 @@ Repeatable procedures live as skills under `.agents/skills/<name>/SKILL.md` —
 the cross-client location defined by the [Agent Skills](https://agentskills.io)
 format. Each skill has YAML frontmatter (`name:`, `description:`) so it can be
 auto-discovered by AI tools that support skills.
+
+Some inherited skills and the long-form README still describe the former
+Firebase-based STRV template. Treat those passages as historical until updated;
+`pubspec.yaml`, `setup_app.dart`, and `docs/SUPABASE_FIRST.md` define the
+current service boundaries. Do not add a database or CRUD for SCRUM-437.
 
 Existing skills:
 - `project-setup` — customize a new app from this template (identity, platforms, icons, splash, Firebase/secrets, validation)

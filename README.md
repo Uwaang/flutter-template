@@ -7,6 +7,33 @@ for hosted, compile-only platform checks. Read [the public CI guide](docs/PUBLIC
 before enabling workflows or handling the inherited encrypted sample fixtures.
 No personal Windows lab branch or old VM build archive is part of the mirror.
 
+## Current template status (SCRUM-437)
+
+- **Backend:** Supabase Auth is the default when `SUPABASE_URL` and
+  `SUPABASE_PUBLISHABLE_KEY` are configured. With neither value, the app
+  presents a **Mock Sign In** demo for first-screen QA; this is not a real
+  authenticated user. See [Supabase-first setup](docs/SUPABASE_FIRST.md).
+- **Not included:** application database tables, SQL migrations, CRUD APIs,
+  Supabase Storage, Edge Functions, and Firebase Auth/Messaging/Analytics/
+  Crashlytics/Remote Config as active integrations. Local notification UI
+  helpers remain as optional scaffolding.
+- **Verified:** hosted quality and compile-only builds for seven targets,
+  Web JS/WASM first-screen smoke, and one-off real Supabase anonymous login,
+  persistence, and sign-out E2E on Chromium and Android API 34. See
+  [public CI policy](docs/PUBLIC_CI.md) and [runtime QA](qa/web/README.md).
+  This does **not** establish native GUI, device-specific OAuth callback,
+  production signing, or store-release readiness.
+- **Review workflow:** GitLab remains canonical. GitHub PR #1, #2 and #3
+  remain stacked Draft changes pending explicit integration review.
+
+**Legacy guide notice:** many sections below are inherited from STRV's
+Firebase-based template (including social login setup, release tags, and
+App Distribution). They are retained as historical customization references,
+**not instructions for the current active SDK or CI release setup**. Do not
+re-enable disabled distribution workflows or create privileged credentials
+based on those sections. Follow `pubspec.yaml`, `lib/app/setup/setup_app.dart`,
+and the linked current docs for actual behavior.
+
 - [Project notes](#project-notes)
 
 - [Our values](#our-values)

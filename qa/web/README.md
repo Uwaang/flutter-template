@@ -13,6 +13,19 @@ One Chromium test is run separately against the compiled **Web JS** and **Web WA
 A successful `flutter build web`, downloaded bundle, HTTP 200, Flutter canvas
 element, or process exit code alone does **not** meet this gate.
 
+## Verified and optional live check
+
+The regular Web JS and Web WASM first-screen PoC passed on the Supabase-first
+branch: [successful run](https://github.com/Uwaang/flutter-template/actions/runs/42788045284).
+It uses **no live Supabase credentials** and displays only `Mock Sign In`.
+
+An explicitly opted-in `live-auth.spec.js` additionally passed against a
+disposable Supabase test project: [one-time browser E2E](https://github.com/Uwaang/flutter-template/actions/runs/42784400895).
+It checks anonymous sign-in, browser reload persistence, sign-out, and
+protected-route rejection. The push-triggered **live** workflow was removed
+after success to avoid creating accounts on every commit. Live runs must not
+publish traces, screenshots, JWTs, refresh tokens, or session storage values.
+
 ## Local execution
 
 From repository root, after Flutter codegen and after **one** web build:
@@ -37,8 +50,9 @@ a reviewed lockfile and stable initial results.
 
 ## Explicit exclusions
 
-- No Firebase or Supabase credentials; current builds use CI placeholder
-  configuration and can fail at runtime. A **red gate is expected and useful**.
+- The standard smoke has no Firebase or Supabase credentials, uses mocked
+  first-screen authentication, and must remain **green**. A live Auth run is
+  separate, explicit, and may create a real anonymous user.
 - No automatic fix, skip, retry loop or AI healer in CI.
 - No full-browser matrix, screenshot snapshot baselines, mobile emulators or
   seven-platform GUI tests.
@@ -46,5 +60,6 @@ a reviewed lockfile and stable initial results.
 - Maestro remains an **evaluation candidate** for Android/iOS; existing Patrol
   tests are kept. Midscene is deferred.
 
-When the startup failures are fixed, add at most one business-critical user
-journey (e.g., login) after backend and test-account strategy is chosen.
+The optional one-time live anonymous-login journey has been verified. Do not
+add more E2E cases or make it a required gate without a specific new failure,
+reviewed backend/test-account strategy, and stable locked dependencies.

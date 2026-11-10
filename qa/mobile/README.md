@@ -17,3 +17,17 @@ profile APK, launch it in an API 34 emulator, and assert the visible
 The optional \`qa/mobile/startup.yaml\` Maestro example and existing Patrol
 tests remain unchanged. No login success, real backend, release signing, iOS
 or desktop runtime is verified.
+
+## Verified one-time real Android Auth lifecycle
+
+An Android API 34 emulator passed real Supabase anonymous sign-in, authenticated
+Profile, app process force-stop/relaunch with Profile restored, sign-out, and
+signed-out relaunch:
+[successful job](https://github.com/Uwaang/flutter-template/actions/runs/42785429226).
+
+The temporary `scrum-437-live-android-once.yml` workflow was **deleted after
+the success**. `qa/mobile/run_live_auth_once.sh` remains as a manual reference;
+it expects a build explicitly configured with a **disposable Supabase project**
+and can create a real anonymous Auth account. It must not run against a
+production backend or log session tokens. This does **not** validate physical
+devices, Google/Apple OAuth, or release signing.
