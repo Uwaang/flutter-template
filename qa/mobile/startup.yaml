@@ -1,0 +1,8 @@
+# SCRUM-435: optional manual smoke, not a release or CI gate.
+# Requires the matching APK installed on a connected Android device/emulator.
+# For iOS, use a simulator app with the matching bundle identifier.
+appId: com.strv.flutter.template
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Mock Sign In"

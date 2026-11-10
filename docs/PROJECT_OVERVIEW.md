@@ -4,7 +4,7 @@ This document is a fast orientation guide for contributors and AI assistants. It
 
 ## What This Repository Is
 - A cross-platform Flutter application template.
-- It ships with example screens, routing, code generation, theming, Firebase integrations, notifications, secrets handling, release scaffolding, and project setup utilities.
+- It ships with example screens, routing, code generation, theming, Supabase Auth, local notification scaffolding, secrets handling, release scaffolding, and project setup utilities.
 - It is meant to be customized. Some services are intentionally scaffolded and still marked with TODOs.
 
 ## Core Stack
@@ -14,7 +14,7 @@ This document is a fast orientation guide for contributors and AI assistants. It
 - AutoRoute
 - Dio
 - SharedPreferences
-- Firebase Analytics, Auth, Crashlytics, Messaging, and Remote Config
+- Supabase Auth (`supabase_flutter`), with no Firebase SDK dependencies in the active `pubspec.yaml`
 - FlutterGen and `gen-l10n`
 
 ## Where To Start Reading
@@ -27,12 +27,14 @@ This document is a fast orientation guide for contributors and AI assistants. It
 
 ## App Startup Flow
 1. Entry points such as `lib/main_develop.dart`, `lib/main_staging.dart`, and `lib/main_production.dart` call `setupApp(flavor: ...)`.
-2. `setupApp` initializes Flutter bindings, orientation, flavor configuration, dotenv overrides, Firebase, security, web and desktop setup, image cache, theme loading, and system bar theming.
+2. `setupApp` initializes Flutter bindings, orientation, flavor configuration, dotenv overrides, optional Supabase Auth, freeRASP security on mobile, web and desktop setup, image cache, theme loading, and system bar theming.
 3. `App.startApp()` mounts the shared Riverpod `providerContainer`.
 4. `App` builds `MaterialApp.router` with generated localization delegates, theme mode, and analytics route observers.
 
 Important note:
-- Some setup hooks in `setup_app.dart` are scaffolded but commented out, including parts of Firebase Remote Config, Firebase Messaging, and local notifications startup. The supporting providers exist, but startup should be checked before assuming a feature is active.
+- No URL/key means **mock-only startup**, not a real backend login. A URL or publishable key without the other is a configuration error.
+- A live anonymous sign-in creates a real Supabase Auth user, but no application database table is introduced. The local user cache still uses SharedPreferences.
+- Google/Apple OAuth provider configuration and native/desktop callback handling must be verified separately.
 
 ## Route Map
 Defined in `lib/app/navigation/app_router.dart`.
@@ -74,14 +76,15 @@ Current feature folders under `lib/features/`:
 - `composition/`: larger UI compositions such as dialogs and placeholders
 - `data/`: DTOs, enums, entities, and exceptions
 - `extension/`: build context and model helpers
-- `provider/`: shared service providers such as theme mode, current user, notifications, Firebase helpers
+- `provider/`: shared service providers such as theme mode, current user and local notifications; leftover Firebase-named files are not enabled SDK services
 - `usecase/`: Riverpod-based IO or domain actions
 - `validator/`: validation controllers and validation state models
 
 ### `lib/core`
 - `analytics/`: analytics and crash logging helpers
-- `database/`: SharedPreferences wrapper
-- `network/`: Dio setup and auth interceptor
+- `database/`: local SharedPreferences wrapper (no remote SQL/CRUD)
+- `supabase/`: Supabase Auth initialization/session handling
+- `network/`: Dio setup and Auth-token interceptor
 - `riverpod/`: event and async state helper mixins
 
 Useful distinction:
@@ -117,12 +120,11 @@ Helpers worth knowing:
 - `lib/core/riverpod/event_notifier.dart`
 - `lib/common/extension/async_value.dart`
 
-## Notifications And Firebase
-- Firebase dependencies are present in `pubspec.yaml`.
-- Notification payload modeling is generic and example-driven, not product-specific.
-- Local notification display and open handling are implemented.
-- Firebase Messaging provider code exists, including background handlers.
-- Startup wiring for notifications is not fully enabled in the template by default, so agent work in this area should inspect `setup_app.dart` first.
+## Auth And Notifications
+- Supabase Auth is the sole built-in backend when its public project URL and publishable key are configured.
+- Anonymous sign-in, session restoration, logout and bearer tokens are wired through use cases; OAuth uses provider redirect + auth-state events, but real Google/Apple OAuth provider E2E has not been verified.
+- Local notification payload/display helpers remain, but FCM, Firebase Auth, Crashlytics, Analytics and Remote Config are not active SDK integrations.
+- No application database schema/CRUD, remote profile table, Storage, or Edge Functions are implemented in SCRUM-437.
 
 ## Localization And Generated Assets
 - ARB source files live in `assets/localization/`.
@@ -141,11 +143,13 @@ Helpers worth knowing:
 - `make generateIosProductionIpa`
 
 ## Versioning And Releases
+
+- GitHub hosted compile checks and the selected-branch publication policy are documented in `docs/PUBLIC_CI.md`. Personal Windows provisioning stays on the private lab branch.
 - Flutter SDK pinning is managed through `.fvmrc`.
 - App versioning and Flutter constraints are declared in `pubspec.yaml`.
 - The repo includes `release_notes.txt` plus build commands for Android and iOS release artifacts.
 - `.gitlab-ci.yml` adds self-hosted JavaScript/WebAssembly web verification and optional native artifact jobs; see `docs/GITLAB_CI.md`.
-- `README.md` documents the template's default release branching and tagging flow, but real projects may customize it.
+- Parts of `README.md`, inherited AI skills, and archived distribution workflows still show STRV/Firebase-era setup instructions. They are historical, not live release guidance; verify active settings against `pubspec.yaml` and `setup_app.dart`.
 
 ## Files To Treat Carefully
 - Generated files: `*.g.dart`, `*.freezed.dart`, `*.gr.dart`, `lib/assets/*`
@@ -154,10 +158,11 @@ Helpers worth knowing:
 - Release config such as `release_notes.txt`, native signing config, and CI-sensitive build files
 
 ## Known Template Gaps
-- Firebase web configuration contains placeholder values and TODO comments.
-- Firebase Remote Config startup is currently disabled.
-- Firebase Messaging and local notifications startup are currently disabled in `setup_app.dart`.
-- Several README sections describe how to customize or finish template setup rather than what is already finalized in this repo.
+- Google/Apple provider approval and Android/iOS/macOS/Windows/Linux OAuth callbacks need platform-specific confirmation.
+- Windows/macOS/iOS GUI runtime, real physical-device verification, native release signing and store uploads are not proven by the seven compile-only jobs.
+- Android API 34 emulator and Web Chromium passed one-off live **anonymous Auth** session lifecycle checks; these are not default recurring CI gates. Read `docs/SUPABASE_FIRST.md` for exact evidence.
+- The optional Playwright PoC has no npm lockfile and is not a mandatory merge gate. Existing Patrol/Maestro scaffolding is retained without increasing broad UI E2E coverage.
+- Legacy README, agent skills and old distribution instructions may describe the removed Firebase backend; don't restore them without a separate explicit decision.
 
 ## Best Documentation Strategy For Future AI Work
 - Keep `AGENTS.md` short and actionable.

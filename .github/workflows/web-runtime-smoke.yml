@@ -1,0 +1,66 @@
+name: Web Runtime Smoke PoC (SCRUM-435)
+
+on:
+  push:
+    branches: [qa/scrum-430-minimal-smoke, feat/scrum-437-supabase-first]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-runtime-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  startup:
+    name: Compiled web-${{ matrix.mode }} startup
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [js, wasm]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: flutter pub get
+      - run: dart run tool/create_ci_env.dart
+      - run: flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - name: Compile actual web artifact
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          if [ "$MODE" = wasm ]; then
+            flutter build web --wasm --release -t lib/main_production.dart
+          else
+            flutter build web --release -t lib/main_production.dart
+          fi
+      - name: Install Playwright and Chromium (PoC)
+        working-directory: qa/web
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Assert real web startup
+        working-directory: qa/web
+        run: npm test
+      - name: Upload diagnostic report even on failure
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-smoke-${{ matrix.mode }}-evidence
+          path: |
+            qa/web/playwright-report/
+            qa/web/test-results/
+          if-no-files-found: warn
+          retention-days: 7

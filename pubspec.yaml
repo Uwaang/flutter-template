@@ -34,17 +34,8 @@ dependencies:
   # Storage
   shared_preferences: ^2.5.4
 
-  # Firebase
-  firebase_analytics: ^12.0.2
-  firebase_auth: ^6.1.0
-  firebase_core: ^4.1.1
-  firebase_crashlytics: ^5.0.2
-  firebase_messaging: ^16.0.2
-  firebase_remote_config: ^6.0.2
-
-  # Authentication
-  google_sign_in: ^7.2.0
-  sign_in_with_apple: ^8.0.0
+  # Default backend and authentication
+  supabase_flutter: ^2.18.3
 
   # Device
   device_info_plus: ^13.1.0

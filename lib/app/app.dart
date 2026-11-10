@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app/configuration/configuration.dart';
 import 'package:flutter_app/app/navigation/app_router.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_app/assets/app_localizations.gen.dart';
 import 'package:flutter_app/common/provider/theme_mode_provider.dart';
 import 'package:flutter_app/core/analytics/analytics_route_observer.dart';
 import 'package:flutter_app/core/riverpod/provider_logger.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final providerContainer = ProviderContainer(
@@ -24,6 +26,12 @@ class App extends ConsumerWidget {
         child: const App(),
       ),
     );
+    // Path-based browser reloads may enter a deep link directly and skip the
+    // LandingPage, which otherwise removes the static HTML splash element.
+    // The splash must be removed after the app's first Flutter frame on Web.
+    if (AppPlatform.isWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => FlutterNativeSplash.remove());
+    }
   }
 
   @override
@@ -61,6 +69,14 @@ class App extends ConsumerWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: appRouter.config(
+        // Fresh browser entries to protected tabs must check the restored
+        // Supabase session before RootRoute can be displayed.
+        deepLinkBuilder: (link) {
+          if (link.path == '/root-route' || link.path.startsWith('/root-route/')) {
+            return const DeepLink([LandingRoute()]);
+          }
+          return link;
+        },
         navigatorObservers: () => [ref.read(analyticsRouteObserverProvider)],
       ),
       builder: (context, child) {

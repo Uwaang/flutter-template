@@ -68,3 +68,11 @@ release_artifacts/
 # Secrets
 /.env*
 /extras/secrets/age_key.txt
+
+# Locally restored or synthetic native configuration
+/android/app/google-services.json
+/android/extras/keystores/release.properties
+/ios/config/*/GoogleService-Info.plist
+/macos/Runner/GoogleService-Info.plist
+/ci-artifacts/
+__pycache__/

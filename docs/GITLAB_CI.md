@@ -1,12 +1,12 @@
 # GitLab CI for the multi-platform template
 
-This repository keeps the upstream STRV GitHub workflows and adds a separate GitLab CI path for self-hosted use.
+This repository retains selected STRV workflow history and adds a separate GitLab CI path for self-hosted use. In the SCRUM-437 branch the active Flutter backend is Supabase Auth; secret-backed inherited deployment workflows remain disabled.
 
 ## Goals
 
 - Keep Flutter pinned to the same SDK as `.fvmrc`.
 - Validate both JavaScript and WebAssembly web builds.
-- Preserve STRV integrations such as Firebase, social login, notifications, and freeRASP instead of removing them just to make CI simpler.
+- Preserve the Riverpod/use-case layout and freeRASP while keeping current Supabase-first Auth distinct from the inherited STRV/Firebase release examples.
 - Keep secret-backed release jobs separate from ordinary analysis/test/build validation.
 - Make native desktop/mobile runners optional: missing Windows or macOS runners must not block ordinary Linux/Web verification.
 
@@ -42,7 +42,7 @@ WASM readiness is a compatibility target, not a requirement to deploy only WASM.
 Native artifacts are manual by default so a NAS-only Linux runner can still provide useful CI.
 
 - `linux_release`: Linux runner/container; produces a tar.gz bundle.
-- `android_release`: Linux Flutter/Android runner; requires restored Firebase config and release signing files.
+- `android_release`: a **manual legacy packaging job**; the existing script still checks for a Firebase-era Android config and release signing files. This does not mean Firebase Auth is enabled. Review and modernize the release recipe separately before running it against the Supabase-first template.
 - `windows_release`: Windows shell runner tagged `windows` and `flutter`.
 - `ios_release`: macOS shell runner tagged `macos` and `flutter`; signing/export remains project-specific.
 

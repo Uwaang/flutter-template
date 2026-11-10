@@ -1,14 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/common/component/custom_snackbar/custom_snackbar_error.dart';
 import 'package:flutter_app/common/extension/build_context.dart';
-import 'package:flutter_app/core/analytics/crashlytics_manager.dart';
 import 'package:flutter_app/core/flogger.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'custom_exception.freezed.dart';
 
@@ -22,14 +19,10 @@ sealed class CustomException with _$CustomException implements Exception {
   const factory CustomException.notConnectedToTheInternet() = _NotConnectedToTheInternet;
   const factory CustomException.decodingFailed() = _DecodingFailed;
 
-  // Note: Mapped Firebase exception with error code `credential-already-in-use`.
   const factory CustomException.signInCancelled() = _SignInCancelled;
-  const factory CustomException.credentialAlreadyInUse({required AuthCredential? credential}) = _CredentialAlreadyInUse;
 
   factory CustomException.fromErrorObject({required Object? error}) {
     Flogger.e('[CustomException] Received error $error, ');
-
-    CrashlyticsManager.logNonCritical(error, stack: StackTrace.current);
 
     if (error is CustomException) {
       return error;
@@ -52,29 +45,13 @@ sealed class CustomException with _$CustomException implements Exception {
 
           return CustomException.withMessage(message: error.message);
       }
-    } else if (error is GoogleSignInException) {
-      switch (error.code) {
-        case GoogleSignInExceptionCode.canceled:
-          return const CustomException.signInCancelled();
-        default:
-          return CustomException.withMessage(message: error.description);
+    } else if (error is AuthException) {
+      if (error.message.toLowerCase().contains('cancel')) {
+        return const CustomException.signInCancelled();
       }
-    } else if (error is SignInWithAppleAuthorizationException) {
-      switch (error.code) {
-        case AuthorizationErrorCode.canceled:
-          return const CustomException.signInCancelled();
-        default:
-          return CustomException.withMessage(message: error.message);
-      }
-    } else if (error is FirebaseAuthException) {
-      switch (error.code) {
-        case 'credential-already-in-use':
-          return CustomException.credentialAlreadyInUse(credential: error.credential);
-        case 'web-context-canceled':
-          return const CustomException.signInCancelled();
-        default:
-          return CustomException.withMessage(message: error.message);
-      }
+      return CustomException.withMessage(message: error.message);
+    } else if (error is StateError) {
+      return CustomException.withMessage(message: error.message);
     } else {
       return const CustomException.general();
     }

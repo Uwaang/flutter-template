@@ -1,7 +1,3 @@
-import 'dart:isolate';
-
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,13 +8,12 @@ import 'package:flutter_app/app/setup/flavor.dart';
 import 'package:flutter_app/app/setup/web_setup.dart';
 import 'package:flutter_app/app/theme/custom_system_bars_theme.dart';
 import 'package:flutter_app/common/provider/theme_mode_provider.dart';
-import 'package:flutter_app/core/analytics/crashlytics_manager.dart';
 import 'package:flutter_app/core/flogger.dart';
+import 'package:flutter_app/core/supabase/supabase_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:freerasp/freerasp.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:window_manager/window_manager.dart';
 
 Future<void> setupApp({required Flavor flavor}) async {
@@ -48,15 +43,9 @@ Future<void> setupApp({required Flavor flavor}) async {
     },
   );
 
-  // Setup Firebase
-  await _setupFirebase(flavor: flavor);
-  await _setupFirebaseCrashlytics();
-  await _setupFirebaseRemoteConfig();
-  await _setupFirebaseMessaging();
-  await _setupLocalNotificationsService();
-
-  // Setup Google Sign In
-  await GoogleSignIn.instance.initialize();
+  // Supabase Auth is the only built-in backend. Optional push/analytics/
+  // crash reporting are deliberately not initialized by this template.
+  await SupabaseService.initialize();
 
   // Setup FreeRASP Security
   await _setupRASP(flavor: flavor);
@@ -76,85 +65,6 @@ Future<void> setupApp({required Flavor flavor}) async {
 
   // Setup reactive Edge-to-Edge support across all platforms
   await CustomSystemBarsTheme.setupSystemBarsTheme(providerContainer: providerContainer);
-}
-
-// TODO(strv): Support it or remove it!
-Future<void> _setupFirebase({required Flavor flavor}) async {
-  if (AppPlatform.isMobile || AppPlatform.isMacOS) {
-    await Firebase.initializeApp();
-  } else if (AppPlatform.isWeb) {
-    await Firebase.initializeApp(
-      // For WebApp we need to specify the FirebaseOptions here!
-      // TODO(strv): Replace with actual values (use secrets!). Can be found inside Firebase -> Project Settings, under Web App
-      options: FirebaseOptions(
-        apiKey: dotenv.get('FIREBASE_WEB_API_KEY'),
-        authDomain: 'strv-flutter-template.firebaseapp.com',
-        projectId: 'strv-flutter-template',
-        storageBucket: 'strv-flutter-template.appspot.com',
-        messagingSenderId: dotenv.get('FIREBASE_WEB_MESSAGING_SENDER_ID'),
-        appId: dotenv.get('FIREBASE_WEB_APP_ID'),
-        measurementId: dotenv.get('FIREBASE_WEB_MEASUREMENT_ID'),
-      ),
-    );
-  }
-}
-
-// TODO(strv): Support it or remove it!
-/// Setup Firebase crashlytics according [docs](https://firebase.google.com/docs/crashlytics/customize-crash-reports?platform=flutter).
-Future<void> _setupFirebaseCrashlytics() async {
-  if (!AppPlatform.isMobile) return;
-
-  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
-
-  // Handles errors thrown by Flutter framework and records them as fatal errors
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-
-  // Handles async errors that can't be handled by Flutter framework
-  PlatformDispatcher.instance.onError = (error, stack) {
-    CrashlyticsManager.logCritical(
-      error,
-      stack: stack,
-    );
-    return true;
-  };
-
-  // Handles errors that happen outside of the Flutter context
-  Isolate.current.addErrorListener(
-    RawReceivePort((dynamic pair) async {
-      if (pair is List && pair.length == 2 && pair[1] is StackTrace) {
-        final dynamic error = pair[0];
-        final stack = pair[1] as StackTrace;
-
-        await CrashlyticsManager.logCritical(error, stack: stack);
-      } else {
-        // Optionally log or handle unexpected message format
-        Flogger.e('Unexpected error message format from isolate: $pair');
-      }
-    }).sendPort,
-  );
-}
-
-// TODO(strv): Support it or remove it!
-Future<void> _setupFirebaseRemoteConfig() async {
-  if (!AppPlatform.isMobile) return;
-  // TODO(strv): Uncomment once secrets are filled with proper values
-  // await providerContainer.read(firebaseRemoteConfigServiceProvider.future);
-}
-
-// TODO(strv): Support it or remove it!
-Future<void> _setupFirebaseMessaging() async {
-  if (!AppPlatform.isLinux && !AppPlatform.isWindows) {
-    // TODO(strv): Uncomment once secrets are filled with proper values
-    // await providerContainer.read(firebaseMessagingServiceProvider.future);
-  }
-}
-
-// TODO(strv): Support it or remove it!
-Future<void> _setupLocalNotificationsService() async {
-  if (!AppPlatform.isLinux && !AppPlatform.isWindows) {
-    // TODO(strv): Uncomment once secrets are filled with proper values
-    // await providerContainer.read(notificationsServiceProvider.future);
-  }
 }
 
 // TODO(strv): [FreeRASP] Configure correct package names and other values
@@ -188,17 +98,17 @@ Future<void> _setupRASP({required Flavor flavor}) async {
 
   // Setting up callbacks
   final callback = ThreatCallback(
-    onAppIntegrity: () => CrashlyticsManager.logNonCritical('App integrity'),
-    onObfuscationIssues: () => CrashlyticsManager.logNonCritical('Obfuscation issues'),
-    onDebug: () => CrashlyticsManager.logNonCritical('Debugging'),
-    onDeviceBinding: () => CrashlyticsManager.logNonCritical('Device binding'),
-    onDeviceID: () => CrashlyticsManager.logNonCritical('Device ID'),
-    onHooks: () => CrashlyticsManager.logNonCritical('Hooks'),
-    onPasscode: () => CrashlyticsManager.logNonCritical('Phone has no passcode set'),
-    onPrivilegedAccess: () => CrashlyticsManager.logNonCritical('Privileged access'),
-    onSecureHardwareNotAvailable: () => CrashlyticsManager.logNonCritical('Secure hardware not available'),
-    onSimulator: () => CrashlyticsManager.logNonCritical('Simulator'),
-    onUnofficialStore: () => CrashlyticsManager.logNonCritical('Unofficial store'),
+    onAppIntegrity: () => Flogger.w('App integrity'),
+    onObfuscationIssues: () => Flogger.w('Obfuscation issues'),
+    onDebug: () => Flogger.w('Debugging'),
+    onDeviceBinding: () => Flogger.w('Device binding'),
+    onDeviceID: () => Flogger.w('Device ID'),
+    onHooks: () => Flogger.w('Hooks'),
+    onPasscode: () => Flogger.w('Phone has no passcode set'),
+    onPrivilegedAccess: () => Flogger.w('Privileged access'),
+    onSecureHardwareNotAvailable: () => Flogger.w('Secure hardware not available'),
+    onSimulator: () => Flogger.w('Simulator'),
+    onUnofficialStore: () => Flogger.w('Unofficial store'),
   );
 
   //  Attach listener and Start freeRASP

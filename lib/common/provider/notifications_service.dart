@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_app/common/data/entity/notification_payload_entity.dart';
 import 'package:flutter_app/core/flogger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -65,11 +64,7 @@ class NotificationsService extends _$NotificationsService {
   }
 
   static Future<void> handleAppOpenNotification() async {
-    // Title: 1. Check FirebaseMessaging for initial Message
-    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-    if (await tryOpeningNotificationFromRemoteMessage(initialMessage)) return;
-
-    // Title: 2. Check FlutterLocalNotifications for initial Message
+    // Local notifications only. FCM is not enabled by the base template.
     final notificationAppLaunchDetails = await _flutterLocalNotifications.getNotificationAppLaunchDetails();
     await _tryOpeningNotificationFromPayload(notificationAppLaunchDetails?.notificationResponse?.payload);
   }
@@ -102,20 +97,6 @@ class NotificationsService extends _$NotificationsService {
       return Future.value(true);
     } on Exception catch (e) {
       Flogger.e('[Notifications] Could not parse payload from notification: $payload with error $e');
-    }
-    return Future.value(false);
-  }
-
-  static Future<bool> tryOpeningNotificationFromRemoteMessage(RemoteMessage? message) async {
-    if (message == null) {
-      return Future.value(false);
-    }
-
-    try {
-      handleNotificationOpen(NotificationPayloadEntity.fromJson(message.data));
-      return Future.value(true);
-    } on Exception catch (e) {
-      Flogger.e('[Notifications] Could not parse payload from notification: ${message.data} with error $e');
     }
     return Future.value(false);
   }

@@ -4,7 +4,6 @@ import 'package:flutter_app/common/usecase/authentication/sign_out_use_case.dart
 import 'package:flutter_app/common/usecase/get_random_image_url_use_case.dart';
 import 'package:flutter_app/core/flogger.dart';
 import 'package:flutter_app/core/riverpod/state_handler.dart';
-import 'package:flutter_app/features/profile/profile_event.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -34,18 +33,18 @@ class ProfileStateNotifier extends _$ProfileStateNotifier with AutoDisposeStateH
     );
   }
 
-  Future<void> signOut() async {
+  Future<bool> signOut() async {
     setStateData(currentData?.copyWith(isSigningOut: true));
 
     try {
       await ref.read(signOutUseCaseProvider.future);
-
-      ref.read(profileEventNotifierProvider.notifier).send(const ProfileEvent.signedOut());
+      return true;
     } on Exception catch (error) {
       final customException = CustomException.fromErrorObject(error: error);
       Flogger.e('Error: $customException');
+      return false;
+    } finally {
+      setStateData(currentData?.copyWith(isSigningOut: false));
     }
-
-    setStateData(currentData?.copyWith(isSigningOut: false));
   }
 }

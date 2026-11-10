@@ -1,3 +1,19 @@
+# Archived STRV distribution instructions — not active in SCRUM-437
+
+This page documents the original Google Play workflow example. Its
+`.github/workflows/android_play_store_distribution.yml.disabled` counterpart
+is **disabled** in the public Flutter template. Supabase Auth is the current
+backend, and hosted CI only produces compile-only artifacts.
+
+**Do not follow the old instruction below to grant a service account project
+Editor access or upload a JSON private key.** It is unnecessarily privileged.
+Any future real store-deployment workflow requires a separate review and
+least-privilege permissions, protected credentials and release signing.
+For current behavior read [public CI policy](../../docs/PUBLIC_CI.md)
+and [Supabase-first setup](../../docs/SUPABASE_FIRST.md).
+
+---
+
 Google Play Store Distribution Setup
 ====================================
 

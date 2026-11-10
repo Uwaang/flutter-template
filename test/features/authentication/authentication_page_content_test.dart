@@ -33,7 +33,7 @@ void main() {
   Configuration.setup(flavor: Flavor.develop);
 
   patrolWidgetTest(
-    'AuthenticationPageContent - shows all sign-in buttons',
+    'AuthenticationPageContent - shows mock-only when Supabase is unconfigured',
     ($) async {
       await $.pumpWidgetAndSettle(
         ProviderScope(
@@ -49,9 +49,9 @@ void main() {
       );
 
       expect(find.text('Mock Sign In'), findsOneWidget);
-      expect(find.text('Sign in Anonymously'), findsOneWidget);
-      expect(find.text('Sign in with Google'), findsOneWidget);
-      expect(find.text('Sign in with Apple'), findsOneWidget);
+      expect(find.text('Sign in Anonymously'), findsNothing);
+      expect(find.text('Sign in with Google'), findsNothing);
+      expect(find.text('Sign in with Apple'), findsNothing);
     },
   );
 
@@ -63,6 +63,7 @@ void main() {
       await $.tester.pumpWidget(
         ProviderScope(
           overrides: [
+            authBackendConfiguredProvider.overrideWithValue(true),
             authenticationStateProvider.overrideWith(
               () => _StubAuthNotifier(
                 const AuthenticationState(isGoogleSigningIn: true, isAppleSigningIn: false),
@@ -74,6 +75,8 @@ void main() {
       );
       await $.tester.pump();
 
+      expect(find.text('Mock Sign In'), findsNothing);
+      expect(find.text('Sign in Anonymously'), findsOneWidget);
       expect(find.text('Sign in with Apple'), findsOneWidget);
     },
   );
