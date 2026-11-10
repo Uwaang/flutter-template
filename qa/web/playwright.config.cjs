@@ -1,3 +1,4 @@
+const path = require('node:path');
 const { defineConfig } = require('@playwright/test');
 
 
