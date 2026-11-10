@@ -9,6 +9,7 @@ on:
       - qa/web/live-auth.spec.js
       - qa/web/spa_server.py
       - qa/web/playwright.config.cjs
+      - lib/features/profile/profile_page.dart
 permissions:
   contents: read
 jobs:
