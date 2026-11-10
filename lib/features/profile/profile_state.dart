@@ -38,7 +38,6 @@ class ProfileStateNotifier extends _$ProfileStateNotifier with AutoDisposeStateH
 
     try {
       await ref.read(signOutUseCaseProvider.future);
-
     } on Exception catch (error) {
       final customException = CustomException.fromErrorObject(error: error);
       Flogger.e('Error: $customException');
