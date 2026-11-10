@@ -26,9 +26,7 @@ void main() {
       final first = SupabaseClient(url, key);
       SupabaseClient? restored;
       try {
-        final response = await first.auth.signInAnonymously().timeout(
-          const Duration(seconds: 40),
-        );
+        final response = await first.auth.signInAnonymously().timeout(const Duration(seconds: 40));
         final user = response.user;
         expect(user, isNotNull);
         expect(user!.isAnonymous, isTrue);
@@ -40,15 +38,11 @@ void main() {
         // A fresh SDK client must be able to recover the same Auth user from
         // its persisted refresh token. A full app restart is checked manually.
         restored = SupabaseClient(url, key);
-        final resumed = await restored.auth.setSession(refreshToken).timeout(
-          const Duration(seconds: 40),
-        );
+        final resumed = await restored.auth.setSession(refreshToken).timeout(const Duration(seconds: 40));
         expect(resumed.user?.id, user.id);
         expect(restored.auth.currentSession, isNotNull);
 
-        await restored.auth.signOut(scope: SignOutScope.local).timeout(
-          const Duration(seconds: 40),
-        );
+        await restored.auth.signOut(scope: SignOutScope.local).timeout(const Duration(seconds: 40));
         expect(restored.auth.currentSession, isNull);
         expect(restored.auth.currentUser, isNull);
       } finally {
