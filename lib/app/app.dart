@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app/configuration/configuration.dart';
 import 'package:flutter_app/app/navigation/app_router.dart';
@@ -68,6 +69,14 @@ class App extends ConsumerWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: appRouter.config(
+        // Fresh browser entries to protected tabs must check the restored
+        // Supabase session before RootRoute can be displayed.
+        deepLinkBuilder: (link) {
+          if (link.path == '/root-route' || link.path.startsWith('/root-route/')) {
+            return DeepLink([const LandingRoute()]);
+          }
+          return link;
+        },
         navigatorObservers: () => [ref.read(analyticsRouteObserverProvider)],
       ),
       builder: (context, child) {
