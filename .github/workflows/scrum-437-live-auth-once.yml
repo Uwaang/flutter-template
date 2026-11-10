@@ -32,5 +32,7 @@ jobs:
           cache: true
       - name: Resolve dependencies
         run: flutter pub get
+      - name: Create synthetic non-secret Flutter asset environment
+        run: dart run tool/create_ci_env.dart
       - name: Live test single anonymous Auth account, refresh and logout
         run: flutter test test/live_supabase_auth_smoke_test.dart --reporter expanded
