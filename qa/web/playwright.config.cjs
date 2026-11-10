@@ -23,7 +23,9 @@ module.exports = defineConfig({
     trace: process.env.RUN_SUPABASE_WEB_LIVE === '1' ? 'off' : 'retain-on-failure',
   },
   webServer: {
-    command: 'python3 qa/web/spa_server.py',
+    // Launch from qa/web no matter which directory invoked Playwright.
+    cwd: __dirname,
+    command: 'python3 spa_server.py',
     url: 'http://127.0.0.1:8765/index.html',
     reuseExistingServer: false,
     timeout: 30_000,
