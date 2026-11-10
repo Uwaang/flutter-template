@@ -8,6 +8,16 @@ test('live Supabase anonymous login survives reload and sign-out persists', asyn
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.stack || String(error)));
 
+  // Supabase Flutter persists the session in browser storage. Read only a
+  // boolean: never copy token values into CI logs or Playwright artifacts.
+  async function hasSavedSession() {
+    return page.evaluate(() =>
+      Object.values(window.localStorage).some(value =>
+        value.includes('refresh_token') && value.includes('access_token'),
+      ),
+    );
+  }
+
   async function activateFlutterAccessibility() {
     await expect(page.locator('#splash'), 'Flutter web splash must disappear').toHaveCount(0, { timeout: 35_000 });
     const activator = page.getByRole('button', { name: 'Enable accessibility' });
@@ -35,11 +45,13 @@ test('live Supabase anonymous login survives reload and sign-out persists', asyn
     // Only a real Supabase Auth user can reach the root in configured mode.
     await expect(page.getByText('Profile', { exact: true }).first(), 'root tabs after login').toBeVisible({ timeout: 30_000 });
     await expect(loginButton).toHaveCount(0);
+    expect(await hasSavedSession(), 'Supabase must persist an Auth session before reload').toBe(true);
 
     await page.reload({ waitUntil: 'domcontentloaded' });
     await activateFlutterAccessibility();
     await expect(page.getByText('Profile', { exact: true }).first(), 'session persists across full web reload').toBeVisible({ timeout: 30_000 });
     await expect(page.getByText('Sign in Anonymously', { exact: true })).toHaveCount(0);
+    expect(await hasSavedSession(), 'session remains in browser storage after reload').toBe(true);
 
     await page.getByText('Profile', { exact: true }).first().click();
     const signOut = page.getByText('Sign out', { exact: true });
@@ -51,6 +63,14 @@ test('live Supabase anonymous login survives reload and sign-out persists', asyn
     await activateFlutterAccessibility();
     await expect(page.getByText('Sign in Anonymously', { exact: true }), 'signed out across reload').toBeVisible({ timeout: 30_000 });
     await expect(page.getByText('Mock Sign In', { exact: true })).toHaveCount(0);
+    expect(await hasSavedSession(), 'local session data is removed after sign-out').toBe(false);
+
+    // Directly entering an authenticated route after sign-out must redirect.
+    await page.goto('/root-route', { waitUntil: 'domcontentloaded' });
+    await activateFlutterAccessibility();
+    await expect(page.getByText('Sign in Anonymously', { exact: true }), 'root deep link requires a session').toBeVisible({
+      timeout: 30_000,
+    });
 
     expect(pageErrors, 'no uncaught Flutter/browser errors').toEqual([]);
   } finally {
