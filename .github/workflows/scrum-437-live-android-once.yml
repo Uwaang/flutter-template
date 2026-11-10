@@ -1,0 +1,131 @@
+name: SCRUM-437 live Android auth once
+
+on:
+  push:
+    branches: [feat/scrum-437-supabase-first]
+    paths: [.github/workflows/scrum-437-live-android-once.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-runtime-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  startup:
+    name: Real Android anonymous Auth lifecycle
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      FLUTTER_TEMPLATE_COMPILE_ONLY: '1'
+      SUPABASE_URL: https://rfgdugcegitcfxblskwo.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_lS8D4KJhVTEDJ4Soo93flA_7R15HxVN
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: flutter pub get
+      - run: dart run tool/create_ci_env.dart
+      - run: python3 tool/prepare_native_ci.py android
+      - name: Provide valid debug signing hash to freeRASP
+        run: python3 qa/mobile/prepare_ci_env.py
+      - name: Configure public-only disposable-project Auth
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          url, key = os.environ['SUPABASE_URL'], os.environ['SUPABASE_PUBLISHABLE_KEY']
+          if not url.startswith('https://') or not key.startswith('sb_publishable_'):
+              raise SystemExit('Only a public publishable key is permitted')
+          for filename in ('.env', '.env-production'):
+              p = Path(filename)
+              text = p.read_text()
+              for old, new in (
+                  ('SUPABASE_URL=\n', 'SUPABASE_URL=' + url + '\n'),
+                  ('SUPABASE_PUBLISHABLE_KEY=\n', 'SUPABASE_PUBLISHABLE_KEY=' + key + '\n'),
+              ):
+                  if text.count(old) != 1:
+                      raise SystemExit('Missing synthetic Auth configuration placeholder')
+                  text = text.replace(old, new)
+              p.write_text(text)
+          print('Configured Android Auth QA using publishable credentials')
+          PY
+      - run: flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+      - run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Restore pinned Gradle 8.14.3 ZIP
+        id: gradle-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/gradle-8.14.3-bin.zip
+          key: gradle-dist-8.14.3-bin-${{ runner.os }}-bd71102213493060
+      - name: Fetch Gradle ZIP on cache miss
+        if: steps.gradle-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip="$RUNNER_TEMP/gradle-8.14.3-bin.zip"
+          downloaded=0
+          for url in \
+            "https://downloads.gradle.org/distributions/gradle-8.14.3-bin.zip" \
+            "https://services.gradle.org/distributions/gradle-8.14.3-bin.zip" \
+            "https://mirrors.huaweicloud.com/gradle/gradle-8.14.3-bin.zip"; do
+            rm -f "$zip"
+            if curl --fail --location --silent --show-error --retry 1 --retry-delay 5 --retry-all-errors --connect-timeout 20 --max-time 150 --output "$zip" "$url"; then
+              downloaded=1
+              break
+            fi
+          done
+          if [[ "$downloaded" -ne 1 ]]; then
+            echo "::error::Pinned Gradle ZIP download failed"
+            exit 1
+          fi
+      - name: Verify Gradle SHA-256 and use local ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip="$RUNNER_TEMP/gradle-8.14.3-bin.zip"
+          printf '%s  %s\n' 'bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531' "$zip" | sha256sum --check
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          path = Path('android/gradle/wrapper/gradle-wrapper.properties')
+          data = path.read_text()
+          original = r'distributionUrl=https\://services.gradle.org/distributions/gradle-8.14.3-bin.zip'
+          if data.count(original) != 1 or 'distributionSha256Sum=' in data:
+              raise SystemExit('Unexpected Gradle wrapper properties')
+          zip_url = (Path(os.environ['RUNNER_TEMP']) / 'gradle-8.14.3-bin.zip').resolve().as_uri().replace(':', r'\:')
+          path.write_text(data.replace(original, 'distributionUrl=' + zip_url).rstrip() + '\n'
+              + 'distributionSha256Sum=bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531\n')
+          PY
+      - name: Save verified Gradle ZIP for future QA
+        if: steps.gradle-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/gradle-8.14.3-bin.zip
+          key: gradle-dist-8.14.3-bin-${{ runner.os }}-bd71102213493060
+
+      - name: Build real backend QA profile APK
+        run: flutter build apk --profile -t lib/main_production.dart --flavor production
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Verify one real Android startup screen
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          script: bash qa/mobile/run_live_auth_once.sh
