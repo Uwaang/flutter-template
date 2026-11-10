@@ -66,13 +66,3 @@ jobs:
       - name: Live auth browser session and reload test
         working-directory: qa/web
         run: npx playwright test live-auth.spec.js
-      - name: Failure evidence without tokens
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: scrum-437-live-web-diagnostics
-          path: |
-            qa/web/playwright-report/
-            qa/web/test-results/
-          retention-days: 3
-          if-no-files-found: warn

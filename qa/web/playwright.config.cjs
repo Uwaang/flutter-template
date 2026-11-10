@@ -18,8 +18,9 @@ module.exports = defineConfig({
     baseURL: 'http://127.0.0.1:8765',
     browserName: 'chromium',
     headless: true,
-    screenshot: 'only-on-failure',
-    trace: 'retain-on-failure',
+    // Live Auth sessions must never write session tokens into a public CI trace.
+    screenshot: process.env.RUN_SUPABASE_WEB_LIVE === '1' ? 'off' : 'only-on-failure',
+    trace: process.env.RUN_SUPABASE_WEB_LIVE === '1' ? 'off' : 'retain-on-failure',
   },
   webServer: {
     command: 'python3 qa/web/spa_server.py',
