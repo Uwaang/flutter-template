@@ -1,0 +1,36 @@
+# SCRUM-437 one-time live test. This workflow contains ONLY a publishable
+# Supabase key (public by design), NEVER a service-role/secret key.
+# Remove this file after the single test run completes.
+name: SCRUM-437 one-time Supabase Auth smoke
+on:
+  push:
+    branches:
+      - feat/scrum-437-supabase-first
+    paths:
+      - .github/workflows/scrum-437-live-auth-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  real-auth-once:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      RUN_SUPABASE_AUTH_SMOKE: '1'
+      SUPABASE_URL: https://rfgdugcegitcfxblskwo.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_lS8D4KJhVTEDJ4Soo93flA_7R15HxVN
+    steps:
+      - name: Checkout code without credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Flutter pinned SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - name: Resolve dependencies
+        run: flutter pub get
+      - name: Live test single anonymous Auth account, refresh and logout
+        run: flutter test test/live_supabase_auth_smoke_test.dart --reporter expanded
