@@ -4,7 +4,6 @@ import 'package:flutter_app/app/navigation/app_router.dart';
 import 'package:flutter_app/common/component/custom_app_bar.dart';
 import 'package:flutter_app/features/profile/profile_page_content.dart';
 
-
 @RoutePage()
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
