@@ -42,7 +42,7 @@ void main() {
         expect(resumed.user?.id, user.id);
         expect(restored.auth.currentSession, isNotNull);
 
-        await restored.auth.signOut(scope: SignOutScope.local).timeout(const Duration(seconds: 40));
+        await restored.auth.signOut().timeout(const Duration(seconds: 40));
         expect(restored.auth.currentSession, isNull);
         expect(restored.auth.currentUser, isNull);
       } finally {
