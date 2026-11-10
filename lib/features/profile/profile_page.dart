@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app/navigation/app_router.dart';
 import 'package:flutter_app/common/component/custom_app_bar.dart';
+import 'package:flutter_app/core/flogger.dart';
 import 'package:flutter_app/core/supabase/supabase_service.dart';
 import 'package:flutter_app/features/profile/profile_page_content.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -26,11 +27,17 @@ class _ProfilePageState extends State<ProfilePage> {
       // GoTrue emits signedOut after clearing the SDK session. Navigate on
       // that authoritative event even if a subsequent local cache update
       // prevents the profile button's async callback from completing.
-      _authSubscription = SupabaseService.client.auth.onAuthStateChange.listen((state) {
-        if (mounted && state.event == AuthChangeEvent.signedOut) {
-          context.router.root.replaceAll([const AuthenticationRoute()]);
-        }
-      });
+      _authSubscription = SupabaseService.client.auth.onAuthStateChange.listen(
+        (state) {
+          if (mounted && state.event == AuthChangeEvent.signedOut) {
+            context.router.root.replaceAll([const AuthenticationRoute()]);
+          }
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          // Offline token refresh errors must not become unhandled zone exceptions.
+          Flogger.e('[Profile] Auth state stream error: $error', exception: error, stackTrace: stackTrace);
+        },
+      );
     }
   }
 
