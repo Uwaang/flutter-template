@@ -70,3 +70,53 @@ same UseCase API, but do not claim authenticated desktop runtime support yet.
 Supabase Auth anonymous users are *authenticated* principals. If later
 introducing database tables, RLS must distinguish `is_anonymous`, but
 **this task creates no database tables or CRUD methods**.
+
+## One-off live Auth smoke (disposable test project only)
+
+The CI quality/Android/Web checks intentionally do **not** create Supabase
+users. A single live Auth check is available but is **opt-in only** and is not
+an automated release gate. Use a dedicated, disposable Supabase **test project**
+with **Auth → Anonymous Sign-ins enabled**. Never use a production project.
+
+The local test only exercises **Supabase Auth**: one anonymous sign-in, the
+resulting authenticated session, restoring that session via a refresh token in
+a second client, and local sign-out. It performs **no application-table CRUD,
+SQL, profile writes, Storage, or Edge Functions**. An anonymous Auth user is
+still created in the Supabase project; **sign-out does not delete this user**.
+Manual removal from the Auth Users dashboard may be needed after testing.
+
+PowerShell, from the repository root (using the existing Flutter toolchain):
+
+```powershell
+$env:RUN_SUPABASE_AUTH_SMOKE = '1'
+$env:SUPABASE_URL = 'https://YOUR-TEST-PROJECT.supabase.co'
+$env:SUPABASE_PUBLISHABLE_KEY = 'YOUR_PUBLIC_PUBLISHABLE_KEY'
+flutter test test/live_supabase_auth_smoke_test.dart
+Remove-Item Env:\\RUN_SUPABASE_AUTH_SMOKE, Env:\\SUPABASE_URL, Env:\\SUPABASE_PUBLISHABLE_KEY
+```
+
+The public publishable key is expected. **Do not use an API secret,
+service-role key, JWT signing secret, database password or personal account**.
+The test is automatically skipped if `RUN_SUPABASE_AUTH_SMOKE` is absent; the
+usual CI test run never performs a live sign-in.
+
+### App session persistence — manual real-device or browser check
+
+1. In the test project's dashboard, enable **Anonymous Sign-ins**. Copy the
+   test project URL and *publishable* key into the local, gitignored `.env`
+   and the flavor-specific `.env-production` used by the app (keep existing
+   non-Supabase configuration in those files). Do **not** commit either file.
+2. Run the Flutter app locally with the production entrypoint and chosen
+   target, e.g. `flutter run -d chrome -t lib/main_production.dart`.
+3. Confirm that `Mock Sign In` is **absent** while the test backend is
+   configured. Select **Sign in Anonymously**; confirm that authentication
+   succeeds and the root/profile page appears.
+4. Close and reopen the app or reload the browser page, without clearing
+   its storage. Confirm the same session is restored and the user remains
+   signed in. A refresh-token API test alone does **not** prove this.
+5. Use **Sign out** in the profile page; confirm the authentication screen
+   reappears and remains signed out after reload.
+
+Google/Apple OAuth require separate provider configuration, registered
+callback URLs and platform-specific tests. Browser launch alone is **not**
+a successful OAuth sign-in. Never claim these are verified from this smoke.
