@@ -73,7 +73,7 @@ class App extends ConsumerWidget {
         // Supabase session before RootRoute can be displayed.
         deepLinkBuilder: (link) {
           if (link.path == '/root-route' || link.path.startsWith('/root-route/')) {
-            return DeepLink([const LandingRoute()]);
+            return const DeepLink([LandingRoute()]);
           }
           return link;
         },
