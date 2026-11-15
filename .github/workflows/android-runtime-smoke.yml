@@ -1,6 +1,12 @@
 name: Android Runtime Smoke PoC (SCRUM-435)
 
+# Temporary smoke experiment branch. This push trigger is NOT in the proposed mainline.
 on:
+  push:
+    branches: [experiment/gradle-setup-20261115]
+    paths:
+      - '.github/workflows/android-runtime-smoke.yml'
+      - 'android/gradle/wrapper/gradle-wrapper.properties'
   workflow_dispatch:
 
 permissions:
