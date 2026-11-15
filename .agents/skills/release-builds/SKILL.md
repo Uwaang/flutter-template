@@ -7,7 +7,9 @@ model: claude-sonnet-4-6
 
 # Flutter Template Release Builds
 
-Use this skill only after the release PR has been merged.
+**This is inherited STRV release documentation, not a currently enabled distribution workflow.** Current GitHub Actions are compile-only; Firebase/Play Store workflows have `.disabled` extensions. **Do not create release tags or attempt distribution from this skill** without a separate, explicit release plan, validated signing, and an enabled reviewed workflow. See `docs/CI.md`.
+
+Use the archival instructions below only when a real release process has been explicitly configured and approved.
 
 ## Read First
 - `AGENTS.md`
@@ -28,9 +30,9 @@ It covers:
 - archiving Flutter obfuscation symbols from `build/app/outputs/symbols` for Crashlytics Dart stack-trace deobfuscation
 
 ## Android Release Flow
-Android releases are triggered by tags after the release branch work is merged.
+The following describes the previous Android tag workflow; current distribution actions are disabled.
 
-Current workflow tag patterns:
+Historical workflow tag patterns (disabled; not active triggers):
 - develop Firebase distribution: `v<version>-develop`
 - staging Firebase distribution: `v<version>-staging`
 - production Firebase distribution: `v<version>-production`

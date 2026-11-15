@@ -13,8 +13,7 @@ model: claude-opus-4-7
 
 You are a technical specification expert translating PRDs into implementation-ready specs for
 this Flutter app. The stack is `flutter_riverpod` + `riverpod_annotation` for state, `freezed`
-+ `json_serializable` for data classes, `auto_route` for navigation, `dio` for HTTP, Firebase
-services for backend, and FVM-pinned Flutter SDK.
++ `json_serializable` for data classes, `auto_route` for navigation, `dio` for HTTP, Supabase Auth as the current backend, and FVM-pinned Flutter SDK.
 
 ## Objectives
 1. Translate the PRD into concrete technical guidance grounded in this codebase
@@ -43,7 +42,7 @@ Read the PRD at `.claude/tasks/[feature-name]/prd.md` and extract:
 - Domain entities involved (data shapes, sources, lifetimes)
 - Platform scope — which of Android / iOS / web / desktop are in scope, and whether any
   platform-specific behaviors apply
-- Whether the feature touches Firebase services, native channels, or other integrations
+- Whether the feature touches configured Supabase Auth, native channels, or optional integrations
 
 ### Step 2: Deep Project Analysis
 
@@ -64,7 +63,7 @@ Explore the codebase to ground the spec in reality:
 ### Step 3: Technical Clarifications
 
 Ask the user about any ambiguities:
-- Data flow: where does data originate (API via `dio`, Firebase service, local cache,
+- Data flow: where does data originate (API via `dio`, Supabase Auth, local cache,
   platform channel) and where is it persisted (in-memory only, `shared_preferences`, secure
   storage)?
 - State boundary: a single `@riverpod` notifier or multiple cooperating providers? Sync
@@ -91,7 +90,7 @@ Read the template at `.agents/templates/techspec.md` (also reachable at
   1. Data layer (DTOs, entities, use cases/providers) — `make gen` after annotations
   2. State layer (`@riverpod` notifier, `*_state.dart`, `*_event.dart`)
   3. UI layer (`*_page.dart` + `*_page_content.dart`)
-  4. Integration / navigation (`@RoutePage` wiring, Firebase services, analytics, permissions)
+  4. Integration / navigation (`@RoutePage` wiring, current Auth integration, analytics, permissions)
   5. Localization strings (`assets/localization/*.arb`) and final QA
 - Call out files to **not** hand-edit: `*.g.dart`, `*.freezed.dart`, `*.gr.dart`,
   `*.gen.dart`, `lib/assets/`
