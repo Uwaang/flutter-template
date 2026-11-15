@@ -44,8 +44,8 @@ npm test
 ```
 
 The Playwright config serves `../../build/web` on loopback port 8765 using a tiny SPA fallback server. Since the app uses Flutter's path URL strategy, refreshing `/root-route` (and other client routes) must return `index.html`; nonexistent files still return 404.
-The GitHub Actions job does the prerequisite Flutter preparation and runs
-both render modes independently. `qa/web/playwright-report` and
+The conditional GitHub Actions job does the prerequisite Flutter preparation and runs
+both render modes independently when relevant source or configuration changes. `qa/web/playwright-report` and
 `qa/web/test-results` capture traces and screenshots on failure.
 
 `@playwright/test` has a pinned top-level version. A lockfile has not yet
@@ -74,15 +74,13 @@ One **optional** GitHub Actions run: build a synthetic, debug-signed Android
 profile APK, launch it in an API 34 emulator, and assert the visible
 `Mock Sign In` screen. This is **not** a required merge/release gate.
 
-- Workflow: `.github/workflows/android-runtime-smoke.yml`; QA-branch changes
-  to smoke test files start it. Manual dispatch is possible after the workflow
-  is available on the repository's default branch.
+- Workflow: `.github/workflows/android-runtime-smoke.yml`; **manual dispatch only** after the workflow exists on the default branch. Normal PRs and `main` pushes do not launch an Android emulator.
 - Fixture: `qa/mobile/prepare_ci_env.py` derives SHA-256 signing hash from
   the existing debug keystore and corrects the app ID in generated,
   gitignored `.env*` files. No Firebase or OAuth credentials are supplied.
 - Test: `qa/mobile/run_once.sh` checks actual Android UI hierarchy and
   keeps screenshot/logcat evidence.
-- Gradle 8.14.3 archive: verified by pinned official SHA-256 before use.
+- Gradle 8.14.3 distribution: checksum pinned in `android/gradle/wrapper/gradle-wrapper.properties`. The official `setup-gradle@v6` cache/validation replacement is awaiting an actual Android smoke run; do not treat it as proven yet.
 
 The optional `qa/mobile/startup.yaml` Maestro example and existing Patrol
 tests remain unchanged. No login success, real backend, release signing, iOS

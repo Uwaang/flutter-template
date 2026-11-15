@@ -25,6 +25,13 @@ Use this file as the entrypoint for automated work in this repository.
 - Keep network payload models in `lib/common/data/dto/` and map them into entities from `lib/common/data/entity/`.
 - Use Riverpod providers and use cases instead of wiring IO directly in widgets.
 
+## Repository and CI Ownership
+- GitHub `main` is the canonical source for this public template. Use GitHub branches and PRs; do not assume a private GitLab mirror must be updated.
+- `.github/workflows/platform-builds.yml` is the hosted quality and seven-platform compile workflow. Web runtime smoke is conditional on relevant changes; Android emulator startup is manual only.
+- Keep private lab or workstation CI, local runner settings, internal URLs, signing keys and credentials out of public branches, workflow logs and artifacts.
+- Do not reintroduce inherited Firebase distribution workflows just because old agent skill instructions mention them.
+- Do not run live Supabase Auth tests without explicit opt-in and a disposable test backend.
+
 ## Codegen And Commands
 - Run `make gen` after changing `@riverpod`, `@freezed`, `@RoutePage`, localization, or generated asset inputs.
 - Use `make watch` for continuous code generation when doing annotation-heavy work. This is a human-only command — agents must never run it (it spawns a persistent background watcher). Agents always use one-shot `make gen`.
@@ -42,7 +49,7 @@ Use this file as the entrypoint for automated work in this repository.
 ## Documentation Ownership (mandatory)
 - **Canonical human-readable documentation belongs in `docs/`.** The only documentation entrypoints at the repository root are `README.md` (overview and quick start) and `AGENTS.md` (agent instructions).
 - Before creating a document, check whether an existing `docs/` page covers the subject. **Update the existing page first.** Avoid scattered `README.md`, `NOTES.md`, implementation reports, and redundant summaries alongside feature/test code.
-- Maintain one source of truth per topic: `docs/PROJECT_OVERVIEW.md` for the repo map, `docs/PROJECT_GUIDELINES.md` for implementation rules, `docs/CI.md` for GitLab/GitHub CI and publication, `docs/QA.md` for runtime smoke checks, `docs/SUPABASE_FIRST.md` for Auth setup, and `docs/PROJECT_SETUP.md` for app initialization and Android signing. Other documents should link to these instead of copying their content.
+- Maintain one source of truth per topic: `docs/PROJECT_OVERVIEW.md` for the repo map, `docs/PROJECT_GUIDELINES.md` for implementation rules, `docs/CI.md` for GitHub Actions CI and public-source boundaries, `docs/QA.md` for runtime smoke checks, `docs/SUPABASE_FIRST.md` for Auth setup, and `docs/PROJECT_SETUP.md` for app initialization and Android signing. Other documents should link to these instead of copying their content.
 - When changing behavior, dependencies, CI, commands, or public setup, check whether the canonical documentation becomes inaccurate; update affected content **in the same change**. A code-only change that does not affect any documented contract needs no documentation edit.
 - For document moves/renames, update inbound links and delete superseded files. Do not preserve obsolete duplicated guidance merely as a stub.
 - Tool-required artifacts (for example `.claude/CLAUDE.md`, `.agents/skills/**/SKILL.md`, command definitions, code templates and configuration files) may remain at required paths. These are not permission to create independent narrative documentation elsewhere.

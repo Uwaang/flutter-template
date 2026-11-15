@@ -1,6 +1,6 @@
 # Flutter Template
 
-Cross-platform Flutter application template, adapted from STRV and maintained with a **GitLab source repository** and a **public GitHub build mirror**. The current default backend integration is **Supabase Auth**. This is a starter project, not a production-ready app.
+Cross-platform Flutter application template adapted from STRV. **GitHub `main` is the canonical public source and CI entrypoint.** The current default backend integration is **Supabase Auth**. This is a starter project, not a production-ready app.
 
 ## Current capabilities
 
@@ -42,7 +42,7 @@ The app exposes example Home, Events, Profile and Debug Tools screens. Platform-
 | [Project overview](docs/PROJECT_OVERVIEW.md) | Repository map, startup and feature inventory |
 | [Project guidelines](docs/PROJECT_GUIDELINES.md) | Implementation conventions and test practices |
 | [Project setup](docs/PROJECT_SETUP.md) | App icons, splash, rebranding and signing setup |
-| [CI and publication](docs/CI.md) | Canonical GitLab CI, GitHub hosted builds and publication security |
+| [CI and publication](docs/CI.md) | GitHub-hosted builds, conditional runtime QA and public/private boundaries |
 | [Runtime QA](docs/QA.md) | Web and Android optional smoke checks, live-test boundaries |
 | [Supabase-first setup](docs/SUPABASE_FIRST.md) | Public configuration, Auth sessions, OAuth boundaries and one-time evidence |
 
@@ -50,9 +50,9 @@ Documentation belongs under `docs/` except these two root entrypoints (`README.m
 
 ## Release and security boundaries
 
-- **GitLab is canonical; GitHub is a reviewed public mirror.** Changes to GitHub branches/PRs must be reviewed and imported back into GitLab before promoting another public baseline; do not merge or publish without authorization.
+- **GitHub `main` is canonical.** Submit changes through GitHub branches and pull requests. Never copy personal NAS, workstation or private CI details into the public repository.
 - Public CI is secret-free. Hosted Android AAB/iOS compilation artifacts are **not** signed store releases. See [CI](docs/CI.md).
-- Inherited STRV Firebase-era distribution jobs are disabled and their old setup instructions must **not** be used to grant privileged service accounts or re-enable SDKs. For the current backend, follow [Supabase-first setup](docs/SUPABASE_FIRST.md).
+- Inherited Firebase-era app distribution and Play Store pipelines are **not shipped** in the active public CI. Do not re-enable these SDKs or release jobs without a separate decision. See [Supabase-first setup](docs/SUPABASE_FIRST.md).
 - Real anonymous Auth smoke tests may create users; they require explicit opt-in and a disposable test project. See [QA](docs/QA.md).
 
 ## Origins

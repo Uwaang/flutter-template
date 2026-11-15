@@ -144,12 +144,12 @@ Helpers worth knowing:
 
 ## Versioning And Releases
 
-- GitHub hosted compile checks and the selected-branch publication policy are documented in `docs/CI.md`. Personal Windows provisioning stays on the private lab branch.
+- GitHub `main` is the canonical public source. Hosted compile checks and branch/runtime QA policy are documented in `docs/CI.md`. Private workstation provisioning is outside the public template.
 - Flutter SDK pinning is managed through `.fvmrc`.
 - App versioning and Flutter constraints are declared in `pubspec.yaml`.
 - The repo includes `release_notes.txt` plus build commands for Android and iOS release artifacts.
-- `.gitlab-ci.yml` adds self-hosted JavaScript/WebAssembly web verification and optional native artifact jobs; see `docs/CI.md`.
-- Some inherited AI skills and disabled distribution workflows still contain STRV/Firebase-era examples. They are not active release guidance; verify actual configuration against `pubspec.yaml`, `setup_app.dart`, and `docs/CI.md`.
+- `.github/workflows/platform-builds.yml` runs seven hosted compile targets. `.github/workflows/web-runtime-smoke.yml` runs conditionally for relevant changes; Android emulator smoke is manual.
+- Some inherited AI skills still describe historical STRV/Firebase release workflows; those distribution YAML files are absent from current public CI. Verify active behavior against `pubspec.yaml`, `setup_app.dart`, and `docs/CI.md`.
 
 ## Files To Treat Carefully
 - Generated files: `*.g.dart`, `*.freezed.dart`, `*.gr.dart`, `lib/assets/*`
@@ -162,7 +162,7 @@ Helpers worth knowing:
 - Windows/macOS/iOS GUI runtime, real physical-device verification, native release signing and store uploads are not proven by the seven compile-only jobs.
 - Android API 34 emulator and Web Chromium passed one-off live **anonymous Auth** session lifecycle checks; these are not default recurring CI gates. Read `docs/SUPABASE_FIRST.md` for exact evidence.
 - The optional Playwright PoC has no npm lockfile and is not a mandatory merge gate. Existing Patrol/Maestro scaffolding is retained without increasing broad UI E2E coverage.
-- Inherited agent skills and disabled distribution examples may describe the removed Firebase backend; don't restore them without a separate explicit decision.
+- Inherited agent skills may mention the removed Firebase backend or historical distribution tags. Do not restore those instructions without a separate explicit decision.
 
 ## Documentation Ownership
 - Keep README and AGENTS.md as the two root documentation entrypoints; maintain topic-specific guidance under `docs/`.

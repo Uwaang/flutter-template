@@ -1,131 +1,56 @@
-# Continuous Integration and Publication
+# Continuous Integration and QA
 
-This is the single reference for **GitLab canonical CI** and the **GitHub public build mirror**. For runtime QA, see [QA.md](QA.md); for backend setup, see [SUPABASE_FIRST.md](SUPABASE_FIRST.md). The workflow files are the executable source of truth when documentation and CI differ.
+The **public GitHub `main` branch is the canonical source** for this reusable Flutter template. Proposed changes use GitHub branches and pull requests. This repository does not automatically sync with a second source repository.
 
-## GitLab source and GitHub mirror
+Any private historical CI or workstation-specific automation is managed separately and must **not** be copied into public branches, GitHub Actions, pull requests, logs, artifacts, or documentation.
 
-## Ownership and Publication
+## Default GitHub validation
 
-GitLab is the source of truth. GitHub is a public build/review mirror, not an
-independent production deployment. Only the reviewed publication branch is
-mirrored; never use `git push --mirror` or `--all`. Do not publish private lab
-branches, VM provisioning, local logs, or old workstation artifacts.
+Workflow: `.github/workflows/platform-builds.yml`
 
-The current reviewed baseline is shared by GitLab `master` and GitHub `main` (commit `a58471db` as of 2026-11-10). New changes must be reviewed on a branch, integrated to the canonical GitLab repository, and then published to GitHub as the same commit. This document does not authorize any push or merge. New public commits use a GitHub noreply identity. Existing public-template and
-local contributor history retains its original authorship metadata.
+- On pull requests and pushes to `main`, run formatting, fixture unit tests, generated-source consistency, analyzer checks and Flutter tests.
+- After the quality job succeeds, build **seven compile targets**: Web JavaScript, WebAssembly, Linux, Windows, Android profile AAB, macOS and unsigned iOS device app.
+- Upload build artifacts for seven days using GitHub-hosted runners. The Windows ZIP includes runtime files but excludes intermediate debug/build outputs.
+- Use only generated **non-secret placeholders** via `tool/create_ci_env.dart` and `tool/prepare_native_ci.py`; Android profile AAB uses synthetic/debug signing. These are **not** store-signed artifacts.
+- A change consisting entirely of Markdown, agent guidance or archived workflow images is excluded using `paths-ignore`. Other changes still get the full quality and build matrix.
+- `workflow_dispatch` remains available for an authorized manual build. Branch-protection required checks should be reviewed before marking an entire skipped workflow as required.
 
-After explicit integration approval, compare both remotes and verify that GitHub `main` receives the same reviewed GitLab commit. Configure `origin` privately for the source repository and `github` as `git@github.com:Uwaang/flutter-template.git`; do not embed authentication in URLs.
-There is no scheduled or token-bearing mirror service. Changes made through
-GitHub PRs must be reviewed and imported into GitLab before becoming the next
-canonical publication; do not independently advance the two mainlines.
+The active Flutter SDK version comes from `.fvmrc`. Executable workflow YAML and project configuration take precedence over historical text.
 
-## Inherited Encryption Samples
+## Web runtime verification (conditional)
 
-Upstream STRV history includes an age private key together with encrypted sample
-environment/signing files. Their contents match the already-public upstream.
-The private-key file is removed from the current tree, but remains in public
-upstream history. Treat all inherited encrypted fixtures as PUBLIC EXAMPLES,
-not as protected secrets. Never reuse that key, example signing material, or
-configuration for production. Create fresh keys and private configuration for a
-real application. The original MIT license and notices are retained.
+Workflow: `.github/workflows/web-runtime-smoke.yml`
 
-The compile workflow does not decrypt any fixture, access any production backend,
-upload Crashlytics symbols, sign an App Store release, or deploy to a store.
-Secret-backed upstream workflows have `.disabled` extensions and are not active.
-Their historical deployment setup advice is not a required permission policy
-for this mirror.
+- Run automatically on relevant PRs and `main` pushes affecting `lib/`, `assets/`, `web/`, `qa/web/`, web runtime workflow, Flutter/lock/config versions or CI fixture setup.
+- Compile **both Web JS and Web WASM**, then run the same Playwright Chromium first-screen smoke against each compiled artifact.
+- The SPA server in `qa/web/spa_server.py` provides route fallback for refreshed client-side URLs without silently hiding missing assets.
+- This is separate from compiling successfully. It checks that the splash disappears and the mock login actually renders.
+- The tests do not use real Supabase credentials by default. See [QA](QA.md) for details.
 
-## Hosted Build Checks
+The independent runtime job currently recompiles Web JS/WASM instead of consuming the platform build job's archives. Do not add an artifact handoff just to save lines; consider it only after comparing runtime, complexity and failure isolation.
 
-`Platform Builds` runs on pushes, PRs, or manual dispatch with read-only repository
-permissions and no user-provided secrets. Flutter is pinned by `.fvmrc`. Quality,
-formatting, analysis, unit/widget tests, and fixture tests precede the builds.
+## Android runtime verification (manual)
 
-| Target | Hosted OS | Evidence |
-| --- | --- | --- |
-| Web JS / WASM | Ubuntu | Separate compiled web archives |
-| Linux | Ubuntu | Release runtime bundle |
-| Windows | Windows | Release runtime ZIP, without intermediate libraries/symbols |
-| Android | Ubuntu | Profile AAB using debug signing and non-production CI fixtures |
-| macOS | macOS | Release application bundle |
-| iOS | macOS | Unsigned device compilation, not an installable store IPA |
+Workflow: `.github/workflows/android-runtime-smoke.yml`
 
-Every matrix job has a 45-minute timeout; failures do not cancel unrelated targets.
-Artifacts expire after seven days. These checks prove compilation only, not
-authentication, device behavior, RASP integration, signing, or store readiness.
-Android profile resources use production's launcher assets, while signing remains
-debug-only. The iOS compile-only environment explicitly skips symbol upload;
-normal project release behavior is unchanged when that flag is absent.
+- **Manual `workflow_dispatch` only**. An Android emulator run is not a required PR or `main` merge gate.
+- Build a non-production profile APK, start an Android API 34 emulator, assert the rendered `Mock Sign In` screen and retain useful failure evidence.
+- The Gradle preparation experiment uses `gradle/actions/setup-gradle@v6` with `cache-provider: basic` (open-source cache), replacing bespoke multi-mirror download and ZIP caching. The wrapper distribution remains version 8.14.3 and pins `distributionSha256Sum` in `android/gradle/wrapper/gradle-wrapper.properties`.
+- `setup-gradle` validates the wrapper JAR. The distribution SHA check is enforced separately by Gradle Wrapper.
+- **The simplified Gradle path is experimental until the emulator job succeeds**; restore the prior implementation if the old failure mode reappears. No auto-trigger is left on long-lived branches.
 
-Use runner checkout paths and relative artifact paths. Build tools can embed their
-own hosted build paths in binaries; this is distinct from leaking a personal PC
-home directory. Re-scan source history and generated bundles before publication.
-Do not modify executable/DLL bytes merely to remove embedded path strings.
+GitHub's `workflow_dispatch` is available for workflow files published on the repository default branch. Before this branch is merged, validate the experiment in an explicitly approved isolated test run rather than claiming it has passed.
 
-## Web ChatGPT Handoff
+## Real Supabase authentication
 
-A connected GitHub tool can inspect public code, commits, PRs and Actions results
-subject to its actual exposed tools. Write/dispatch permissions must be verified
-in that chat; public visibility alone does not grant them. Contributors should
-use a branch and PR, keep this workflow secret-free, and return changes to the
-GitLab source rather than establishing an unrelated second mainline.
+SDK, browser and Android live-auth tests remain **opt-in only** and must use a disposable test project. These tests can create real anonymous users, so they must never run automatically on public pull requests or against a production backend. See [Supabase-first setup](SUPABASE_FIRST.md) and [QA](QA.md).
 
-## Self-hosted GitLab verification
+## Public-source security and releases
 
-This repository retains selected STRV workflow history and adds a separate GitLab CI path for self-hosted use. The active Flutter backend is Supabase Auth; inherited secret-backed deployment workflows remain disabled.
+- Keep standard CI on **GitHub-hosted runners** with read-only contents permissions. Do not register private lab computers, self-hosted runners or private network access as runners for untrusted public PRs.
+- Do not add private CI YAML, internal DNS/IP addresses, personal directories, credentials, protected variables or signed release keys to public source or build logs.
+- Inherited Firebase app-distribution and Play Store workflow examples are not part of the active repository CI. Do not reinstate them without a separate release design and review.
+- Host compilation is **not** GUI-runtime validation on Windows/macOS/iOS, production code signing, full OAuth verification or App Store/Play Store deployment.
+- The original upstream STRV license and attribution remain in source control.
 
-## Goals
-
-- Keep Flutter pinned to the same SDK as `.fvmrc`.
-- Validate both JavaScript and WebAssembly web builds.
-- Preserve the Riverpod/use-case layout and freeRASP while keeping current Supabase-first Auth distinct from the inherited STRV/Firebase release examples.
-- Keep secret-backed release jobs separate from ordinary analysis/test/build validation.
-- Make native desktop/mobile runners optional: missing Windows or macOS runners must not block ordinary Linux/Web verification.
-
-## Automatic verification
-
-The default GitLab path runs on a Linux Docker runner:
-
-1. `flutter pub get`
-2. create ignored, non-secret `.env*` placeholder files with `tool/create_ci_env.dart`
-3. formatting check
-4. localization/code generation
-5. generated-diff check
-6. `flutter analyze`
-7. `flutter test`
-8. JavaScript web release build
-9. WebAssembly web release build
-
-The two web builds are intentionally separate. A dependency can support the normal JavaScript backend while still importing a legacy web library that prevents `dart2wasm` compilation.
-
-## WebAssembly policy
-
-Prefer packages that support Dart's modern web interop:
-
-- `package:web` instead of `dart:html`/legacy HTML wrappers
-- `dart:js_interop` instead of `dart:js` or `package:js`
-
-The template's own web setup uses `package:web`. New dependencies should keep the `web_wasm` job green whenever practical.
-
-WASM readiness is a compatibility target, not a requirement to deploy only WASM. Keep the normal JavaScript web build because browser/platform support and third-party integrations can differ.
-
-## Native build jobs
-
-Native artifacts are manual by default so a NAS-only Linux runner can still provide useful CI.
-
-- `linux_release`: Linux runner/container; produces a tar.gz bundle.
-- `android_release`: a **manual legacy packaging job**; the existing script still checks for a Firebase-era Android config and release signing files. This does not mean Firebase Auth is enabled. Review and modernize the release recipe separately before running it against the Supabase-first template.
-- `windows_release`: Windows shell runner tagged `windows` and `flutter`.
-- `ios_release`: macOS shell runner tagged `macos` and `flutter`; signing/export remains project-specific.
-
-When dedicated runners become permanently available, individual jobs can be changed from manual to automatic without changing application architecture.
-
-## Placeholder environment files
-
-`tool/create_ci_env.dart` writes only ignored, non-secret placeholder values. They exist so code generation, analysis, tests, and compile-only web/desktop checks do not depend on production secrets.
-
-Do not use those values for distribution builds. Android/iOS release jobs should restore the project's real encrypted configuration/signing material through protected GitLab CI variables or another approved secret mechanism.
-
-## CI image note
-
-The initial Linux jobs use `ghcr.io/cirruslabs/flutter:3.44.0` because it exactly matches the upstream STRV Flutter pin. Cirrus Labs stopped publishing new Flutter images in 2026, so a future Flutter upgrade should also replace this image source or move to a small internally maintained CI image based on the official Flutter SDK archive.
+See [Project setup](PROJECT_SETUP.md) for local configuration and private signing guidance, and [Project overview](PROJECT_OVERVIEW.md) for the app's actual startup integrations.
