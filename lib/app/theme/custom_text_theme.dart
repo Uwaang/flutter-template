@@ -17,6 +17,24 @@ import 'package:flutter_app/assets/fonts.gen.dart';
 ///   `fontWeight: FontWeight.w400,`
 ///
 class CustomTextTheme {
+  /// Compatibility view: the active Material TextTheme is authoritative.
+  CustomTextTheme.fromTextTheme(TextTheme theme)
+    : displayLarge = theme.displayLarge!,
+      displayMedium = theme.displayMedium!,
+      displaySmall = theme.displaySmall!,
+      headlineLarge = theme.headlineLarge!,
+      headlineMedium = theme.headlineMedium!,
+      headlineSmall = theme.headlineSmall!,
+      titleLarge = theme.titleLarge!,
+      titleMedium = theme.titleMedium!,
+      titleSmall = theme.titleSmall!,
+      labelLarge = theme.labelLarge!,
+      labelMedium = theme.labelMedium!,
+      labelSmall = theme.labelSmall!,
+      bodyLarge = theme.bodyLarge!,
+      bodyMedium = theme.bodyMedium!,
+      bodySmall = theme.bodySmall!;
+
   CustomTextTheme({required CustomColorScheme colorScheme})
     : // Subtitle: Display
       displayLarge = TextStyle(

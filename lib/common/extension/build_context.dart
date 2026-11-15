@@ -6,6 +6,6 @@ import 'package:flutter_app/assets/app_localizations.gen.dart';
 extension BuildContextExtension on BuildContext {
   AppLocalizations get locale => AppLocalizations.of(this)!;
   ThemeData get theme => Theme.of(this);
-  CustomColorScheme get colorScheme => CustomColorScheme(brightness: Theme.of(this).colorScheme.brightness);
-  CustomTextTheme get textTheme => CustomTextTheme(colorScheme: colorScheme);
+  CustomColorScheme get colorScheme => CustomColorScheme.fromTheme(Theme.of(this));
+  CustomTextTheme get textTheme => CustomTextTheme.fromTextTheme(Theme.of(this).textTheme);
 }

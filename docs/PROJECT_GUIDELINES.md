@@ -27,7 +27,7 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 - Keep `*_page.dart` focused on route-level setup, event listeners, and scaffold structure.
 - Put heavier widget trees in `*_page_content.dart`.
 - Prefer shared widgets from `lib/common/component/` and `lib/common/composition/` before creating new primitives.
-- Use `context.colorScheme`, `context.textTheme`, and `context.locale` from `lib/common/extension/build_context.dart` instead of duplicating theme or localization access.
+- For new UI use `Theme.of(context).colorScheme` and `Theme.of(context).textTheme`; existing `context.colorScheme` and `context.textTheme` getters read back from the active Material theme. Use `context.locale` for generated localization.
 - `CustomAppBar` is a common default for top bars.
 - `Scaffold` is used directly in the current template. Do not assume a `CustomScaffold` exists.
 - Edge-to-edge behavior is coordinated through `CustomSystemBarsTheme` in `lib/app/theme/custom_system_bars_theme.dart`.
@@ -36,9 +36,9 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 ## Material 3 Design System
 - Flutter's **Material 3** is the default design foundation; do not add a second widget/theme framework without an explicit use case.
 - `AppTheme.getThemeData` in `lib/app/theme/app_theme.dart` owns both light/dark `ColorScheme` and `TextTheme`, plus shared Material component themes. New screens should prefer `Theme.of(context).colorScheme` and `Theme.of(context).textTheme`.
-- `CustomColorScheme` and `CustomTextTheme` are retained for existing widgets. The current palette and typography are bridged into Material `ThemeData` to avoid changing every call site at once. When migrating an existing widget, remove duplicated token definitions rather than creating another parallel theme system.
-- `lib/app/theme/app_design_tokens.dart` contains only fixed layout tokens already used by components (spacing and corner radius). Add a new token **only after** a repeated need appears; use `ThemeExtension` only for values that must change with the active theme.
-- Shared `ElevatedButton` presentation belongs to `ThemeData.elevatedButtonTheme`; `CustomButtonPrimary` retains its loading, disabled and haptic behavior, without its own duplicate button style.
+- Existing `CustomColorScheme` and `CustomTextTheme` are compatibility getters, backed by the current `ThemeData` at runtime. Their initial palette/type styles build the Material theme once. Additional semantic feedback colors live in `AppSemanticColors` (`ThemeExtension`); do not create a second runtime theme from brightness.
+- Avoid speculative spacing/radius tokens. Introduce shared design tokens only after a genuinely repeated use arises; reserve `ThemeExtension` for colors or values that cannot be expressed by standard Material 3 properties.
+- Regular `ElevatedButton` instances keep Material 3 defaults. `CustomButtonPrimary` retains useful loading, disabled and haptic behavior; it does not force a custom appearance on every Material button.
 - Do not redesign sample Home/Events/Profile routes as part of theme maintenance. Keep responsive/navigation and Figma/Widgetbook automation as separate opt-in decisions.
 - For new features prefer built-in Material 3 widgets; create shared wrappers for actual repeated behavior, not solely to rename existing Flutter widgets.
 

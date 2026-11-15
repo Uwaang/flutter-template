@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app/common/component/custom_progress_indicator.dart';
-import 'package:flutter_app/common/component/custom_text/custom_text.dart';
-import 'package:flutter_app/common/extension/build_context.dart';
 
 class CustomButtonPrimary extends StatelessWidget {
   const CustomButtonPrimary({
@@ -32,13 +30,9 @@ class CustomButtonPrimary extends StatelessWidget {
           ? SizedBox(
               width: 24,
               height: 24,
-              child: CustomProgressIndicator(color: context.colorScheme.onPrimary),
+              child: CustomProgressIndicator(color: Theme.of(context).colorScheme.primary),
             )
-          : CustomText(
-              text: text,
-              style: context.textTheme.titleMedium.copyWith(letterSpacing: 0.2, color: context.colorScheme.onPrimary),
-              textAlign: TextAlign.center,
-            ),
+          : Text(text, textAlign: TextAlign.center),
     );
   }
 }

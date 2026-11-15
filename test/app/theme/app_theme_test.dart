@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/app/theme/app_design_tokens.dart';
 import 'package:flutter_app/app/theme/app_theme.dart';
 import 'package:flutter_app/app/theme/custom_color_scheme.dart';
 import 'package:flutter_app/assets/fonts.gen.dart';
 import 'package:flutter_app/common/component/custom_button/custom_button_primary.dart';
+import 'package:flutter_app/common/extension/build_context.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -23,16 +23,11 @@ void main() {
         expect(theme.textTheme.titleMedium?.fontSize, 16);
         expect(theme.textTheme.bodyMedium?.color, legacyColors.onSurface);
 
-        final buttonStyle = theme.elevatedButtonTheme.style!;
-        expect(buttonStyle.backgroundColor!.resolve({}), legacyColors.primary);
-        expect(buttonStyle.foregroundColor!.resolve({}), legacyColors.onPrimary);
-        expect(
-          buttonStyle.padding!.resolve({}),
-          const EdgeInsets.symmetric(
-            horizontal: AppDesignTokens.spacingMedium,
-            vertical: AppDesignTokens.spacingSmall,
-          ),
-        );
+        // Do not override every Material 3 ElevatedButton with a branded style.
+        expect(theme.elevatedButtonTheme.style, isNull);
+        expect(theme.colorScheme.surfaceContainerLow, legacyColors.surfaceVariant);
+        expect(theme.colorScheme.outlineVariant, legacyColors.divider);
+        expect(theme.extension<AppSemanticColors>()!.success, legacyColors.success);
       });
     }
   });
@@ -52,5 +47,31 @@ void main() {
 
     expect(find.text('Continue'), findsOneWidget);
     expect(tester.widget<ElevatedButton>(find.byType(ElevatedButton)).style, isNull);
+  });
+
+  testWidgets('existing theme getters resolve the active Material theme', (tester) async {
+    final baseTheme = AppTheme.getThemeData(brightness: Brightness.light);
+    final modifiedTheme = baseTheme.copyWith(
+      colorScheme: baseTheme.colorScheme.copyWith(primary: Colors.green),
+      textTheme: baseTheme.textTheme.copyWith(
+        titleMedium: baseTheme.textTheme.titleMedium!.copyWith(fontSize: 19),
+      ),
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: modifiedTheme,
+        home: Builder(
+          builder: (context) {
+            expect(context.colorScheme.primary, Colors.green);
+            expect(context.textTheme.titleMedium.fontSize, 19);
+            expect(
+              context.colorScheme.snackbarBackground,
+              modifiedTheme.extension<AppSemanticColors>()!.snackbarBackground,
+            );
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
   });
 }
