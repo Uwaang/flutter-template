@@ -28,7 +28,6 @@ class CustomButtonPrimary extends StatelessWidget {
               HapticFeedback.mediumImpact();
               onPressed();
             },
-      style: _getButtonStyle(context),
       child: isLoading
           ? SizedBox(
               width: 24,
@@ -43,21 +42,4 @@ class CustomButtonPrimary extends StatelessWidget {
     );
   }
 
-  ButtonStyle _getButtonStyle(BuildContext context) {
-    return ButtonStyle(
-      backgroundColor: WidgetStateProperty.all(context.colorScheme.primary),
-      foregroundColor: WidgetStateProperty.all(context.colorScheme.onPrimary),
-      overlayColor: WidgetStateProperty.all(context.colorScheme.secondary.withValues(alpha: 0.1)),
-      surfaceTintColor: WidgetStateProperty.all(context.colorScheme.primary),
-      shadowColor: WidgetStateProperty.all(context.colorScheme.shadow),
-      padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
-      minimumSize: WidgetStateProperty.all(const Size.fromHeight(56)),
-      elevation: WidgetStateProperty.all(3),
-      shape: WidgetStateProperty.all(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-      ),
-    );
-  }
 }

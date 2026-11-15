@@ -149,4 +149,26 @@ class CustomTextTheme {
   final TextStyle bodyLarge;
   final TextStyle bodyMedium;
   final TextStyle bodySmall;
+
+  /// Bridges existing component text styles into Flutter's Material 3 theme.
+  ///
+  /// Existing uses of CustomTextTheme keep their sizes and font families while
+  /// Material widgets and future screens share these same semantic roles.
+  TextTheme toMaterialTextTheme() => TextTheme(
+    displayLarge: displayLarge,
+    displayMedium: displayMedium,
+    displaySmall: displaySmall,
+    headlineLarge: headlineLarge,
+    headlineMedium: headlineMedium,
+    headlineSmall: headlineSmall,
+    titleLarge: titleLarge,
+    titleMedium: titleMedium,
+    titleSmall: titleSmall,
+    labelLarge: labelLarge,
+    labelMedium: labelMedium,
+    labelSmall: labelSmall,
+    bodyLarge: bodyLarge,
+    bodyMedium: bodyMedium,
+    bodySmall: bodySmall,
+  );
 }

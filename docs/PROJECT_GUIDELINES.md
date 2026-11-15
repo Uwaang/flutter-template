@@ -33,6 +33,15 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 - Edge-to-edge behavior is coordinated through `CustomSystemBarsTheme` in `lib/app/theme/custom_system_bars_theme.dart`.
 - Use `LayoutBuilder` when a widget must adapt to parent constraints, and use `MediaQuery.sizeOf(context)` only when the whole screen size matters. Prefer stable constraints (`Expanded`, `Flexible`, `ConstrainedBox`, grid delegates, or aspect ratios) over fixed dimensions that can overflow with localized text or narrow viewports.
 
+## Material 3 Design System
+- Flutter's **Material 3** is the default design foundation; do not add a second widget/theme framework without an explicit use case.
+- `AppTheme.getThemeData` in `lib/app/theme/app_theme.dart` owns both light/dark `ColorScheme` and `TextTheme`, plus shared Material component themes. New screens should prefer `Theme.of(context).colorScheme` and `Theme.of(context).textTheme`.
+- `CustomColorScheme` and `CustomTextTheme` are retained for existing widgets. The current palette and typography are bridged into Material `ThemeData` to avoid changing every call site at once. When migrating an existing widget, remove duplicated token definitions rather than creating another parallel theme system.
+- `lib/app/theme/app_design_tokens.dart` contains only fixed layout tokens already used by components (spacing and corner radius). Add a new token **only after** a repeated need appears; use `ThemeExtension` only for values that must change with the active theme.
+- Shared `ElevatedButton` presentation belongs to `ThemeData.elevatedButtonTheme`; `CustomButtonPrimary` retains its loading, disabled and haptic behavior, without its own duplicate button style.
+- Do not redesign sample Home/Events/Profile routes as part of theme maintenance. Keep responsive/navigation and Figma/Widgetbook automation as separate opt-in decisions.
+- For new features prefer built-in Material 3 widgets; create shared wrappers for actual repeated behavior, not solely to rename existing Flutter widgets.
+
 ## Shared UI: Components vs Compositions
 - Use `lib/common/component/` for smaller reusable building blocks such as buttons, app bars, inputs, tabs, avatars, and low-level display widgets.
 - Use `lib/common/composition/` for larger assembled UI blocks such as dialogs, placeholders, scroll containers, or responsive wrappers.
