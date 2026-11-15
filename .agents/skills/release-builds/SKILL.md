@@ -7,7 +7,9 @@ model: claude-sonnet-4-6
 
 # Flutter Template Release Builds
 
-Use this skill only after the release PR has been merged.
+**This is inherited STRV release documentation, not a currently enabled distribution workflow.** Current GitHub Actions are compile-only; inherited Firebase/Play Store distribution YAML files have been removed from the canonical public branch and preserved only in private historical source. **Do not create release tags or attempt distribution from this skill** without a separate, explicit release plan, validated signing, and an enabled reviewed workflow. See `docs/CI.md`.
+
+Use the archival instructions below only when a real release process has been explicitly configured and approved.
 
 ## Read First
 - `AGENTS.md`
@@ -28,9 +30,9 @@ It covers:
 - archiving Flutter obfuscation symbols from `build/app/outputs/symbols` for Crashlytics Dart stack-trace deobfuscation
 
 ## Android Release Flow
-Android releases are triggered by tags after the release branch work is merged.
+The following describes the previous Android tag workflow; current distribution actions are **absent** from this public repository. Never push those tags expecting a deploy.
 
-Current workflow tag patterns:
+Historical tag patterns (not active; for reference only):
 - develop Firebase distribution: `v<version>-develop`
 - staging Firebase distribution: `v<version>-staging`
 - production Firebase distribution: `v<version>-production`
@@ -108,7 +110,7 @@ These are the `--split-debug-info` Dart symbol files used for Flutter Crashlytic
 - Transporter delivery is currently a manual step in this workflow, not an automated repo-integrated step.
 
 ## Completion Criteria
-- Android tags match the intended workflows
+- No obsolete Android tags are emitted; any future Android release workflow must be separately approved and tested
 - each iOS IPA is generated one-at-a-time
 - each iOS IPA is copied out of the build folder
 - each iOS build's Flutter obfuscation symbols are copied out of the build folder

@@ -13,7 +13,7 @@ Use this skill when a task requires secret handling in this repository.
 - `AGENTS.md`
 - `README.md`
 - `extras/secrets/tools/`
-- `android/extras/keystores/README.md`
+- `docs/PROJECT_SETUP.md`
 - `makefile`
 
 ## Safety Rule
@@ -41,8 +41,8 @@ That includes:
 
 ## Repo Notes
 - Secret tooling lives under `extras/secrets/tools/`.
-- README documents the expected `age` and `sops` flow.
-- Android keystore guidance has its own README.
+- `docs/PROJECT_SETUP.md` documents signing and the guarded `age`/`sops` flow.
+- Android signing and keystore guidance lives in `docs/PROJECT_SETUP.md`.
 - Environment files are referenced by `pubspec.yaml` and loaded by flavor in `lib/app/setup/setup_app.dart`.
 
 ## When To Stop And Ask

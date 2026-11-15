@@ -2,7 +2,20 @@ name: Web Runtime Smoke PoC (SCRUM-435)
 
 on:
   push:
-    branches: [qa/scrum-430-minimal-smoke, feat/scrum-437-supabase-first]
+    branches: [main]
+    paths: &web_relevant
+      - 'lib/**'
+      - 'assets/**'
+      - 'web/**'
+      - 'qa/web/**'
+      - 'tool/create_ci_env.dart'
+      - '.github/workflows/web-runtime-smoke.yml'
+      - '.fvmrc'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'build.yaml'
+  pull_request:
+    paths: *web_relevant
   workflow_dispatch:
 
 permissions:

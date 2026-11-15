@@ -119,6 +119,8 @@ Not every feature needs every file. Simple screens in the template only use `*_p
   - `fvm flutter analyze`
   - `fvm flutter test`
 
+For icon/splash generation, app renaming or keystore handling, follow `docs/PROJECT_SETUP.md` instead of scattered tool-local READMEs.
+
 ## AI Workflow Tooling
 - Repo-local skills live under `.agents/skills/` and Claude Code symlinks live under `.claude/skills/`.
 - Skill scripts should be executable and syntax-check clean before relying on them:
@@ -152,7 +154,7 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 ## Release And Versioning Notes
 - The repo contains release-oriented files and commands such as `release_notes.txt`, Android app bundle generation, and iOS IPA generation.
 - Keep release notes and version bumps consistent with the actual release task rather than changing them opportunistically during unrelated work.
-- Treat branching, tagging, and publishing flow as team policy. The template README documents a default `develop` -> `staging` -> `master` flow, but an agent should confirm before applying release automation in a real project.
+- Treat branching, tagging, and publishing flow as team policy. GitHub `main` is the canonical public repository; the PR/CI policy is documented in `docs/CI.md`. Confirm release targets before changing branches, tags or distribution.
 - For build-only release tasks, prefer existing make targets over inventing new commands.
 
 ## Adding A New Screen

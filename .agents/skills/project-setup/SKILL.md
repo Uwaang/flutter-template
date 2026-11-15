@@ -1,6 +1,6 @@
 ---
 name: project-setup
-description: Customize a new project created from this Flutter template, including app identity, package name, platform cleanup, icons, splash screen, Firebase/secrets decisions, setup tool execution, code generation, and validation.
+description: Customize a new project created from this Flutter template, including app identity, package name, platform cleanup, icons, splash screen, Supabase-first backend and secrets decisions, setup tool execution, code generation, and validation.
 allowed-tools: Bash Read Grep Glob Edit Write
 model: claude-sonnet-4-6
 ---
@@ -12,7 +12,8 @@ Use this skill when preparing a new app from this template or reviewing whether 
 ## Read First
 - `AGENTS.md`
 - `README.md`
-- `project_setup/README.md`
+- `docs/SUPABASE_FIRST.md`
+- `docs/PROJECT_SETUP.md` (canonical tool usage and signing setup)
 - `project_setup/lib/configuration.dart`
 - `makefile`
 - `docs/PROJECT_OVERVIEW.md`
@@ -22,10 +23,11 @@ Use this skill when preparing a new app from this template or reviewing whether 
 - Keep deterministic mutations in the Dart setup tool under `project_setup/`.
 - Do not touch decrypted `.env*`, signing files, or `extras/secrets/` unless the task explicitly includes secrets or signing setup.
 - Do not hand-edit generated files such as `*.g.dart`, `*.freezed.dart`, `*.gr.dart`, or `lib/assets/*`.
-- Treat Firebase, notifications, Remote Config, and web configuration as scaffolded until verified in `lib/app/setup/setup_app.dart`.
+- Supabase Auth is the only active default backend; Firebase-related setup is inherited and must not be run unless the user explicitly requests a Firebase integration and approves the SDK/configuration change.
+- Treat optional notifications and web configuration as scaffolded until verified in `lib/app/setup/setup_app.dart`.
 
 ## Setup Workflow
-1. Inspect the requested app name, package name, supported platforms, flavors, Firebase plan, and secret/signing needs.
+1. Inspect the requested app name, package name, supported platforms, flavors, current Supabase settings, and secret/signing needs.
 2. Update `project_setup/lib/configuration.dart` for:
    - icon variants and colors
    - splash background colors and platforms
@@ -36,10 +38,10 @@ Use this skill when preparing a new app from this template or reviewing whether 
    - `project_setup/resources/splash.png` must be `768x768`
 4. Run `make setup` from the repository root and select the needed setup operation.
 5. If platform support changes, run the Platform Cleanup Workflow below.
-6. If Firebase support changes, run the Firebase Workflow below.
+6. Do not run the historical Firebase Workflow unless a separate task explicitly adopts Firebase. Otherwise keep Supabase Auth as the default and follow `docs/SUPABASE_FIRST.md`.
 7. If secrets or signing material are needed, use the `secrets-bootstrap` workflow.
 8. Run the AI Workflow Tooling Check below so repo-local skills and scripts are usable.
-9. Update the README First steps checklist to mark any completed setup items with `[x]`.
+9. Update the current setup guidance in `README.md` or the appropriate `docs/` file only if the documented behavior changed.
 10. Run `make gen` after setup changes that affect routes, localization, generated assets, or annotations.
 11. Validate with `fvm flutter analyze` and the relevant tests.
 
@@ -70,7 +72,7 @@ Use this when setting up a new clone, preparing AI workflows, or debugging skill
    - `.agents/skills/release-builds/scripts/archive_ios_ipa.sh` should print usage and exit non-zero when no flavor is supplied.
 
 ## Platform Cleanup Workflow
-Use this workflow to automate README First steps > Automated steps item 1.
+Use this workflow when the required app platforms differ from the current template; see `docs/PROJECT_SETUP.md`.
 
 1. Determine the final supported platforms from the user request. Supported platform names are Android, iOS, web, Windows, Linux, snap, and macOS. If the request does not clearly say which platforms to keep or remove, ask before deleting platform folders.
 2. Remove unsupported platform folders and files:
@@ -100,8 +102,8 @@ Use this workflow to automate README First steps > Automated steps item 1.
 8. Adjust or remove any code paths that only make sense for deleted platforms. Examples include native store open handling, force-update platform branches, Firebase messaging/web tokens, system bar setup, and launch/build documentation.
 9. Run `fvm flutter analyze`. Run relevant tests when platform cleanup touches shared runtime logic.
 
-## Firebase Workflow
-Use this workflow to automate README First steps > Automated steps item 5.
+## Historical Firebase Workflow (opt-in only)
+This workflow originates from the STRV template and is **not active** in the current Supabase-first baseline. Do not run it without an explicit Firebase adoption request and a separate review of dependencies, secrets, native plugin registration and release workflows.
 
 1. Determine whether Firebase should be kept or removed. If the request is unclear, ask because Firebase affects authentication, analytics, crash reporting, push notifications, remote config, web hosting, release distribution, and secrets.
 2. If Firebase is kept:

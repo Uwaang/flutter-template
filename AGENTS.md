@@ -5,7 +5,7 @@ Use this file as the entrypoint for automated work in this repository.
 ## Read Order
 1. `docs/PROJECT_OVERVIEW.md` for the repo map, startup flow, and feature inventory.
 2. `docs/PROJECT_GUIDELINES.md` for implementation conventions and workflow defaults.
-3. `README.md` for template setup, distribution, and platform-specific background.
+3. `README.md` for the current quick start and links to detailed guides.
 
 ## Repo Summary
 - This is a Flutter template, not a fully productized app.
@@ -25,6 +25,13 @@ Use this file as the entrypoint for automated work in this repository.
 - Keep network payload models in `lib/common/data/dto/` and map them into entities from `lib/common/data/entity/`.
 - Use Riverpod providers and use cases instead of wiring IO directly in widgets.
 
+## Repository and CI Ownership
+- GitHub `main` is the canonical source for this public template. Use GitHub branches and PRs; do not assume a private GitLab mirror must be updated.
+- `.github/workflows/platform-builds.yml` is the hosted quality and seven-platform compile workflow. Web runtime smoke is conditional on relevant changes; Android emulator startup is manual only.
+- Keep private lab or workstation CI, local runner settings, internal URLs, signing keys and credentials out of public branches, workflow logs and artifacts.
+- Do not reintroduce inherited Firebase distribution workflows just because old agent skill instructions mention them.
+- Do not run live Supabase Auth tests without explicit opt-in and a disposable test backend.
+
 ## Codegen And Commands
 - Run `make gen` after changing `@riverpod`, `@freezed`, `@RoutePage`, localization, or generated asset inputs.
 - Use `make watch` for continuous code generation when doing annotation-heavy work. This is a human-only command — agents must never run it (it spawns a persistent background watcher). Agents always use one-shot `make gen`.
@@ -39,8 +46,14 @@ Use this file as the entrypoint for automated work in this repository.
 - Supabase Auth initializes only with a public project URL/key pair; without it, the first-screen mock is UI-only. Firebase Auth, Messaging, Analytics, Crashlytics and Remote Config are not active SDK integrations. Local notifications remain optional scaffolding.
 - Release and signing files exist in the repo. Treat versioning, tags, branch flow, and build scripts as developer-owned unless the task explicitly asks for release work.
 
-## Documentation Rule
-- If you learn a stable, repo-specific convention while working, update `docs/PROJECT_OVERVIEW.md` or `docs/PROJECT_GUIDELINES.md` instead of adding duplicate instructions elsewhere.
+## Documentation Ownership (mandatory)
+- **Canonical human-readable documentation belongs in `docs/`.** The only documentation entrypoints at the repository root are `README.md` (overview and quick start) and `AGENTS.md` (agent instructions).
+- Before creating a document, check whether an existing `docs/` page covers the subject. **Update the existing page first.** Avoid scattered `README.md`, `NOTES.md`, implementation reports, and redundant summaries alongside feature/test code.
+- Maintain one source of truth per topic: `docs/PROJECT_OVERVIEW.md` for the repo map, `docs/PROJECT_GUIDELINES.md` for implementation rules, `docs/CI.md` for GitHub Actions CI and public-source boundaries, `docs/QA.md` for runtime smoke checks, `docs/SUPABASE_FIRST.md` for Auth setup, and `docs/PROJECT_SETUP.md` for app initialization and Android signing. Other documents should link to these instead of copying their content.
+- When changing behavior, dependencies, CI, commands, or public setup, check whether the canonical documentation becomes inaccurate; update affected content **in the same change**. A code-only change that does not affect any documented contract needs no documentation edit.
+- For document moves/renames, update inbound links and delete superseded files. Do not preserve obsolete duplicated guidance merely as a stub.
+- Tool-required artifacts (for example `.claude/CLAUDE.md`, `.agents/skills/**/SKILL.md`, command definitions, code templates and configuration files) may remain at required paths. These are not permission to create independent narrative documentation elsewhere.
+- Prefer the smallest useful documentation change; do not introduce a separate docs framework or a mandatory documentation update for each trivial fix.
 
 ## Reusable Workflows
 Repeatable procedures live as skills under `.agents/skills/<name>/SKILL.md` —
@@ -48,13 +61,13 @@ the cross-client location defined by the [Agent Skills](https://agentskills.io)
 format. Each skill has YAML frontmatter (`name:`, `description:`) so it can be
 auto-discovered by AI tools that support skills.
 
-Some inherited skills and the long-form README still describe the former
-Firebase-based STRV template. Treat those passages as historical until updated;
+Some inherited skills still describe the former Firebase-based STRV template.
+Treat those passages as historical until updated;
 `pubspec.yaml`, `setup_app.dart`, and `docs/SUPABASE_FIRST.md` define the
 current service boundaries. Do not add a database or CRUD for SCRUM-437.
 
 Existing skills:
-- `project-setup` — customize a new app from this template (identity, platforms, icons, splash, Firebase/secrets, validation)
+- `project-setup` — inherited app customization workflow (identity, platforms, assets and secrets); verify Firebase-era instructions against the current Supabase setup
 - `feature-screen` — add a new route / screen using the existing feature pattern
 - `feature-data-flow` — build a full backend-backed feature (DTOs, entities, use cases, state, UI)
 - `upgrade` — upgrade Flutter SDK and package dependencies
@@ -73,7 +86,7 @@ Existing skills:
 - `tasks` — break a PRD + tech spec into discrete, dependency-ordered Flutter implementation tasks under `.claude/tasks/<feature>/` using `.agents/templates/task.md` and `.agents/templates/task-list.md`
 - `implement` — implement one generated Flutter task using the repo architecture and verification rules
 - `implement-tasks-sequence` — execute generated task files in dependency order before final verification
-- `techspec` — translate a PRD into an implementation-ready Flutter tech spec at `.claude/tasks/<feature>/techspec.md`, grounded in the Riverpod / Freezed / AutoRoute / Dio / Firebase stack
+- `techspec` — translate a PRD into an implementation-ready Flutter tech spec at `.claude/tasks/<feature>/techspec.md`; verify current Supabase-first backend boundaries before following inherited Firebase examples
 - `spec-feature` — run the full specification pipeline (`prd` → `techspec` → `tasks`) in one shot, from feature idea to implementation-ready tasks
 
 ### How AI tools find these skills

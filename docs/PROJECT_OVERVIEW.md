@@ -144,12 +144,12 @@ Helpers worth knowing:
 
 ## Versioning And Releases
 
-- GitHub hosted compile checks and the selected-branch publication policy are documented in `docs/PUBLIC_CI.md`. Personal Windows provisioning stays on the private lab branch.
+- GitHub `main` is the canonical public source. Hosted compile checks and branch/runtime QA policy are documented in `docs/CI.md`. Private workstation provisioning is outside the public template.
 - Flutter SDK pinning is managed through `.fvmrc`.
 - App versioning and Flutter constraints are declared in `pubspec.yaml`.
 - The repo includes `release_notes.txt` plus build commands for Android and iOS release artifacts.
-- `.gitlab-ci.yml` adds self-hosted JavaScript/WebAssembly web verification and optional native artifact jobs; see `docs/GITLAB_CI.md`.
-- Parts of `README.md`, inherited AI skills, and archived distribution workflows still show STRV/Firebase-era setup instructions. They are historical, not live release guidance; verify active settings against `pubspec.yaml` and `setup_app.dart`.
+- `.github/workflows/platform-builds.yml` runs seven hosted compile targets. `.github/workflows/web-runtime-smoke.yml` runs conditionally for relevant changes; Android emulator smoke is manual.
+- Some inherited AI skills still describe historical STRV/Firebase release workflows; those distribution YAML files are absent from current public CI. Verify active behavior against `pubspec.yaml`, `setup_app.dart`, and `docs/CI.md`.
 
 ## Files To Treat Carefully
 - Generated files: `*.g.dart`, `*.freezed.dart`, `*.gr.dart`, `lib/assets/*`
@@ -162,10 +162,9 @@ Helpers worth knowing:
 - Windows/macOS/iOS GUI runtime, real physical-device verification, native release signing and store uploads are not proven by the seven compile-only jobs.
 - Android API 34 emulator and Web Chromium passed one-off live **anonymous Auth** session lifecycle checks; these are not default recurring CI gates. Read `docs/SUPABASE_FIRST.md` for exact evidence.
 - The optional Playwright PoC has no npm lockfile and is not a mandatory merge gate. Existing Patrol/Maestro scaffolding is retained without increasing broad UI E2E coverage.
-- Legacy README, agent skills and old distribution instructions may describe the removed Firebase backend; don't restore them without a separate explicit decision.
+- Inherited agent skills may mention the removed Firebase backend or historical distribution tags. Do not restore those instructions without a separate explicit decision.
 
-## Best Documentation Strategy For Future AI Work
-- Keep `AGENTS.md` short and actionable.
-- Keep stable repo-map knowledge in this file.
-- Keep coding conventions in `docs/PROJECT_GUIDELINES.md`.
-- Avoid mixing template-wide facts with app-specific product rules unless those rules are visible in code.
+## Documentation Ownership
+- Keep README and AGENTS.md as the two root documentation entrypoints; maintain topic-specific guidance under `docs/`.
+- This file owns the repository map; `PROJECT_GUIDELINES.md` owns coding conventions, `CI.md` owns pipelines/publication, `QA.md` owns runtime checks and Patrol examples, `PROJECT_SETUP.md` owns app customization and Android signing, and `SUPABASE_FIRST.md` owns authentication setup.
+- Prefer updating existing docs over creating another implementation report or nested README; keep docs aligned with behavior in the same PR.

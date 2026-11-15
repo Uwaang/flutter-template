@@ -49,7 +49,7 @@ Release builds happen only after the release PR is merged.
 - Do not create Android tags during the prepare phase.
 - Do not build iOS IPA files during the prepare phase.
 - Keep release notes consistent with the actual shipped changes.
-- If the branch target differs from the repo defaults documented in `README.md`, follow the actual team process.
+- GitHub `main` is canonical. Before release branches, tags or publishing, confirm the current GitHub process in `docs/CI.md` and verify an actual distribution workflow exists.
 
 ## Completion Criteria
 - version updated

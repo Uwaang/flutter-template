@@ -9,7 +9,8 @@ class CustomColorScheme {
   /// ThemeData, not a second palette created for every build.
   factory CustomColorScheme.fromTheme(ThemeData theme) {
     final colors = theme.colorScheme;
-    final extras = theme.extension<AppSemanticColors>() ??
+    final extras =
+        theme.extension<AppSemanticColors>() ??
         AppSemanticColors.fromPalette(
           CustomColorScheme(brightness: colors.brightness),
         );
@@ -17,22 +18,22 @@ class CustomColorScheme {
   }
 
   CustomColorScheme._fromMaterial(ColorScheme colors, AppSemanticColors extras)
-      : brightness = colors.brightness,
-        primary = colors.primary,
-        onPrimary = colors.onPrimary,
-        secondary = colors.secondary,
-        onSecondary = colors.onSecondary,
-        surface = colors.surface,
-        surfaceVariant = colors.surfaceContainerLow,
-        onSurface = colors.onSurface,
-        snackbarBackground = extras.snackbarBackground,
-        snackbarText = extras.snackbarText,
-        success = extras.success,
-        error = colors.error,
-        shadow = colors.shadow,
-        divider = colors.outlineVariant,
-        shimmerBackground = extras.shimmerBackground,
-        shimmerForeground = extras.shimmerForeground;
+    : brightness = colors.brightness,
+      primary = colors.primary,
+      onPrimary = colors.onPrimary,
+      secondary = colors.secondary,
+      onSecondary = colors.onSecondary,
+      surface = colors.surface,
+      surfaceVariant = colors.surfaceContainerLow,
+      onSurface = colors.onSurface,
+      snackbarBackground = extras.snackbarBackground,
+      snackbarText = extras.snackbarText,
+      success = extras.success,
+      error = colors.error,
+      shadow = colors.shadow,
+      divider = colors.outlineVariant,
+      shimmerBackground = extras.shimmerBackground,
+      shimmerForeground = extras.shimmerForeground;
 
   CustomColorScheme._light()
     : brightness = Brightness.light,
