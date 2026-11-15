@@ -108,3 +108,22 @@ devices, Google/Apple OAuth, or release signing.
 - One-time live Auth tests must use a disposable project, be explicitly opted in, and not disclose session tokens, traces or authenticated screenshots.
 - Native Windows/macOS/iOS GUI, physical Android devices, production signing, and store submission are not established by existing CI.
 - Keep tests focused on an observed failure or important user-visible behavior; do not expand the matrix merely to increase coverage.
+
+## Patrol integration tests
+
+The existing Patrol tests are under `integration_test/`. The repository make target runs `patrol test --flavor develop`:
+
+```sh
+make integration_test
+```
+
+A few inherited Patrol finder examples (adapt selectors to the current app):
+
+```dart
+expect($("Can't touch this"), findsNothing);
+expect($(Card), findsNWidgets(3));
+await $('Log in').waitUntilVisible();
+await $('index: 100').scrollTo(view: $(#listView2).$(Scrollable)).tap();
+```
+
+See [Patrol finder documentation](https://patrol.leancode.co/finders/usage) for full syntax. These snippets are examples, **not passing assertions for the current app**. Existing Patrol tests are preserved; optional Playwright and Android smoke checks above remain the documented runtime gates.

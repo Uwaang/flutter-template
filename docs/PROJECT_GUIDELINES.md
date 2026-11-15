@@ -110,6 +110,8 @@ Not every feature needs every file. Simple screens in the template only use `*_p
   - `fvm flutter analyze`
   - `fvm flutter test`
 
+For icon/splash generation, app renaming or keystore handling, follow `docs/PROJECT_SETUP.md` instead of scattered tool-local READMEs.
+
 ## AI Workflow Tooling
 - Repo-local skills live under `.agents/skills/` and Claude Code symlinks live under `.claude/skills/`.
 - Skill scripts should be executable and syntax-check clean before relying on them:

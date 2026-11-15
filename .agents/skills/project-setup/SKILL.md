@@ -13,7 +13,7 @@ Use this skill when preparing a new app from this template or reviewing whether 
 - `AGENTS.md`
 - `README.md`
 - `docs/SUPABASE_FIRST.md`
-- `project_setup/README.md` (historical setup examples; verify before following)
+- `docs/PROJECT_SETUP.md` (canonical tool usage and signing setup)
 - `project_setup/lib/configuration.dart`
 - `makefile`
 - `docs/PROJECT_OVERVIEW.md`
@@ -72,7 +72,7 @@ Use this when setting up a new clone, preparing AI workflows, or debugging skill
    - `.agents/skills/release-builds/scripts/archive_ios_ipa.sh` should print usage and exit non-zero when no flavor is supplied.
 
 ## Platform Cleanup Workflow
-Use this workflow to automate README First steps > Automated steps item 1.
+Use this workflow when the required app platforms differ from the current template; see `docs/PROJECT_SETUP.md`.
 
 1. Determine the final supported platforms from the user request. Supported platform names are Android, iOS, web, Windows, Linux, snap, and macOS. If the request does not clearly say which platforms to keep or remove, ask before deleting platform folders.
 2. Remove unsupported platform folders and files:

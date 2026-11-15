@@ -30,6 +30,8 @@ fvm flutter analyze
 fvm flutter test
 ```
 
+For icons, splash screens and application renaming, use [Project setup](docs/PROJECT_SETUP.md) instead of the inherited all-in-one install target.
+
 The app exposes example Home, Events, Profile and Debug Tools screens. Platform-specific release commands and inherited distribution files are **not** proof that real store submission, signing or OAuth callbacks work.
 
 ## Documentation
@@ -39,6 +41,7 @@ The app exposes example Home, Events, Profile and Debug Tools screens. Platform-
 | [AGENTS.md](AGENTS.md) | AI agent working rules and documentation ownership |
 | [Project overview](docs/PROJECT_OVERVIEW.md) | Repository map, startup and feature inventory |
 | [Project guidelines](docs/PROJECT_GUIDELINES.md) | Implementation conventions and test practices |
+| [Project setup](docs/PROJECT_SETUP.md) | App icons, splash, rebranding and signing setup |
 | [CI and publication](docs/CI.md) | Canonical GitLab CI, GitHub hosted builds and publication security |
 | [Runtime QA](docs/QA.md) | Web and Android optional smoke checks, live-test boundaries |
 | [Supabase-first setup](docs/SUPABASE_FIRST.md) | Public configuration, Auth sessions, OAuth boundaries and one-time evidence |

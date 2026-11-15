@@ -42,10 +42,10 @@ Use this file as the entrypoint for automated work in this repository.
 ## Documentation Ownership (mandatory)
 - **Canonical human-readable documentation belongs in `docs/`.** The only documentation entrypoints at the repository root are `README.md` (overview and quick start) and `AGENTS.md` (agent instructions).
 - Before creating a document, check whether an existing `docs/` page covers the subject. **Update the existing page first.** Avoid scattered `README.md`, `NOTES.md`, implementation reports, and redundant summaries alongside feature/test code.
-- Maintain one source of truth per topic: `docs/PROJECT_OVERVIEW.md` for the repo map, `docs/PROJECT_GUIDELINES.md` for implementation rules, `docs/CI.md` for GitLab/GitHub CI and publication, `docs/QA.md` for runtime smoke checks, and `docs/SUPABASE_FIRST.md` for Auth setup. Other documents should link to these instead of copying their content.
+- Maintain one source of truth per topic: `docs/PROJECT_OVERVIEW.md` for the repo map, `docs/PROJECT_GUIDELINES.md` for implementation rules, `docs/CI.md` for GitLab/GitHub CI and publication, `docs/QA.md` for runtime smoke checks, `docs/SUPABASE_FIRST.md` for Auth setup, and `docs/PROJECT_SETUP.md` for app initialization and Android signing. Other documents should link to these instead of copying their content.
 - When changing behavior, dependencies, CI, commands, or public setup, check whether the canonical documentation becomes inaccurate; update affected content **in the same change**. A code-only change that does not affect any documented contract needs no documentation edit.
 - For document moves/renames, update inbound links and delete superseded files. Do not preserve obsolete duplicated guidance merely as a stub.
-- Tool-required artifacts (for example `.agents/skills/**/SKILL.md`, code templates and configuration files) may remain at required paths. These are not permission to create independent narrative documentation elsewhere.
+- Tool-required artifacts (for example `.claude/CLAUDE.md`, `.agents/skills/**/SKILL.md`, command definitions, code templates and configuration files) may remain at required paths. These are not permission to create independent narrative documentation elsewhere.
 - Prefer the smallest useful documentation change; do not introduce a separate docs framework or a mandatory documentation update for each trivial fix.
 
 ## Reusable Workflows

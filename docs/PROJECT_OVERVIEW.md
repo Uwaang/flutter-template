@@ -166,5 +166,5 @@ Helpers worth knowing:
 
 ## Documentation Ownership
 - Keep README and AGENTS.md as the two root documentation entrypoints; maintain topic-specific guidance under `docs/`.
-- This file owns the repository map; `PROJECT_GUIDELINES.md` owns coding conventions, `CI.md` owns pipelines/publication, `QA.md` owns runtime checks, and `SUPABASE_FIRST.md` owns authentication setup.
+- This file owns the repository map; `PROJECT_GUIDELINES.md` owns coding conventions, `CI.md` owns pipelines/publication, `QA.md` owns runtime checks and Patrol examples, `PROJECT_SETUP.md` owns app customization and Android signing, and `SUPABASE_FIRST.md` owns authentication setup.
 - Prefer updating existing docs over creating another implementation report or nested README; keep docs aligned with behavior in the same PR.
