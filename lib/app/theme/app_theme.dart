@@ -18,19 +18,20 @@ class AppTheme {
 
     // The legacy palette remains the source of colors while consumers migrate
     // to Theme.of(context).colorScheme and Theme.of(context).textTheme.
-    final nativeColorScheme = ColorScheme.fromSeed(
-      seedColor: colorScheme.primary,
-      brightness: brightness,
-    ).copyWith(
-      primary: colorScheme.primary,
-      onPrimary: colorScheme.onPrimary,
-      secondary: colorScheme.secondary,
-      onSecondary: colorScheme.onSecondary,
-      surface: colorScheme.surface,
-      onSurface: colorScheme.onSurface,
-      error: colorScheme.error,
-      shadow: colorScheme.shadow,
-    );
+    final nativeColorScheme =
+        ColorScheme.fromSeed(
+          seedColor: colorScheme.primary,
+          brightness: brightness,
+        ).copyWith(
+          primary: colorScheme.primary,
+          onPrimary: colorScheme.onPrimary,
+          secondary: colorScheme.secondary,
+          onSecondary: colorScheme.onSecondary,
+          surface: colorScheme.surface,
+          onSurface: colorScheme.onSurface,
+          error: colorScheme.error,
+          shadow: colorScheme.shadow,
+        );
 
     return ThemeData(
       useMaterial3: true,
@@ -74,7 +75,6 @@ class AppTheme {
       cupertinoOverrideTheme: CupertinoThemeData(primaryColor: colorScheme.secondary),
     );
   }
-
 }
 
 BottomSheetThemeData _getBottomSheetThemeData({
