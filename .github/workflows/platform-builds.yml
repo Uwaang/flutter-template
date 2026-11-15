@@ -2,8 +2,18 @@ name: Platform Builds
 
 on:
   push:
-    branches: [main, master, scrum-430-public-ci]
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '.agents/**'
+      - '.claude/**'
+      - '.github/workflows/docs/**'
   pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - '.agents/**'
+      - '.claude/**'
+      - '.github/workflows/docs/**'
   workflow_dispatch:
 
 permissions:
