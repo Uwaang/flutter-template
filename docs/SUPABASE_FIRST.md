@@ -70,12 +70,13 @@ Providing exactly one of the URL/key pair is a configuration error.
 - If a future project creates tables, enable and review RLS before exposing
   any Data API resources. **No database resources are added here.**
 
-## Branch policy
+## Repository and change policy
 
-Baseline: GitHub Draft PR #1 and Draft PR #2. Work on isolated
-`feat/scrum-437-supabase-first` branched from PR #2, then review GitLab
-canonical synchronization and merge order separately. Do not merge without
-the SCRUM-437 acceptance checklist.
+GitHub `main` is the canonical public source; send subsequent Auth changes through
+reviewed GitHub branches and pull requests. The earlier SCRUM-437 implementation
+branches and draft PR references are historical evidence, not an active merge
+sequence. Do not enable real Auth in public CI or add Supabase database/CRUD
+without a separate explicit decision.
 
 ## Native OAuth callback template
 
