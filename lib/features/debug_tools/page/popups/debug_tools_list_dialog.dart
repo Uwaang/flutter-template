@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/common/component/custom_ink_well/custom_ink_well_rounded_rectangle.dart';
-import 'package:flutter_app/common/component/custom_text/custom_text.dart';
 import 'package:flutter_app/common/composition/dialog/custom_dialog.dart';
 import 'package:flutter_app/common/composition/responsive_widget.dart';
 import 'package:flutter_app/common/extension/build_context.dart';
@@ -33,14 +31,14 @@ class DebugToolsListDialog {
           ),
           itemBuilder: (context, index) {
             final item = list[index];
-            return CustomInkWellRoundedRectangle(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-              cornerRadius: 8,
-              onClick: () {
+            return ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              title: Text(item, style: context.textTheme.bodyMedium),
+              onTap: () {
                 onItemSelect(item);
                 Navigator.of(context).pop(true);
               },
-              child: CustomText(text: item, style: context.textTheme.bodyMedium),
             );
           },
         ),
