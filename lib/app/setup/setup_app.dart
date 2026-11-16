@@ -118,8 +118,13 @@ Future<void> _setupRASP({required Flavor flavor}) async {
 
 Future<void> _setupWebPlatform({required Flavor flavor}) async {
   if (AppPlatform.isWeb) {
-    // Use paths without /#/
-    usePathUrlStrategy();
+    // GitHub Pages is static hosting without a route-to-index rewrite.
+    // Hash routes keep the browser's HTTP request at the existing index.html
+    // on refresh and direct navigation. Other hosts retain path-style URLs.
+    const useHashRoutingForStaticHosting = bool.fromEnvironment('FLUTTER_TEMPLATE_PAGES_HASH_ROUTING');
+    if (!useHashRoutingForStaticHosting) {
+      usePathUrlStrategy();
+    }
 
     // Setup the Web
     WebSetup.setup(flavor: flavor);

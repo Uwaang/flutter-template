@@ -55,7 +55,7 @@ jobs:
       - name: Build main (mock-only, no secret credentials)
         run: |
           set -euo pipefail
-          flutter build web --release --pwa-strategy=none -t lib/main_production.dart --base-href "/flutter-template/"
+          flutter build web --release --pwa-strategy=none -t lib/main_production.dart --dart-define=FLUTTER_TEMPLATE_PAGES_HASH_ROUTING=true --base-href "/flutter-template/"
           mkdir -p "$GITHUB_WORKSPACE/pages-site"
           cp -a build/web/. "$GITHUB_WORKSPACE/pages-site/"
           touch "$GITHUB_WORKSPACE/pages-site/.nojekyll"
@@ -94,7 +94,7 @@ jobs:
               dart run tool/create_ci_env.dart &&
               flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets &&
               dart run build_runner build --delete-conflicting-outputs &&
-              flutter build web --release --pwa-strategy=none -t lib/main_production.dart --base-href "/flutter-template/previews/pr-${number}/" &&
+              flutter build web --release --pwa-strategy=none -t lib/main_production.dart --dart-define=FLUTTER_TEMPLATE_PAGES_HASH_ROUTING=true --base-href "/flutter-template/previews/pr-${number}/" &&
               grep -q "<base href=\"/flutter-template/previews/pr-${number}/\">" build/web/index.html &&
               mkdir -p "$output_dir" &&
               cp -a build/web/. "$output_dir/"
