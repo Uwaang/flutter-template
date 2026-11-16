@@ -74,8 +74,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       oldWidget.validatorController?.removeListener(_onValidatorChange);
       widget.validatorController?.addListener(_onValidatorChange);
     }
-    if (oldWidget.validatorController != widget.validatorController ||
-        oldWidget.controller != widget.controller) {
+    if (oldWidget.validatorController != widget.validatorController || oldWidget.controller != widget.controller) {
       textLength = _controller?.text.length ?? 0;
       lastErrorMessage = '';
     }
