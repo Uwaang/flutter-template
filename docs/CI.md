@@ -29,6 +29,21 @@ Workflow: `.github/workflows/web-runtime-smoke.yml`
 
 The independent runtime job currently recompiles Web JS/WASM instead of consuming the platform build job's archives. Do not add an artifact handoff just to save lines; consider it only after comparing runtime, complexity and failure isolation.
 
+## Public website previews (GitHub Pages)
+
+Workflow: `.github/workflows/pages-preview.yml` (SCRUM-447).
+
+This is **public, mock-only UI preview**, not production hosting. It reuses the existing Flutter Web build steps with `tool/create_ci_env.dart`, keeps Supabase credentials empty, and disables the default PWA service-worker caching for rapidly changing previews.
+
+- After Pages is enabled, the expected **main** URL is `https://uwaang.github.io/flutter-template/`.
+- Open, same-repository PRs (maximum three newest) are built into `https://uwaang.github.io/flutter-template/previews/pr-N/`, including the Material 3 redesign in PR #10. PRs from forks are not built.
+- The actual site is a single GitHub Pages deployment from the **default branch**; `flutter build web --base-href` is set independently for the root app and each PR subdirectory. GitHub's `actions/upload-pages-artifact` and `actions/deploy-pages` publish it. Build jobs are read-only; only the separate deployment job has Pages/OIDC permissions.
+- A push to `main`, successful PR Web JS/WASM runtime-smoke workflow, or manual `workflow_dispatch` refreshes the site. Draft PRs are included. A PR closed **without merging** may remain in Pages until the next refresh; manually run the workflow to remove it immediately.
+- The build job also runs without deploying when this workflow itself changes in a pull request. This is a build smoke, **not** proof of a successful Pages deployment.
+- **One-time repository setting:** `Settings → Pages → Build and deployment → Source → GitHub Actions`. The Pages URL is **not live** until that configuration is set and a deployment job succeeds. The connected GitHub code tools cannot change repository-admin Pages settings.
+- No PAT, new hosting provider, custom domain, API keys, backend tables, or GitHub Pages write token in the PR build step. The `github-pages` environment should permit deployments only from `main`.
+- The website includes Web **JS** builds for browser review, not the separately compiled WASM CI target. The seven-platform compile matrix and two actual Web runtime smoke jobs remain the source of truth for those validations.
+
 ## Android runtime verification (manual)
 
 Workflow: `.github/workflows/android-runtime-smoke.yml`

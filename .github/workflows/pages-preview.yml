@@ -1,0 +1,127 @@
+name: Web Preview (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'assets/**'
+      - 'web/**'
+      - 'tool/create_ci_env.dart'
+      - '.fvmrc'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'build.yaml'
+      - '.github/workflows/pages-preview.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/pages-preview.yml'
+  workflow_run:
+    workflows: ['Web Runtime Smoke PoC (SCRUM-435)']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # PR smoke is a separate gate. Never publish for a failed smoke or a fork.
+    # A PR modifying this workflow gets a read-only build dry-run, not a deploy.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.event == 'pull_request' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: flutter pub get
+      - run: dart run tool/create_ci_env.dart
+      - run: flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - name: Build main (mock-only, no secret credentials)
+        run: |
+          set -euo pipefail
+          flutter build web --release --pwa-strategy=none -t lib/main_production.dart --base-href "/flutter-template/"
+          mkdir -p "$GITHUB_WORKSPACE/pages-site"
+          cp -a build/web/. "$GITHUB_WORKSPACE/pages-site/"
+          touch "$GITHUB_WORKSPACE/pages-site/.nojekyll"
+          grep -q '<base href="/flutter-template/">' "$GITHUB_WORKSPACE/pages-site/index.html"
+
+      - name: Discover same-repository PRs (max 3)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Forked PR code is never built for Pages. This is a public mock demo.
+          gh api "repos/${GITHUB_REPOSITORY}/pulls?state=open&per_page=30" \
+            --jq '[.[] | select(.head.repo.full_name == .base.repo.full_name)][0:3][] | [.number, .head.sha] | @tsv' \
+            > "$RUNNER_TEMP/preview-prs.tsv"
+          cat "$RUNNER_TEMP/preview-prs.tsv"
+
+      - name: Build internal PR previews (read-only, without credentials)
+        run: |
+          set -euo pipefail
+          while IFS=$'\t' read -r number sha; do
+            [ -n "$number" ] || continue
+            [[ "$number" =~ ^[0-9]+$ && "$sha" =~ ^[0-9a-f]{40}$ ]] || exit 1
+
+            source_dir="$RUNNER_TEMP/preview-${number}"
+            output_dir="$GITHUB_WORKSPACE/pages-site/previews/pr-${number}"
+            if ! git clone --quiet --depth=1 "https://github.com/${GITHUB_REPOSITORY}.git" "$source_dir" ||
+               ! git -C "$source_dir" fetch --quiet --depth=1 origin "$sha" ||
+               ! git -C "$source_dir" checkout --quiet --detach FETCH_HEAD; then
+              echo "::warning::Could not fetch PR #${number}; omitting its preview"
+              continue
+            fi
+
+            if (
+              cd "$source_dir" &&
+              flutter pub get &&
+              dart run tool/create_ci_env.dart &&
+              flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets &&
+              dart run build_runner build --delete-conflicting-outputs &&
+              flutter build web --release --pwa-strategy=none -t lib/main_production.dart --base-href "/flutter-template/previews/pr-${number}/" &&
+              grep -q "<base href=\"/flutter-template/previews/pr-${number}/\">" build/web/index.html &&
+              mkdir -p "$output_dir" &&
+              cp -a build/web/. "$output_dir/"
+            ); then
+              echo "Built preview for PR #${number} at /flutter-template/previews/pr-${number}/"
+            else
+              echo "::warning::PR #${number} could not build; main preview remains available"
+              rm -rf "$output_dir"
+            fi
+          done < "$RUNNER_TEMP/preview-prs.tsv"
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: pages-site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/configure-pages@v5
+      - id: deployment
+        uses: actions/deploy-pages@v4
