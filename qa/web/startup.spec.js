@@ -54,13 +54,21 @@ test('Material 3 navigation switches between the example tabs', async ({ page })
   if (await accessibility.count()) await accessibility.dispatchEvent('click');
 
   await page.getByText('Mock Sign In', { exact: true }).click();
-  const eventsTab = page.getByText('Events', { exact: true }).filter({ visible: true }).first();
-  await expect(eventsTab).toBeVisible({ timeout: 30_000 });
-  await eventsTab.click();
+  async function tapTab(label) {
+    const tab = page.getByText(label, { exact: true }).filter({ visible: true }).first();
+    await expect(tab).toBeVisible({ timeout: 30_000 });
+    const bounds = await tab.boundingBox();
+    if (!bounds) throw new Error(label + ' destination has no visible bounds');
+
+    // Flutter Web's parent flt-semantics element intercepts clicks on the
+    // child text span. Send a real pointer click to the painted destination.
+    await page.mouse.click(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+  }
+
+  await tapTab('Events');
   await expect(page.getByText('Event Detail', { exact: true })).toBeVisible({ timeout: 20_000 });
 
-  const profileTab = page.getByText('Profile', { exact: true }).filter({ visible: true }).first();
-  await profileTab.click();
+  await tapTab('Profile');
   await expect(page.getByText('Sign out', { exact: true })).toBeVisible({ timeout: 20_000 });
   expect(pageErrors, 'tab navigation must not cause uncaught browser exceptions').toEqual([]);
 });
