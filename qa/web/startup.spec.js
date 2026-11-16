@@ -63,7 +63,8 @@ test('Material 3 navigation switches tabs and adapts without losing route state'
   await expect(eventsTab).toBeVisible({ timeout: 30_000 });
   await eventsTab.click();
   await expect(page.getByRole('tab', { name: 'Events', selected: true })).toBeVisible({ timeout: 20_000 });
-  await expect(page.getByText('Event Detail', { exact: true })).toBeVisible({ timeout: 20_000 });
+  // The Material ListTile combines title and subtitle into one semantics button.
+  await expect(page.getByRole('button', { name: 'Event Detail Open the AutoRoute detail example' })).toBeVisible({ timeout: 20_000 });
 
   const profileTab = page.getByRole('tab', { name: 'Profile' });
   await profileTab.click();
@@ -83,7 +84,7 @@ test('Material 3 navigation switches tabs and adapts without losing route state'
   expect(railBounds.x, 'expanded destinations belong in the left navigation rail').toBeLessThan(160);
 
   await page.getByRole('button', { name: 'Events Tab 2 of 3' }).click();
-  await expect(page.getByText('Event Detail', { exact: true })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole('button', { name: 'Event Detail Open the AutoRoute detail example' })).toBeVisible({ timeout: 20_000 });
 
   // Returning to compact layout must keep the Events tab selected.
   await page.setViewportSize({ width: 390, height: 844 });
