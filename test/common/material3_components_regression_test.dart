@@ -7,11 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('CustomAppBar preferred size includes the toolbar and bottom', () {
-    final appBar = CustomAppBar(
+    const appBar = CustomAppBar(
       toolbarHeight: 72,
       bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(32),
-        child: const SizedBox(),
+        preferredSize: Size.fromHeight(32),
+        child: SizedBox(),
       ),
     );
 
