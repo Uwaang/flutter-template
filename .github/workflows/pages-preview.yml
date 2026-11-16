@@ -19,6 +19,9 @@ on:
   workflow_run:
     workflows: ['Web Runtime Smoke PoC (SCRUM-435)']
     types: [completed]
+    # A main push already publishes this site. Ignore its subsequent
+    # runtime-smoke completion, which would otherwise cancel the deploy.
+    branches-ignore: [main]
   workflow_dispatch:
 
 permissions:
