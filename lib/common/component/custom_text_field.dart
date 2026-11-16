@@ -68,7 +68,22 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 
   @override
+  void didUpdateWidget(covariant CustomTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.validatorController != widget.validatorController) {
+      oldWidget.validatorController?.removeListener(_onValidatorChange);
+      widget.validatorController?.addListener(_onValidatorChange);
+    }
+    if (oldWidget.validatorController != widget.validatorController ||
+        oldWidget.controller != widget.controller) {
+      textLength = _controller?.text.length ?? 0;
+      lastErrorMessage = '';
+    }
+  }
+
+  @override
   void dispose() {
+    widget.validatorController?.removeListener(_onValidatorChange);
     _focusNode.dispose();
     super.dispose();
   }
@@ -184,13 +199,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               errorMessage: widget.validatorController?.state.getErrorMessage(context) ?? lastErrorMessage,
               errorTextColor: errorTextColor,
             ),
-            secondChild: SizedBox(
-              height: 0,
-              child: _ErrorContentWidget(
-                errorMessage: '',
-                errorTextColor: errorTextColor,
-              ),
-            ),
+            secondChild: const SizedBox.shrink(),
             crossFadeState: (widget.validatorController?.state.hasError ?? false) ? CrossFadeState.showFirst : CrossFadeState.showSecond,
           ),
 

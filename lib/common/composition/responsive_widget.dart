@@ -43,16 +43,11 @@ class ResponsiveWidget extends StatelessWidget {
     T Function()? medium,
     T Function()? large,
   }) {
-    try {
-      if (maxWidth >= largeSizeThreshold && large != null) {
-        return large();
-      } else if (maxWidth >= mediumSizeThreshold && medium != null) {
-        return medium();
-      } else {
-        return small();
-      }
-      // ignore: avoid_catching_errors
-    } on FlutterError catch (_) {
+    if (maxWidth >= largeSizeThreshold && large != null) {
+      return large();
+    } else if (maxWidth >= mediumSizeThreshold && medium != null) {
+      return medium();
+    } else {
       return small();
     }
   }

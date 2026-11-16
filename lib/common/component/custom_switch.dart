@@ -26,7 +26,7 @@ class CustomSwitch extends StatelessWidget {
           ? CustomText(
               text: subtitle!,
               style: context.textTheme.labelSmall,
-              color: context.colorScheme.onPrimary.withValues(alpha: 0.5),
+              color: context.colorScheme.onSurface.withValues(alpha: 0.5),
             )
           : null,
       value: value,
