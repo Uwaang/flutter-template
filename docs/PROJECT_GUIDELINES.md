@@ -39,7 +39,8 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 - Existing `CustomColorScheme` and `CustomTextTheme` are compatibility getters, backed by the current `ThemeData` at runtime. Their initial palette/type styles build the Material theme once. Additional semantic feedback colors live in `AppSemanticColors` (`ThemeExtension`); do not create a second runtime theme from brightness.
 - Avoid speculative spacing/radius tokens. Introduce shared design tokens only after a genuinely repeated use arises; reserve `ThemeExtension` for colors or values that cannot be expressed by standard Material 3 properties.
 - Regular `ElevatedButton` instances keep Material 3 defaults. `CustomButtonPrimary` retains useful loading, disabled and haptic behavior; it does not force a custom appearance on every Material button.
-- Do not redesign sample Home/Events/Profile routes as part of theme maintenance. Keep responsive rail layout and Figma/Widgetbook automation as separate opt-in decisions.
+- The Home/Events/Profile and Event Detail screens are illustrative Material 3 examples, not business features or a live events database. They may be redesigned in a separately scoped UI task; retain real route and sign-out behavior. Do not add pretend statistics or sample CRUD services just to fill a screen.
+- The existing responsive NavigationBar/NavigationRail shell is managed in RootPage; do not duplicate its breakpoint logic inside demo content. Figma/Widgetbook automation remains opt-in.
 - For new features prefer built-in Material 3 widgets; create shared wrappers for actual repeated behavior, not solely to rename existing Flutter widgets.
 - The debug UI examples use Flutter's `SwitchListTile`, `RadioGroup` / `RadioListTile`, and standard `showDatePicker` / `showTimePicker` APIs directly. Do not restore style-only wrappers for these stock controls.
 

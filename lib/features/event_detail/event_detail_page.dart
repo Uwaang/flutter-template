@@ -1,6 +1,5 @@
 import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/common/component/custom_app_bar.dart';
 import 'package:flutter_app/features/event_detail/event_detail_page_content.dart';
 
 @RoutePage()
@@ -9,13 +8,9 @@ class EventDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: CustomAppBar(
-        title: 'EventDetail',
-      ),
-      body: SafeArea(
-        child: EventDetailPageContent(),
-      ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Event Detail')),
+      body: const SafeArea(child: EventDetailPageContent()),
     );
   }
 }

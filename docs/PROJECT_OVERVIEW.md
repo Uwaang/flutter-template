@@ -60,7 +60,7 @@ Current feature folders under `lib/features/`:
 - `home`: example home screen
 - `landing`: startup redirect logic and force-update content
 - `profile`: profile screen, state, and sign-out event flow
-- `root`: tab shell using `AutoTabsScaffold`
+- `root`: tab shell using `AutoTabsRouter` with an adaptive Material 3 NavigationBar/NavigationRail
 
 ## Code Organization
 

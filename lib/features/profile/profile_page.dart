@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app/navigation/app_router.dart';
-import 'package:flutter_app/common/component/custom_app_bar.dart';
 import 'package:flutter_app/core/flogger.dart';
 import 'package:flutter_app/core/supabase/supabase_service.dart';
 import 'package:flutter_app/features/profile/profile_page_content.dart';
@@ -50,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Profile'),
+      appBar: AppBar(title: const Text('Profile')),
       body: SafeArea(
         child: ProfilePageContent(
           onSignedOut: () async {
