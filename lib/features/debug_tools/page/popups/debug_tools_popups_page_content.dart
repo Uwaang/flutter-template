@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/common/component/custom_button/custom_button_primary.dart';
-import 'package:flutter_app/common/component/custom_date_picker.dart';
 import 'package:flutter_app/common/component/custom_snackbar/custom_snackbar_error.dart';
 import 'package:flutter_app/common/component/custom_snackbar/custom_snackbar_message.dart';
 import 'package:flutter_app/common/component/custom_snackbar/custom_snackbar_success.dart';
 import 'package:flutter_app/common/component/custom_text/custom_text.dart';
-import 'package:flutter_app/common/component/custom_time_picker.dart';
 import 'package:flutter_app/common/composition/bottom_sheet/bottom_sheet_container_widget.dart';
 import 'package:flutter_app/common/composition/dialog/custom_dialog.dart';
 import 'package:flutter_app/common/extension/build_context.dart';
@@ -69,32 +67,33 @@ class DebugToolsPopupsPageContent extends ConsumerWidget {
         const SizedBox(height: 20),
         CustomButtonPrimary(
           onPressed: () async {
-            final pickedDate = await CustomDatePicker(
+            final today = DateTime.now();
+            final pickedDate = await showDatePicker(
               context: context,
-              firstDate: DateTime.now(),
-              lastDate: DateTime.now().add(const Duration(days: 365)),
-              currentDate: DateTime.now(),
-            ).show();
+              initialDate: today,
+              firstDate: today,
+              lastDate: today.add(const Duration(days: 365)),
+            );
 
             if (pickedDate != null) {
               Flogger.d('Picked date: $pickedDate');
             }
           },
-          text: 'Custom Date Picker',
+          text: 'Material 3 Date Picker',
         ),
         const SizedBox(height: 20),
         CustomButtonPrimary(
           onPressed: () async {
-            final pickedTime = await CustomTimePicker(
+            final pickedTime = await showTimePicker(
               context: context,
               initialTime: TimeOfDay.now(),
-            ).show();
+            );
 
             if (pickedTime != null) {
               Flogger.d('Picked time: $pickedTime');
             }
           },
-          text: 'Custom Time Picker',
+          text: 'Material 3 Time Picker',
         ),
         const SizedBox(height: 64),
         CustomText(text: 'Snackbars', style: context.textTheme.headlineLarge),

@@ -41,6 +41,7 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 - Regular `ElevatedButton` instances keep Material 3 defaults. `CustomButtonPrimary` retains useful loading, disabled and haptic behavior; it does not force a custom appearance on every Material button.
 - Do not redesign sample Home/Events/Profile routes as part of theme maintenance. Keep responsive rail layout and Figma/Widgetbook automation as separate opt-in decisions.
 - For new features prefer built-in Material 3 widgets; create shared wrappers for actual repeated behavior, not solely to rename existing Flutter widgets.
+- The debug UI examples use Flutter's `SwitchListTile`, `RadioGroup` / `RadioListTile`, and standard `showDatePicker` / `showTimePicker` APIs directly. Do not restore style-only wrappers for these stock controls.
 
 ## Shared UI: Components vs Compositions
 - Use `lib/common/component/` for smaller reusable building blocks such as buttons, app bars, inputs, tabs, avatars, and low-level display widgets.

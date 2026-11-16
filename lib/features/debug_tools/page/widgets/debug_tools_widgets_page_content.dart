@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/common/component/custom_button/custom_button_primary.dart';
-import 'package:flutter_app/common/component/custom_radio_button_group.dart';
 import 'package:flutter_app/common/component/custom_snackbar/custom_snackbar_message.dart';
 import 'package:flutter_app/common/component/custom_text/custom_text.dart';
 import 'package:flutter_app/common/component/custom_text_field.dart';
-import 'package:flutter_app/common/component/custom_text_field_button.dart';
 import 'package:flutter_app/common/extension/async_value.dart';
 import 'package:flutter_app/common/extension/build_context.dart';
-import 'package:flutter_app/core/flogger.dart';
 import 'package:flutter_app/features/debug_tools/page/widgets/debug_tools_widgets_page_event.dart';
 import 'package:flutter_app/features/debug_tools/page/widgets/debug_tools_widgets_page_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,21 +48,23 @@ class DebugToolsWidgetsPageContent extends ConsumerWidget {
             onPressed: () => ref.read(debugToolsWidgetsPageStateProvider.notifier).validateSampleTextField(),
             text: 'Validate text field',
           ),
-          const SizedBox(height: 16),
-          CustomText(text: 'CustomTextFieldButton', style: context.textTheme.headlineLarge),
-          const SizedBox(height: 20),
-          CustomTextFieldButton(
-            label: 'Example of custom text field button',
-            validatorController: ref.read(debugToolsWidgetsPageStateProvider.notifier).exampleTextController,
-            onClick: () => Flogger.d('Clicked text field button'),
-          ),
           const SizedBox(height: 64),
-          CustomText(text: 'CustomRadioButtonGroup', style: context.textTheme.headlineLarge),
+          CustomText(text: 'Material 3 radio group', style: context.textTheme.headlineLarge),
           const SizedBox(height: 16),
-          CustomRadioButtonGroup(
-            options: const {'First': 'First', 'Second': 'Second', 'Third': 'Third'},
-            selectedOption: data.selectedOption,
-            onOptionSelected: (newOption) => ref.read(debugToolsWidgetsPageStateProvider.notifier).onOptionChanged(newOption),
+          RadioGroup<String>(
+            groupValue: data.selectedOption,
+            onChanged: (value) {
+              if (value != null) {
+                ref.read(debugToolsWidgetsPageStateProvider.notifier).onOptionChanged(value);
+              }
+            },
+            child: const Column(
+              children: [
+                RadioListTile<String>(value: 'First', title: Text('First')),
+                RadioListTile<String>(value: 'Second', title: Text('Second')),
+                RadioListTile<String>(value: 'Third', title: Text('Third')),
+              ],
+            ),
           ),
           const SizedBox(height: 20),
         ],

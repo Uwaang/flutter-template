@@ -3,7 +3,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_app/common/component/custom_button/custom_button_primary.dart';
 import 'package:flutter_app/common/component/custom_snackbar/custom_snackbar_success.dart';
-import 'package:flutter_app/common/component/custom_switch.dart';
 import 'package:flutter_app/common/component/custom_text/custom_text.dart';
 import 'package:flutter_app/common/composition/dialog/custom_notification_permission_denied_dialog.dart';
 import 'package:flutter_app/common/extension/build_context.dart';
@@ -74,29 +73,29 @@ class _DebugToolsActionsPageContentState extends ConsumerState<DebugToolsActions
     return [
       CustomText(text: 'Tools', style: context.textTheme.headlineLarge),
       const SizedBox(height: 20),
-      CustomSwitch(
-        title: 'Show Layout Bounds',
+      SwitchListTile.adaptive(
+        title: const Text('Show Layout Bounds'),
         value: debugPaintSizeEnabled,
         dense: true,
-        onChanged: (value) => setState(() => debugPaintSizeEnabled = !debugPaintSizeEnabled),
+        onChanged: (value) => setState(() => debugPaintSizeEnabled = value),
       ),
-      CustomSwitch(
-        title: 'Show Baselines',
+      SwitchListTile.adaptive(
+        title: const Text('Show Baselines'),
         value: debugPaintBaselinesEnabled,
         dense: true,
-        onChanged: (value) => setState(() => debugPaintBaselinesEnabled = !debugPaintBaselinesEnabled),
+        onChanged: (value) => setState(() => debugPaintBaselinesEnabled = value),
       ),
-      CustomSwitch(
-        title: 'Show Repaint',
+      SwitchListTile.adaptive(
+        title: const Text('Show Repaint'),
         value: debugRepaintRainbowEnabled,
         dense: true,
-        onChanged: (value) => setState(() => debugRepaintRainbowEnabled = !debugRepaintRainbowEnabled),
+        onChanged: (value) => setState(() => debugRepaintRainbowEnabled = value),
       ),
-      CustomSwitch(
-        title: 'Time Dilation',
+      SwitchListTile.adaptive(
+        title: const Text('Time Dilation'),
         value: timeDilation != 1,
         dense: true,
-        onChanged: (value) => setState(() => timeDilation = (timeDilation == 6) ? 1 : 6),
+        onChanged: (value) => setState(() => timeDilation = value ? 6 : 1),
       ),
     ];
   }
