@@ -71,13 +71,16 @@ test('Material 3 navigation switches tabs and adapts without losing route state'
   // Switch to expanded layout in the same session: profile state and current
   // AutoTabsRouter index must survive replacing the bottom bar with a rail.
   await page.setViewportSize({ width: 1280, height: 800 });
-  const railProfile = page.getByRole('tab', { name: 'Profile', selected: true });
+  // Flutter Web exposes NavigationRail destinations as accessible buttons
+  // ("Profile Tab 3 of 3"), whereas NavigationBar uses role=tab.
+  await expect(page.getByText('Sign out', { exact: true })).toBeVisible({ timeout: 20_000 });
+  const railProfile = page.getByRole('button', { name: 'Profile Tab 3 of 3' });
   await expect(railProfile).toBeVisible({ timeout: 20_000 });
   const railBounds = await railProfile.boundingBox();
   expect(railBounds, 'expanded navigation destination must be rendered').not.toBeNull();
   expect(railBounds.x, 'expanded destinations belong in the left navigation rail').toBeLessThan(160);
 
-  await page.getByRole('tab', { name: 'Events' }).click();
+  await page.getByRole('button', { name: 'Events Tab 2 of 3' }).click();
   await expect(page.getByText('Event Detail', { exact: true })).toBeVisible({ timeout: 20_000 });
 
   // Returning to compact layout must keep the Events tab selected.

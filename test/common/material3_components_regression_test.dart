@@ -26,5 +26,4 @@ void main() {
       throwsA(isA<FlutterError>()),
     );
   });
-
 }
