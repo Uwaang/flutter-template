@@ -65,9 +65,7 @@ class HomePageContent extends StatelessWidget {
                   const SizedBox(height: 16),
                   LayoutBuilder(
                     builder: (context, constraints) {
-                      final itemWidth = constraints.maxWidth >= 680
-                          ? (constraints.maxWidth - 12) / 2
-                          : constraints.maxWidth;
+                      final itemWidth = constraints.maxWidth >= 680 ? (constraints.maxWidth - 12) / 2 : constraints.maxWidth;
 
                       return Wrap(
                         spacing: 12,
