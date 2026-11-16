@@ -39,4 +39,17 @@ void main() {
       expect(find.text(l10n.featureHomepageOpenDebugTools), findsOneWidget);
     },
   );
+
+  patrolWidgetTest(
+    'HomePageContent - demonstrates the existing template capabilities',
+    ($) async {
+      await $.pumpWidgetAndSettle(buildSubject());
+
+      expect(find.text('Start with the essentials'), findsOneWidget);
+      expect(find.text('Material 3'), findsOneWidget);
+      expect(find.text('Adaptive navigation'), findsOneWidget);
+      expect(find.text('App architecture'), findsOneWidget);
+      expect(find.text('Optional authentication'), findsOneWidget);
+    },
+  );
 }
