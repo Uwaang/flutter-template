@@ -25,7 +25,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: flutter-pages
+  # A PR dry-run must not be cancelled by an unrelated successful smoke
+  # triggering a main deployment. Only competing deployments supersede each other.
+  group: ${{ github.event_name == 'pull_request' && format('flutter-pages-pr-{0}', github.event.pull_request.number) || 'flutter-pages-publish' }}
   cancel-in-progress: true
 
 jobs:
