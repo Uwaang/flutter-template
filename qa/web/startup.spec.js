@@ -55,7 +55,8 @@ test('Material 3 navigation switches tabs and adapts without losing route state'
   if (await accessibility.count()) await accessibility.dispatchEvent('click');
 
   await page.getByText('Mock Sign In', { exact: true }).click();
-  await expect(page.getByText('Start with the essentials', { exact: true })).toBeVisible({ timeout: 20_000 });
+  // Flutter Web exposes the hero heading and its copy as one accessible group.
+  await expect(page.getByRole('group', { name: /Start with the essentials/ })).toHaveCount(1, { timeout: 20_000 });
   // NavigationDestination exposes the correct, tappable Flutter semantics
   // as role=tab. Clicking its child text span misses the semantics tap target.
   const eventsTab = page.getByRole('tab', { name: 'Events' });
