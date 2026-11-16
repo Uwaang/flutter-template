@@ -69,8 +69,8 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 - AutoRoute is configured in `lib/app/navigation/app_router.dart`.
 - Use generated route classes through `context.router`.
 - The main authenticated shell is `RootRoute`, which hosts tab routes for Home, Events, and Profile.
-- `RootPage` uses Flutter's Material 3 `NavigationBar` directly. Keep the active destination in `AutoTabsScaffold` (`tabsRouter.activeIndex` / `tabsRouter.setActiveIndex`) rather than duplicating routing state in a presentation widget.
-- An adaptive `NavigationRail` for wider windows requires a separate shell layout decision and tab-routing checks; it is not enabled by the basic bottom navigation.
+- `RootPage` uses an `AutoTabsRouter` shell with Material 3 `NavigationBar` below 600 logical pixels and `NavigationRail` at 600 pixels or wider (including resized desktop/web windows). The tab page stays inside the same `AutoTabsRouter`; only navigation chrome changes with the available width.
+- `tabsRouter.activeIndex` / `tabsRouter.setActiveIndex` remain the **only source of tab selection state** for both layouts. Avoid separate rail selection state or platform-specific branching. The wide layout keeps tab content in the remaining width next to the rail.
 - Other top-level routes currently include Landing, Authentication, Event Detail, and Debug Tools.
 
 ## Data And Networking
