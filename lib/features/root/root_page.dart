@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app/navigation/app_router.dart';
-import 'package:flutter_app/common/component/custom_bottom_app_bar.dart';
 import 'package:flutter_app/core/supabase/supabase_service.dart';
 
 @RoutePage()
@@ -32,23 +31,24 @@ class RootPage extends StatelessWidget {
       ],
       homeIndex: 0,
       bottomNavigationBuilder: (_, tabsRouter) {
-        return CustomBottomAppBar(
+        return NavigationBar(
           selectedIndex: tabsRouter.activeIndex,
-          items: [
-            CustomBottomAppBarItem(
+          onDestinationSelected: tabsRouter.setActiveIndex,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
               label: 'Home',
-              icon: Icons.home,
-              onSelectListener: () => tabsRouter.setActiveIndex(0),
             ),
-            CustomBottomAppBarItem(
+            NavigationDestination(
+              icon: Icon(Icons.event_outlined),
+              selectedIcon: Icon(Icons.event),
               label: 'Events',
-              icon: Icons.event,
-              onSelectListener: () => tabsRouter.setActiveIndex(1),
             ),
-            CustomBottomAppBarItem(
+            NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              selectedIcon: Icon(Icons.person),
               label: 'Profile',
-              icon: Icons.person,
-              onSelectListener: () => tabsRouter.setActiveIndex(2),
             ),
           ],
         );

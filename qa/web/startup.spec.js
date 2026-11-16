@@ -41,3 +41,26 @@ test('compiled Flutter app reaches the authentication screen', async ({ page }, 
     });
   }
 });
+
+// Keep this to one real route-switch smoke, rather than testing Flutter's
+// built-in NavigationBar in isolation or adding a new UI testing framework.
+test('Material 3 navigation switches between the example tabs', async ({ page }) => {
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.stack || String(error)));
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#splash')).toHaveCount(0, { timeout: 30_000 });
+  const accessibility = page.getByRole('button', { name: 'Enable accessibility' });
+  if (await accessibility.count()) await accessibility.dispatchEvent('click');
+
+  await page.getByText('Mock Sign In', { exact: true }).click();
+  const eventsTab = page.getByText('Events', { exact: true }).filter({ visible: true }).first();
+  await expect(eventsTab).toBeVisible({ timeout: 30_000 });
+  await eventsTab.click();
+  await expect(page.getByText('Event Detail', { exact: true })).toBeVisible({ timeout: 20_000 });
+
+  const profileTab = page.getByText('Profile', { exact: true }).filter({ visible: true }).first();
+  await profileTab.click();
+  await expect(page.getByText('Sign out', { exact: true })).toBeVisible({ timeout: 20_000 });
+  expect(pageErrors, 'tab navigation must not cause uncaught browser exceptions').toEqual([]);
+});

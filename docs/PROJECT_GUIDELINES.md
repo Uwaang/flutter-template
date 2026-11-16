@@ -39,7 +39,7 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 - Existing `CustomColorScheme` and `CustomTextTheme` are compatibility getters, backed by the current `ThemeData` at runtime. Their initial palette/type styles build the Material theme once. Additional semantic feedback colors live in `AppSemanticColors` (`ThemeExtension`); do not create a second runtime theme from brightness.
 - Avoid speculative spacing/radius tokens. Introduce shared design tokens only after a genuinely repeated use arises; reserve `ThemeExtension` for colors or values that cannot be expressed by standard Material 3 properties.
 - Regular `ElevatedButton` instances keep Material 3 defaults. `CustomButtonPrimary` retains useful loading, disabled and haptic behavior; it does not force a custom appearance on every Material button.
-- Do not redesign sample Home/Events/Profile routes as part of theme maintenance. Keep responsive/navigation and Figma/Widgetbook automation as separate opt-in decisions.
+- Do not redesign sample Home/Events/Profile routes as part of theme maintenance. Keep responsive rail layout and Figma/Widgetbook automation as separate opt-in decisions.
 - For new features prefer built-in Material 3 widgets; create shared wrappers for actual repeated behavior, not solely to rename existing Flutter widgets.
 
 ## Shared UI: Components vs Compositions
@@ -69,6 +69,8 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 - AutoRoute is configured in `lib/app/navigation/app_router.dart`.
 - Use generated route classes through `context.router`.
 - The main authenticated shell is `RootRoute`, which hosts tab routes for Home, Events, and Profile.
+- `RootPage` uses Flutter's Material 3 `NavigationBar` directly. Keep the active destination in `AutoTabsScaffold` (`tabsRouter.activeIndex` / `tabsRouter.setActiveIndex`) rather than duplicating routing state in a presentation widget.
+- An adaptive `NavigationRail` for wider windows requires a separate shell layout decision and tab-routing checks; it is not enabled by the basic bottom navigation.
 - Other top-level routes currently include Landing, Authentication, Event Detail, and Debug Tools.
 
 ## Data And Networking
