@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/app/configuration/configuration.dart';
+import 'package:flutter_app/app/setup/flavor.dart';
 import 'package:flutter_app/common/component/custom_text_field.dart';
 import 'package:flutter_app/common/validator/text_field_validator_state.dart';
 import 'package:flutter_app/common/validator/text_validator_controller.dart';
@@ -28,6 +30,8 @@ class _TrackingValidator extends TextValidatorController {
 }
 
 void main() {
+  Configuration.setup(flavor: Flavor.develop);
+
   testWidgets('CustomTextField detaches and reattaches validator listeners', (
     tester,
   ) async {
