@@ -144,3 +144,91 @@ usual CI test run never performs a live sign-in.
 Google/Apple OAuth require separate provider configuration, registered
 callback URLs and platform-specific tests. Browser launch alone is **not**
 a successful OAuth sign-in. Never claim these are verified from this smoke.
+
+## SCRUM-448 — Google/Apple OAuth integration checklist (2026-11-17)
+
+The Google and Apple buttons already call Supabase Auth's `signInWithOAuth`.
+They **do not** use direct Google/Apple SDK packages or create profile tables.
+The existing Auth-state stream and session restoration determine success,
+**not** whether the browser opened.
+
+### Callback URLs (three distinct locations)
+
+1. **Google Cloud / Apple Developer provider callback** — use the Supabase
+   project's provider callback URL from the Authentication > Providers screen,
+   normally `https://<project-ref>.supabase.co/auth/v1/callback`. This is
+   **not** the GitHub Pages URL or native app deep link.
+2. **Supabase Authentication > URL Configuration > Redirect URLs** — add the
+   *actual Flutter app return URLs* to this allow list. Keep these exact for
+   release/staging; examples:
+   - `https://uwaang.github.io/flutter-template/` (main Pages root)
+   - `https://uwaang.github.io/flutter-template/previews/pr-N/`
+     (specific preview only, if running a separately authorized real-Auth
+     preview; avoid granting all preview paths)
+   - `http://localhost:8080/authentication` (only for a local Web path-route
+     test on that port and route)
+   - `fluttertemplate://login-callback` (registered Android/iOS/macOS scheme)
+3. **Flutter app `redirectTo`** — the use cases choose the current Web HTTP(S)
+   origin + **pathname**, stripping any query and Flutter hash fragment, or
+   `SUPABASE_OAUTH_REDIRECT_URL` on native. This preserves Pages' nested
+   `/flutter-template/previews/pr-N/` base path, rather than falling back
+   unintentionally to a Supabase Site URL for all apps.
+
+On Pages, Flutter uses hash routing, e.g.
+`https://uwaang.github.io/flutter-template/#/authentication`. Only the
+existing document path `https://uwaang.github.io/flutter-template/` belongs
+in the redirect allow list; `#/authentication` is a client-side fragment,
+not a route that GitHub Pages serves. Local SPA hosts may use path routing
+and need an `index.html` rewrite for direct-route refreshes.
+
+### Provider configuration (outside the public repository)
+
+- **Google:** Set up the Google Auth Platform consent screen / audience and
+  a **Web application** OAuth Client ID. In Authorized redirect URIs use
+  Supabase's `/auth/v1/callback`; set the allowed origin as required for
+  the app. Restrict testing to approved test users. Copy the client ID and
+  secret into **Supabase Auth > Sign In / Providers > Google**.
+- **Apple:** An Apple Developer Program account with Sign in with Apple
+  capability, primary App ID, web Services ID, permitted domain/return URL,
+  Team ID, Key ID and an Apple private key are required. Use the Supabase
+  provider callback as the Apple return URL and configure the Apple
+  provider **inside Supabase**, not in Flutter. Web OAuth does not reliably
+  supply an Apple full name; the app already falls back when absent.
+- **Never** place Google/Apple client secrets, Apple private keys, Supabase
+  `service_role` keys, or unredacted authentication tokens into GitHub,
+  public CI, committed `.env*`, screenshots or logs. Only public Supabase
+  publishable keys are allowed in the Flutter client.
+
+### Verification stages and boundaries
+
+1. Keep public Pages publishing **mock-only** by default; its current
+   `tool/create_ci_env.dart` fixtures intentionally leave Supabase
+   unconfigured, so public Pages does not exercise OAuth.
+2. For real tests use an **explicitly approved disposable Supabase QA project**
+   and local ignored flavor `.env*` files. Register a stable local-origin
+   return URL in Supabase, then test Google first: provider consent, return
+   to the correct app, real non-expired session, reload/session restore,
+   sign-out, and signed-out reload. Repeat separately for Apple once its
+   provider credentials exist.
+3. For Android/iOS/macOS verify the registered URI handler returns to
+   the running app and restores the session, not merely that a browser
+   launches. `fluttertemplate://login-callback` is a starter scheme that
+   must be changed when rebranding or if another installed app could
+   claim it. Windows/Linux protocol handler registration and interactive
+   OAuth are not verified.
+4. After each real test, review any user records created in `auth.users`
+   on the disposable project. Sign-out does **not** delete them. Avoid
+   enabling unlimited public signup or publishing QA credentials without
+   a separate explicit decision.
+
+The regular GitHub Flutter quality, seven-platform compile-only and Web
+JS/WASM mock runtime checks **cannot prove Google or Apple OAuth E2E**.
+Provider secrets and account approvals are external prerequisites. No
+schema/database/CRUD/Storage work is part of SCRUM-448.
+
+References:
+- https://supabase.com/docs/reference/dart/auth-signinwithoauth
+- https://supabase.com/docs/guides/auth/redirect-urls
+- https://supabase.com/docs/guides/auth/social-sign-in/auth-google
+- https://supabase.com/docs/guides/auth/social-sign-in/auth-apple
+- https://supabase.com/docs/guides/auth/native-mobile-deep-linking
