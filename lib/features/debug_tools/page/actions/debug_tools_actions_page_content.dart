@@ -25,54 +25,45 @@ class _DebugToolsActionsPageContentState extends ConsumerState<DebugToolsActions
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        CustomText(text: 'Actions', style: context.textTheme.headlineLarge),
-        const SizedBox(height: 20),
-        // Title: Debug logs
-        CustomButtonPrimary(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (context) => Theme(
-                  data: ThemeData(colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.grey)),
-                  child: TalkerScreen(
-                    talker: Flogger.talker,
-                    theme: const TalkerScreenTheme(
-                      logColors: {'debug': Colors.green},
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-          text: 'Console Logs',
-        ),
-        const SizedBox(height: 20),
-        // Title: Notifications sample
-        CustomButtonPrimary(
-          onPressed: () async {
-            final isPermanentlyDenied = await NotificationsService.isPermissionPermanentlyDenied();
-            final isDenied = isPermanentlyDenied || !(await NotificationsService.requestPermission());
-            if (isDenied && context.mounted) {
-              await CustomNotificationPermissionDeniedDialog.show(context);
-              return;
-            } else if (context.mounted) {
-              await CustomSnackbarSuccess(context: context, message: 'Permission granted').show();
-            }
-          },
-          text: 'Request Notification Permission',
-        ),
-        const SizedBox(height: 20),
-        ...getToolsSectionList(context, ref),
+        CustomText(text: 'Component samples', style: context.textTheme.headlineLarge),
+        const SizedBox(height: 8),
+        const Text('Try the reusable widgets and native Material 3 examples below.'),
         const SizedBox(height: 20),
         ...getSamplesSectionList(context, ref),
+        const SizedBox(height: 32),
+        ExpansionTile(
+          title: const Text('Developer tools'),
+          subtitle: const Text('Logs, layout overlays and animation diagnostics'),
+          childrenPadding: const EdgeInsets.only(bottom: 16),
+          children: [
+            CustomButtonPrimary(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => Theme(
+                      data: ThemeData(colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.grey)),
+                      child: TalkerScreen(
+                        talker: Flogger.talker,
+                        theme: const TalkerScreenTheme(
+                          logColors: {'debug': Colors.green},
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+              text: 'Console Logs',
+            ),
+            const SizedBox(height: 16),
+            ...getToolsSectionList(context, ref),
+          ],
+        ),
       ],
     );
   }
 
   List<Widget> getToolsSectionList(BuildContext context, WidgetRef ref) {
     return [
-      CustomText(text: 'Tools', style: context.textTheme.headlineLarge),
-      const SizedBox(height: 20),
       SwitchListTile.adaptive(
         title: const Text('Show Layout Bounds'),
         value: debugPaintSizeEnabled,
@@ -102,8 +93,6 @@ class _DebugToolsActionsPageContentState extends ConsumerState<DebugToolsActions
 
   List<Widget> getSamplesSectionList(BuildContext context, WidgetRef ref) {
     return [
-      CustomText(text: 'Samples', style: context.textTheme.headlineLarge),
-      const SizedBox(height: 20),
       CustomButtonPrimary(
         text: 'Widgets sample',
         onPressed: () => ref.read(debugToolsPageStateProvider.notifier).setAction(DebugToolsSampleType.widgets),
@@ -122,6 +111,19 @@ class _DebugToolsActionsPageContentState extends ConsumerState<DebugToolsActions
       CustomButtonPrimary(
         text: 'Text Styles sample',
         onPressed: () => ref.read(debugToolsPageStateProvider.notifier).setAction(DebugToolsSampleType.textStyles),
+      ),
+      const SizedBox(height: 16),
+      CustomButtonPrimary(
+        onPressed: () async {
+          final isPermanentlyDenied = await NotificationsService.isPermissionPermanentlyDenied();
+          final isDenied = isPermanentlyDenied || !(await NotificationsService.requestPermission());
+          if (isDenied && context.mounted) {
+            await CustomNotificationPermissionDeniedDialog.show(context);
+          } else if (context.mounted) {
+            await CustomSnackbarSuccess(context: context, message: 'Permission granted').show();
+          }
+        },
+        text: 'Request Notification Permission',
       ),
     ];
   }
