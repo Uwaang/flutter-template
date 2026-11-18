@@ -7,7 +7,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 // UI-only switch. Override in widget tests without initializing a live SDK.
 // Authentication actions still require an actual configured Supabase client.
-final authBackendConfiguredProvider = Provider<bool>((ref) => SupabaseService.isConfigured);
+final authBackendConfiguredProvider = Provider<bool>(
+  (ref) => SupabaseService.isConfigured,
+);
 
 class AuthenticationPageContent extends ConsumerWidget {
   const AuthenticationPageContent({super.key});
@@ -19,7 +21,8 @@ class AuthenticationPageContent extends ConsumerWidget {
 
     return state.mapContentState(
       provider: authenticationStateProvider,
-      data: (data) => _DataStateWidget(data: data, backendConfigured: backendConfigured),
+      data: (data) =>
+          _DataStateWidget(data: data, backendConfigured: backendConfigured),
     );
   }
 }
@@ -48,7 +51,11 @@ class _DataStateWidget extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(Icons.lock_outline, size: 40, color: theme.colorScheme.primary),
+                    Icon(
+                      Icons.lock_outline,
+                      size: 40,
+                      color: theme.colorScheme.primary,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Welcome',
@@ -61,50 +68,77 @@ class _DataStateWidget extends ConsumerWidget {
                           ? 'Choose a sign-in method to continue.'
                           : 'Explore the template with a mock session.',
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 32),
                     if (!backendConfigured)
                       FilledButton(
                         key: const Key('auth_mock_button'),
-                        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                        onPressed: () => ref.read(authenticationStateProvider.notifier).mockSignIn(),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                        ),
+                        onPressed: () => ref
+                            .read(authenticationStateProvider.notifier)
+                            .mockSignIn(),
                         child: const Text('Mock Sign In'),
                       )
                     else ...[
                       FilledButton.icon(
                         key: const Key('auth_google_button'),
-                        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                        ),
                         onPressed: oauthLoading
                             ? null
-                            : () => ref.read(authenticationStateProvider.notifier).signInWithGoogle(),
+                            : () => ref
+                                  .read(authenticationStateProvider.notifier)
+                                  .signInWithGoogle(),
                         icon: data.isGoogleSigningIn
                             ? SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.primary),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: theme.colorScheme.primary,
+                                ),
                               )
-                            : SvgPicture.asset('assets/svg/ic_google.svg', width: 20, height: 20),
+                            : SvgPicture.asset(
+                                'assets/svg/ic_google.svg',
+                                width: 20,
+                                height: 20,
+                              ),
                         label: const Text('Sign in with Google'),
                       ),
                       const SizedBox(height: 12),
                       OutlinedButton.icon(
                         key: const Key('auth_apple_button'),
-                        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                        ),
                         onPressed: oauthLoading
                             ? null
-                            : () => ref.read(authenticationStateProvider.notifier).signInWithApple(),
+                            : () => ref
+                                  .read(authenticationStateProvider.notifier)
+                                  .signInWithApple(),
                         icon: data.isAppleSigningIn
                             ? SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.primary),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: theme.colorScheme.primary,
+                                ),
                               )
                             : SvgPicture.asset(
                                 'assets/svg/ic_apple.svg',
                                 width: 20,
                                 height: 20,
-                                colorFilter: ColorFilter.mode(theme.colorScheme.onSurface, BlendMode.srcIn),
+                                colorFilter: ColorFilter.mode(
+                                  theme.colorScheme.onSurface,
+                                  BlendMode.srcIn,
+                                ),
                               ),
                         label: const Text('Sign in with Apple'),
                       ),
@@ -122,17 +156,23 @@ class _DataStateWidget extends ConsumerWidget {
                       const SizedBox(height: 8),
                       TextButton(
                         key: const Key('auth_anonymous_button'),
-                        style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                        ),
                         onPressed: oauthLoading
                             ? null
-                            : () => ref.read(authenticationStateProvider.notifier).signInAnonymously(),
+                            : () => ref
+                                  .read(authenticationStateProvider.notifier)
+                                  .signInAnonymously(),
                         child: const Text('Sign in Anonymously'),
                       ),
                       const SizedBox(height: 24),
                       Text(
                         'Social sign-in requires the corresponding Supabase provider to be enabled.',
                         textAlign: TextAlign.center,
-                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ],
