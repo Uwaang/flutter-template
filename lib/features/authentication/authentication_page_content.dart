@@ -21,8 +21,7 @@ class AuthenticationPageContent extends ConsumerWidget {
 
     return state.mapContentState(
       provider: authenticationStateProvider,
-      data: (data) =>
-          _DataStateWidget(data: data, backendConfigured: backendConfigured),
+      data: (data) => _DataStateWidget(data: data, backendConfigured: backendConfigured),
     );
   }
 }
@@ -64,9 +63,7 @@ class _DataStateWidget extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      backendConfigured
-                          ? 'Choose a sign-in method to continue.'
-                          : 'Explore the template with a mock session.',
+                      backendConfigured ? 'Choose a sign-in method to continue.' : 'Explore the template with a mock session.',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
@@ -79,9 +76,7 @@ class _DataStateWidget extends ConsumerWidget {
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(48),
                         ),
-                        onPressed: () => ref
-                            .read(authenticationStateProvider.notifier)
-                            .mockSignIn(),
+                        onPressed: () => ref.read(authenticationStateProvider.notifier).mockSignIn(),
                         child: const Text('Mock Sign In'),
                       )
                     else ...[
@@ -90,11 +85,7 @@ class _DataStateWidget extends ConsumerWidget {
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(48),
                         ),
-                        onPressed: oauthLoading
-                            ? null
-                            : () => ref
-                                  .read(authenticationStateProvider.notifier)
-                                  .signInWithGoogle(),
+                        onPressed: oauthLoading ? null : () => ref.read(authenticationStateProvider.notifier).signInWithGoogle(),
                         icon: data.isGoogleSigningIn
                             ? SizedBox(
                                 width: 20,
@@ -117,11 +108,7 @@ class _DataStateWidget extends ConsumerWidget {
                         style: OutlinedButton.styleFrom(
                           minimumSize: const Size.fromHeight(48),
                         ),
-                        onPressed: oauthLoading
-                            ? null
-                            : () => ref
-                                  .read(authenticationStateProvider.notifier)
-                                  .signInWithApple(),
+                        onPressed: oauthLoading ? null : () => ref.read(authenticationStateProvider.notifier).signInWithApple(),
                         icon: data.isAppleSigningIn
                             ? SizedBox(
                                 width: 20,
@@ -159,11 +146,7 @@ class _DataStateWidget extends ConsumerWidget {
                         style: TextButton.styleFrom(
                           minimumSize: const Size.fromHeight(48),
                         ),
-                        onPressed: oauthLoading
-                            ? null
-                            : () => ref
-                                  .read(authenticationStateProvider.notifier)
-                                  .signInAnonymously(),
+                        onPressed: oauthLoading ? null : () => ref.read(authenticationStateProvider.notifier).signInAnonymously(),
                         child: const Text('Sign in Anonymously'),
                       ),
                       const SizedBox(height: 24),
