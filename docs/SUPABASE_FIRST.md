@@ -128,8 +128,7 @@ usual CI test run never performs a live sign-in.
 
 1. In the test project's dashboard, enable **Anonymous Sign-ins**. Copy the
    test project URL and *publishable* key into the local, gitignored `.env`
-   and the flavor-specific `.env-production` used by the app (keep existing
-   non-Supabase configuration in those files). Do **not** commit either file.
+   and the flavor-specific `.env-production` used by the app. Do **not** commit either file.
 2. Run the Flutter app locally with the production entrypoint and chosen
    target, e.g. `flutter run -d chrome -t lib/main_production.dart`.
 3. Confirm that `Mock Sign In` is **absent** while the test backend is

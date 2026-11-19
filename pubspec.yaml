@@ -28,9 +28,6 @@ dependencies:
   freezed_annotation: 3.1.0
   json_annotation: 4.9.0
 
-  # Network
-  dio: ^5.9.2
-
   # Storage
   shared_preferences: ^2.5.4
 
@@ -43,17 +40,12 @@ dependencies:
   path_provider: 2.1.5
   window_manager: 0.5.1
 
-  # Security
+  # Environment configuration
   flutter_dotenv: ^6.0.1
-  # Keep freerasp on 7.x until the Android plugin registration is manually verified.
-  # 8.0.0 failed :app:compileDevelopDebugJavaWithJavac with a missing FreeraspPlugin class.
-  freerasp: ^7.3.0
 
   # Logging
-  pretty_dio_logger: 1.4.0
   talker: ^5.0.1
   talker_flutter: ^5.0.1
-  talker_dio_logger: ^5.0.1
 
   # Resources
   extended_image: 10.0.1
@@ -63,17 +55,13 @@ dependencies:
 
   # UI
   flutter_animate: 4.5.2
-  flutter_local_notifications: ^22.0.0
   modal_bottom_sheet: 3.0.0
   # Modern browser bindings that compile to both JavaScript and WebAssembly.
   web: ^1.1.1
 
   # Utility
-  app_settings: ^7.0.0
   collection: 1.19.1
   crypto: ^3.0.7
-  permission_handler: ^12.0.3
-  url_launcher: 6.3.2
 
 
 dev_dependencies:

@@ -5,10 +5,10 @@ Cross-platform Flutter application template adapted from STRV. **GitHub `main` i
 ## Current capabilities
 
 - **Platforms:** Android, iOS, Web (JavaScript and WebAssembly), Windows, Linux and macOS. Hosted CI checks compilation across these platforms, **not** production distribution or interactive GUI readiness.
-- **Architecture:** Flutter, Riverpod, AutoRoute, Freezed/code generation, Dio, theme/localization, shared UI components and example routes.
+- **Architecture:** Flutter, Riverpod, AutoRoute, Freezed/code generation, Material 3, theme/localization, shared UI components and example routes.
 - **Authentication:** Supabase anonymous Auth and session handling when a URL and publishable key are configured. Without both, the first-screen **Mock Sign In** is a UI-only demo.
 - **Not included:** application database schema, migrations or CRUD; Firebase Auth/Messaging/Crashlytics/Analytics/Remote Config as active SDKs; production signing; store deployment; verified Google/Apple OAuth on physical devices.
-- **Optional scaffolding:** local notification examples, freeRASP mobile security, debug UI and inherited release tooling. Inspect actual initialization in `lib/app/setup/setup_app.dart` before using any optional service.
+- **Examples:** Home, Events, Profile, Debug Tools and authentication screens. No preconfigured notification, analytics, mobile threat-detection or proprietary REST API service.
 
 ## Quick start
 
@@ -30,9 +30,9 @@ fvm flutter analyze
 fvm flutter test
 ```
 
-For icons, splash screens and application renaming, use [Project setup](docs/PROJECT_SETUP.md) instead of the inherited all-in-one install target.
+For icons, splash screens and application renaming, use [Project setup](docs/PROJECT_SETUP.md). `make install` now only installs the pinned SDK and resolves dependencies.
 
-The app exposes example Home, Events, Profile and Debug Tools screens. Platform-specific release commands and inherited distribution files are **not** proof that real store submission, signing or OAuth callbacks work.
+The app exposes example Home, Events, Profile and Debug Tools screens. Production signing, store distribution, analytics, notifications and custom REST APIs are intentionally **not bundled**; integrate them only when an application actually requires them.
 
 ## Documentation
 
@@ -57,4 +57,4 @@ Documentation belongs under `docs/` except these two root entrypoints (`README.m
 
 ## Origins
 
-This project derives from [STRV Flutter Template](https://github.com/strvcom/flutter-template). Preserve the original license and contributor attribution in [LICENSE](LICENSE). Some old setup or skill resources remain in the repository as historical examples; the active configuration and guides above take precedence.
+This project derives from [STRV Flutter Template](https://github.com/strvcom/flutter-template). Preserve the original license and contributor attribution in [LICENSE](LICENSE). Unused STRV runtime and distribution scaffolding has been removed; this attribution and the existing LICENSE remain.

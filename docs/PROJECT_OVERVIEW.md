@@ -1,170 +1,57 @@
-# Flutter Template Project Overview
+# Flutter Template — Project Overview
 
-This document is a fast orientation guide for contributors and AI assistants. It explains how the current template is laid out, where important behavior lives, and which parts are examples versus fully wired runtime behavior.
+This document reflects the current GitHub `main` architecture. The template is a lean starting point rather than an STRV-compatible application.
 
-## What This Repository Is
-- A cross-platform Flutter application template.
-- It ships with example screens, routing, code generation, theming, Supabase Auth, local notification scaffolding, secrets handling, release scaffolding, and project setup utilities.
-- It is meant to be customized. Some services are intentionally scaffolded and still marked with TODOs.
+## Stack and scope
+- Flutter SDK pinned in `.fvmrc`; Android, iOS, Web JS/WASM, Linux, Windows and macOS compile targets.
+- Material 3 with shared color and type themes, Flutter's native widgets and reusable example components.
+- Riverpod with code generation, Freezed, AutoRoute, and SharedPreferences for simple local UI state.
+- Optional Supabase Auth using a public project URL and publishable key. Google/Apple use Supabase OAuth; native/desktop callbacks need independent real-device verification.
+- No bundled REST API/backend, profile database/CRUD, push/local notification service, threat detection, external analytics or signed release pipeline.
 
-## Core Stack
-- Flutter with FVM-managed SDK version from `.fvmrc`
-- Riverpod and `riverpod_annotation`
-- Freezed and `json_serializable`
-- AutoRoute
-- Dio
-- SharedPreferences
-- Supabase Auth (`supabase_flutter`), with no Firebase SDK dependencies in the active `pubspec.yaml`
-- FlutterGen and `gen-l10n`
+## Starting the app
+Entry points `lib/main_develop.dart`, `lib/main_staging.dart`, and `lib/main_production.dart` call `setupApp`:
+1. Initialize Flutter, choose flavor and load gitignored `.env` files.
+2. Configure Supabase Auth if a URL/key pair is present. Otherwise use the mock-only demo.
+3. Apply static-hosting Web routing when selected, desktop window defaults and theme/system-bar settings.
+4. Construct `MaterialApp.router` using AutoRoute and the shared Material 3 theme.
 
-## Where To Start Reading
-- `pubspec.yaml`: package choices, SDK constraints, assets, fonts, and generators
-- `makefile`: common project commands
-- `build.yaml`: codegen scope and filename expectations
-- `lib/app/setup/setup_app.dart`: startup pipeline and which services are actually enabled
-- `lib/app/navigation/app_router.dart`: route graph
-- `lib/app/app.dart`: `MaterialApp.router`, provider container, flavor banner, observers
+Neither secret keys nor real Supabase credentials are injected by public CI. `tool/create_ci_env.dart` writes only empty placeholders for mock builds.
 
-## App Startup Flow
-1. Entry points such as `lib/main_develop.dart`, `lib/main_staging.dart`, and `lib/main_production.dart` call `setupApp(flavor: ...)`.
-2. `setupApp` initializes Flutter bindings, orientation, flavor configuration, dotenv overrides, optional Supabase Auth, freeRASP security on mobile, web and desktop setup, image cache, theme loading, and system bar theming.
-3. `App.startApp()` mounts the shared Riverpod `providerContainer`.
-4. `App` builds `MaterialApp.router` with generated localization delegates, theme mode, and analytics route observers.
+## Main screens and routes
+- `LandingRoute`: checks restored Supabase session and routes to authentication or the tab shell.
+- `AuthenticationRoute`: Google, Apple and anonymous sign-in with configured Supabase, or Mock Sign In without configuration.
+- `RootRoute`: adaptive Home, Events and Profile tabs.
+- `EventDetailRoute` and `DebugToolsRoute`: illustrative navigation and Material 3 component examples.
 
-Important note:
-- No URL/key means **mock-only startup**, not a real backend login. A URL or publishable key without the other is a configuration error.
-- A live anonymous sign-in creates a real Supabase Auth user, but no application database table is introduced. The local user cache still uses SharedPreferences.
-- Google/Apple OAuth provider configuration and native/desktop callback handling must be verified separately.
+The Debug Tools page includes local widgets, dialogs, typography, theme colors and layout diagnostics. It does not request notification permissions or call remote placeholder endpoints.
 
-## Route Map
-Defined in `lib/app/navigation/app_router.dart`.
+## Repository map
+- `lib/app/`: app initialization, platform setup, theme and routing.
+- `lib/core/supabase/`: auth/client initialization and callback URL handling.
+- `lib/core/database/`: SharedPreferences-backed local UI cache.
+- `lib/core/riverpod/`: event and async state helpers.
+- `lib/common/`: reusable UI pieces, exceptions, extensions, auth use cases and validators.
+- `lib/features/`: screens and their Riverpod state.
+- `project_setup/`: app identity, icon and splash customizer.
+- `tool/`: non-secret CI fixtures and native packaging helpers.
+- `qa/` and `test/`: mock/runtime and unit/widget tests.
+- `.github/workflows/`: quality, 7-target compile CI, JS/WASM runtime smoke and mock-only Pages previews.
 
-Current top-level routes:
-- `LandingRoute` as the initial route
-- `AuthenticationRoute`
-- `RootRoute`
-- `EventDetailRoute`
-- `DebugToolsRoute`
+## Working on the template
+```sh
+make install       # or install the pinned Flutter SDK yourself
+make gen
+make analyze
+make test
+make build-web
+```
 
-`RootRoute` is the tab shell and currently contains:
-- `HomeRoute`
-- `EventsRoute`
-- `ProfileRoute`
+The canonical source is GitHub `main`, with PRs validated by GitHub Actions. Code-generated files are not a substitute for checking the source of truth in `lib/` and `pubspec.yaml`. Release artifacts from CI are compile-only and are not store-signed.
 
-## Feature Inventory
-Current feature folders under `lib/features/`:
-- `authentication`: sign-in flow, state, and one-off events
-- `debug_tools`: sample pages for colors, text styles, widgets, and actions
-- `event_detail`: event detail example screen
-- `events`: events listing example screen
-- `home`: example home screen
-- `landing`: startup redirect logic and force-update content
-- `profile`: profile screen, state, and sign-out event flow
-- `root`: tab shell using `AutoTabsRouter` with an adaptive Material 3 NavigationBar/NavigationRail
+## Boundaries
+Real Supabase OAuth E2E was validated for Google on a local Flutter Web QA build, not for every native platform. Public GitHub Pages remains mock-only; no real project keys or user credentials belong in public CI. Supabase Auth is not an application profile database.
 
-## Code Organization
+Keep the original STRV license and attribution in `LICENSE` and `README.md`. Compatibility with obsolete STRV packages, APIs, Firebase tooling, notification scaffolds and distribution files is not a project goal.
 
-### `lib/app`
-- `configuration/`: flavor-specific runtime configuration
-- `navigation/`: AutoRoute configuration and generated router files
-- `setup/`: startup and platform-specific initialization
-- `theme/`: color scheme, text theme, and system bar theming
-
-### `lib/common`
-- `animation/`: shared animations
-- `component/`: smaller reusable widgets
-- `composition/`: larger UI compositions such as dialogs and placeholders
-- `data/`: DTOs, enums, entities, and exceptions
-- `extension/`: build context and model helpers
-- `provider/`: shared service providers such as theme mode, current user and local notifications; leftover Firebase-named files are not enabled SDK services
-- `usecase/`: Riverpod-based IO or domain actions
-- `validator/`: validation controllers and validation state models
-
-### `lib/core`
-- `analytics/`: analytics and crash logging helpers
-- `database/`: local SharedPreferences wrapper (no remote SQL/CRUD)
-- `supabase/`: Supabase Auth initialization/session handling
-- `network/`: Dio setup and Auth-token interceptor
-- `riverpod/`: event and async state helper mixins
-
-Useful distinction:
-- `component/` is for reusable UI primitives.
-- `composition/` is for bigger assembled sections built from primitives.
-
-## Common Screen Pattern
-Many stateful screens follow this shape:
-- `*_page.dart` for route widget and page-level listeners
-- `*_page_content.dart` for the main widget tree
-- `*_state.dart` for the `freezed` state model and `@riverpod` notifier
-- `*_event.dart` for one-off event unions consumed by the page
-
-This is a strong pattern in the template, but not every feature uses every file.
-
-## UI And Theme Conventions
-- Shared widgets live in `lib/common/component/` and `lib/common/composition/`.
-- `CustomAppBar` is used widely.
-- Theme and localization are typically accessed through `BuildContext` extensions.
-- `CustomSystemBarsTheme` handles edge-to-edge system UI configuration.
-- The template currently uses plain `Scaffold` widgets directly. There is no shared `CustomScaffold` in the current codebase.
-
-## State And Data Flow
-Typical feature flow:
-1. A page or content widget reads a Riverpod provider.
-2. A feature notifier manages `AsyncValue<State>` and may emit one-off events through `EventNotifier`.
-3. Notifiers call Riverpod use cases from `lib/common/usecase/`.
-4. Use cases talk to shared services such as `dioProvider` or SharedPreferences wrappers.
-5. DTOs are mapped into entities before being exposed to UI.
-
-Helpers worth knowing:
-- `lib/core/riverpod/state_handler.dart`
-- `lib/core/riverpod/event_notifier.dart`
-- `lib/common/extension/async_value.dart`
-
-## Auth And Notifications
-- Supabase Auth is the sole built-in backend when its public project URL and publishable key are configured.
-- Anonymous sign-in, session restoration, logout and bearer tokens are wired through use cases; OAuth uses provider redirect + auth-state events, but real Google/Apple OAuth provider E2E has not been verified.
-- Local notification payload/display helpers remain, but FCM, Firebase Auth, Crashlytics, Analytics and Remote Config are not active SDK integrations.
-- No application database schema/CRUD, remote profile table, Storage, or Edge Functions are implemented in SCRUM-437.
-
-## Localization And Generated Assets
-- ARB source files live in `assets/localization/`.
-- Generated localization and asset files are written to `lib/assets/`.
-- Fonts and asset declarations are owned by `pubspec.yaml`.
-- `make gen` runs both localization generation and build runner generation.
-
-## Commands That Matter
-- `make gen`: localization plus code generation
-- `make watch`: continuous build runner
-- `make test`: wrapper around `fvm flutter test`
-- `make integration_test`: Patrol integration tests
-- `make generateAndroidProductionAppBundle`
-- `make generateIosDevelopIpa`
-- `make generateIosStagingIpa`
-- `make generateIosProductionIpa`
-
-## Versioning And Releases
-
-- GitHub `main` is the canonical public source. Hosted compile checks and branch/runtime QA policy are documented in `docs/CI.md`. Private workstation provisioning is outside the public template.
-- Flutter SDK pinning is managed through `.fvmrc`.
-- App versioning and Flutter constraints are declared in `pubspec.yaml`.
-- The repo includes `release_notes.txt` plus build commands for Android and iOS release artifacts.
-- `.github/workflows/platform-builds.yml` runs seven hosted compile targets. `.github/workflows/web-runtime-smoke.yml` runs conditionally for relevant changes; Android emulator smoke is manual.
-- Some inherited AI skills still describe historical STRV/Firebase release workflows; those distribution YAML files are absent from current public CI. Verify active behavior against `pubspec.yaml`, `setup_app.dart`, and `docs/CI.md`.
-
-## Files To Treat Carefully
-- Generated files: `*.g.dart`, `*.freezed.dart`, `*.gr.dart`, `lib/assets/*`
-- Secrets and encryption tooling under `extras/secrets/`
-- Environment files such as `.env`, `.env-development`, `.env-staging`, `.env-production`
-- Release config such as `release_notes.txt`, native signing config, and CI-sensitive build files
-
-## Known Template Gaps
-- Google/Apple provider approval and Android/iOS/macOS/Windows/Linux OAuth callbacks need platform-specific confirmation.
-- Windows/macOS/iOS GUI runtime, real physical-device verification, native release signing and store uploads are not proven by the seven compile-only jobs.
-- Android API 34 emulator and Web Chromium passed one-off live **anonymous Auth** session lifecycle checks; these are not default recurring CI gates. Read `docs/SUPABASE_FIRST.md` for exact evidence.
-- The optional Playwright PoC has no npm lockfile and is not a mandatory merge gate. Existing Patrol/Maestro scaffolding is retained without increasing broad UI E2E coverage.
-- Inherited agent skills may mention the removed Firebase backend or historical distribution tags. Do not restore those instructions without a separate explicit decision.
-
-## Documentation Ownership
-- Keep README and AGENTS.md as the two root documentation entrypoints; maintain topic-specific guidance under `docs/`.
-- This file owns the repository map; `PROJECT_GUIDELINES.md` owns coding conventions, `CI.md` owns pipelines/publication, `QA.md` owns runtime checks and Patrol examples, `PROJECT_SETUP.md` owns app customization and Android signing, and `SUPABASE_FIRST.md` owns authentication setup.
-- Prefer updating existing docs over creating another implementation report or nested README; keep docs aligned with behavior in the same PR.
+For details, see [CI](CI.md), [QA](QA.md), [Supabase setup](SUPABASE_FIRST.md), and [Project setup](PROJECT_SETUP.md).

@@ -1,87 +1,45 @@
-# https://medium.com/flutter-community/automating-flutter-workflows-with-the-makefile-423b8e023c9a
-.PHONY: setup watch clean gen locale install integration_test test generateAndroidProductionAppBundle generateIosDevelopIpa generateIosStagingIpa generateIosProductionIpa generateWebProduction deployWeb runner_gen secretsDecrypt secretsEncrypt secretsClean
+# Small, cross-platform developer commands. CI is defined in .github/workflows.
+.PHONY: setup install gen locale watch clean format analyze test check integration_test build-web build-web-wasm
 
-setup: # Setup the project
+setup: ## Customize app icon, splash and package identity interactively.
 	@cd project_setup && fvm dart pub get
 	@fvm dart ./project_setup/lib/main.dart
 
-watch: # Run build_runner
-	@fvm dart run build_runner watch --delete-conflicting-outputs
-
-clean: # Clean everything in the project, download dependencies, generate code
-	@fvm flutter clean
-	@fvm flutter pub get
-	@make gen
-
-gen: # Generates localization and freezed files in project
-	@make locale
-	@fvm dart run build_runner build --delete-conflicting-outputs
-
-locale: # Generates localization and freezed files in project
-	@fvm flutter gen-l10n --arb-dir "assets/localization" --template-arb-file "app_en.arb" --output-localization-file "app_localizations.gen.dart" --output-dir "lib/assets"
-
-install: # Install any required packages
+install: ## Install the pinned Flutter SDK and resolve packages.
 	@dart pub global activate fvm
 	@fvm install
-	@fvm use
-	@fvm dart pub global activate icons_launcher
-	@fvm dart pub global activate patrol_cli
-	@fvm dart pub global activate flutterfire_cli
-	@make secretsDecrypt
+	@fvm flutter pub get
 
-integration_test: # Runs Patrol Integration tests 
-	@patrol test --flavor develop
+gen: locale ## Regenerate source and localization.
+	@fvm dart run build_runner build --delete-conflicting-outputs
 
-test: # Runs Flutter tests
+locale:
+	@fvm flutter gen-l10n --arb-dir assets/localization --template-arb-file app_en.arb --output-localization-file app_localizations.gen.dart --output-dir lib/assets
+
+watch:
+	@fvm dart run build_runner watch --delete-conflicting-outputs
+
+clean:
+	@fvm flutter clean
+	@fvm flutter pub get
+	@$(MAKE) gen
+
+format:
+	@fvm dart format lib test integration_test tool
+
+analyze:
+	@fvm flutter analyze
+
+test:
 	@fvm flutter test
 
-generateAndroidProductionAppBundle: # Clean everything and build Android AppBundle
-	@make clean
-	@fvm flutter build appbundle -t lib/main_production.dart --flavor production --obfuscate --split-debug-info=build/app/outputs/symbols
+check: analyze test ## Run local static analysis and tests.
 
-generateIosDevelopIpa: # Clean everything and build iOS IPA
-	@make clean
-	@fvm flutter build ipa -t lib/main_develop.dart --flavor develop --obfuscate --split-debug-info=build/app/outputs/symbols
+integration_test:
+	@patrol test --flavor develop
 
-generateIosStagingIpa: # Clean everything and build iOS IPA
-	@make clean
-	@fvm flutter build ipa -t lib/main_staging.dart --flavor staging --obfuscate --split-debug-info=build/app/outputs/symbols
-
-generateIosProductionIpa: # Clean everything and build iOS IPA
-	@make clean
-	@fvm flutter build ipa -t lib/main_production.dart --flavor production --obfuscate --split-debug-info=build/app/outputs/symbols
-
-generateWebProduction: # Clean everything and build Web
-	@make clean
+build-web:
 	@fvm flutter build web -t lib/main_production.dart
 
-generateWebProductionWasm: # Clean everything and build Web with WebAssembly
-	@make clean
+build-web-wasm:
 	@fvm flutter build web --wasm -t lib/main_production.dart
-
-# This requires to have firebase-tools installed globally on the system.
-# npm install -g firebase-tools
-#
-# It also requires to be logged in to firebase with the correct account.
-# firebase login
-#
-# To get the project ID, run the following command:
-# firebase projects:list
-# TODO: Update project name or remove in case there is no web or when web is not hosted on Firebase.
-deployWeb:
-	@firebase deploy --project XXX
-
-runner_gen: # For github actions
-	@flutter pub get
-	@flutter gen-l10n --arb-dir "assets/localization" --template-arb-file "app_en.arb" --output-localization-file "app_localizations.gen.dart" --output-dir "lib/assets"
-	@dart run build_runner build --delete-conflicting-outputs
-
-secretsDecrypt: # Decrypt secrets
-	@sh ./extras/secrets/tools/load-secrets.sh
-
-secretsEncrypt: # Encrypt secrets
-	@sh ./extras/secrets/tools/encrypt-secrets.sh
-
-secretsClean: # Clean secrets
-	@sh ./extras/secrets/tools/clean-secrets.sh
-	

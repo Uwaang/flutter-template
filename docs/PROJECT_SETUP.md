@@ -1,42 +1,27 @@
 # Project Setup
 
-Use the existing `project_setup/` Dart tool to customize a new app from this Flutter template. Run these steps from the **repository root**. The active backend is Supabase Auth, not the inherited STRV Firebase integration; see [Supabase-first setup](SUPABASE_FIRST.md).
+Use `project_setup/` to customize a new application from this starter. This project is Supabase-first, not the original STRV Firebase distribution template.
 
-## App identity, icon and splash screen
+## Identity, icons and splash
+1. Update `project_setup/lib/configuration.dart` with the desired app name, package ID and visual settings.
+2. Save a transparent 900 × 900 PNG at `project_setup/resources/icon.png` to generate icons.
+3. Save a transparent 768 × 768 PNG at `project_setup/resources/splash.png` for splash art, with the visible area inside a circle.
+4. From the repository root, run `make setup` and choose the relevant option.
 
-1. Edit `project_setup/lib/configuration.dart` to specify the app name, package ID and visual settings.
-2. For icon generation, save a transparent **900 × 900 PNG** at `project_setup/resources/icon.png`.
-3. For splash generation, save a transparent **768 × 768 PNG** at `project_setup/resources/splash.png`; the visible artwork must fit a circle.
-4. From the repository root, run:
+The tool owns the generated icon and splash files. After changing native identity or resources, run `make gen`, `make analyze` and the platform builds relevant to your app.
 
-```sh
-make setup
-```
+## Private signing and distribution
+The starter's GitHub Actions use synthetic, compile-only configuration. They do **not** publish signed production artifacts or provide store credentials.
 
-The make target runs `fvm dart pub get` inside `project_setup/` and opens the Dart setup menu. Choose icon generation, splash generation or application/package rebranding as required. The generators validate the input dimensions and report external tool failures.
-
-Do not run `make install` just for icons or renaming: its current definition also installs extra tools, invokes secret decryption and activates inherited FlutterFire tooling. Review that target before using it on a new project.
-
-After changing generated assets or app identity, run `make gen`, `fvm flutter analyze`, and the relevant platform checks. Do not edit generated assets or native files by hand if the setup tool owns them.
-
-## Android signing and keystores
-
-Android release signing requires **fresh, privately managed credentials**, not sample material inherited from STRV. The public repository is not a production keystore source.
-
-If a new application needs an Android signing key, generate one with JDK `keytool` using a private alias and an interactive password prompt, for example:
+For an actual Android release, generate a private keystore using `keytool`, for example:
 
 ```sh
 keytool -genkeypair -v -keystore release.keystore -keyalg RSA -keysize 2048 -validity 20000 -storetype PKCS12 -alias YOUR_PRIVATE_ALIAS
 ```
 
-Do not commit the generated keystore, passwords, or private key. For PKCS12, the keystore and key passwords may be required to match. To inspect a certificate without printing secrets, run `keytool -list -v -keystore PATH_TO_KEYSTORE` and provide the password interactively.
+Enter a private password interactively. Never commit keystores, passwords, provisioning profiles, Google OAuth secrets, Apple private keys or any other signing material.
 
-The inherited release configuration expects encrypted material under `extras/secrets/` and uses SOPS/age scripts. The current make targets include `make secretsDecrypt`, `make secretsEncrypt`, and `make secretsClean`, backed by `extras/secrets/tools/`. Only use those with **your own authorized keys** after examining the scripts; an upstream sample key or encrypted fixture is not a production secret.
-
-Set `SOPS_AGE_KEY_FILE` to the path of your own securely stored age private key only when authorized secret operations are needed. Never echo private keys or decrypted environment contents, and avoid storing secrets in CI logs or public build artifacts.
-
-**Release readiness:** hosted Android/iOS builds are compile-only. Before creating a signed distributable, separately verify signing identities, provisioning, keystore configuration and the release pipeline. See [CI and publication](CI.md).
+The inherited `extras/secrets` SOPS/age fixtures and Makefile decrypt/deploy commands have been removed. Store project-specific secrets in a separate private system and configure signing independently for each app. Do not treat compile-only AAB or unsigned iOS artifacts as store-ready releases.
 
 ## Documentation ownership
-
-This page is the canonical human-facing guide for app customization and Android signing setup. Keep the executable setup code in `project_setup/` and secret tooling in `extras/secrets/tools/`; update this page rather than adding README files beside those tools.
+Keep this guide current when the setup tool or native build identity changes. Update `docs/CI.md` for build/QA gates and `docs/SUPABASE_FIRST.md` for authentication settings; do not reinstate historical Firebase/STRV provisioning by accident.
