@@ -1,7 +1,6 @@
 import 'package:flutter_app/common/data/entity/exception/custom_exception.dart';
 import 'package:flutter_app/common/provider/current_user_state.dart';
 import 'package:flutter_app/common/usecase/authentication/sign_out_use_case.dart';
-import 'package:flutter_app/common/usecase/get_random_image_url_use_case.dart';
 import 'package:flutter_app/core/flogger.dart';
 import 'package:flutter_app/core/riverpod/state_handler.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -14,7 +13,7 @@ part 'profile_state.g.dart';
 abstract class ProfileState with _$ProfileState {
   const factory ProfileState({
     required String displayName,
-    required String imageUrl,
+    required String? imageUrl,
     required bool isSigningOut,
   }) = _ProfileState;
 }
@@ -28,7 +27,7 @@ class ProfileStateNotifier extends _$ProfileStateNotifier with AutoDisposeStateH
 
     return ProfileState(
       displayName: currentUser?.displayName ?? '',
-      imageUrl: imageUrl ?? ref.read(getRandomImageUrlUseCaseProvider(width: 120, height: 120)),
+      imageUrl: imageUrl,
       isSigningOut: false,
     );
   }

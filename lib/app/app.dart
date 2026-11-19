@@ -7,7 +7,6 @@ import 'package:flutter_app/app/setup/flavor.dart';
 import 'package:flutter_app/app/theme/app_theme.dart';
 import 'package:flutter_app/assets/app_localizations.gen.dart';
 import 'package:flutter_app/common/provider/theme_mode_provider.dart';
-import 'package:flutter_app/core/analytics/analytics_route_observer.dart';
 import 'package:flutter_app/core/riverpod/provider_logger.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -77,7 +76,6 @@ class App extends ConsumerWidget {
           }
           return link;
         },
-        navigatorObservers: () => [ref.read(analyticsRouteObserverProvider)],
       ),
       builder: (context, child) {
         if (AppPlatform.isWeb) {

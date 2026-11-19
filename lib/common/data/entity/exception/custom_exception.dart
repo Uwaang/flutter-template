@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/common/component/custom_snackbar/custom_snackbar_error.dart';
@@ -26,25 +25,6 @@ sealed class CustomException with _$CustomException implements Exception {
 
     if (error is CustomException) {
       return error;
-    } else if (error is DioException) {
-      switch (error.type) {
-        case DioExceptionType.connectionError:
-          return const CustomException.notConnectedToTheInternet();
-        default:
-          final data = error.response?.data;
-          final statusCode = error.response?.statusCode;
-          if (data is Map) {
-            Flogger.e("[CustomException] error.response: ${data["errorCode"]}");
-          }
-
-          // Note: This is the place to handle your own error codes, response, or states, and map them to you own CustomException.
-
-          if (statusCode == 401) {
-            return const CustomException.unauthenticated();
-          }
-
-          return CustomException.withMessage(message: error.message);
-      }
     } else if (error is AuthException) {
       if (error.message.toLowerCase().contains('cancel')) {
         return const CustomException.signInCancelled();

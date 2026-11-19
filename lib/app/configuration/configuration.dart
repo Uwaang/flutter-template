@@ -4,7 +4,6 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/app/setup/app_platform.dart';
 import 'package:flutter_app/app/setup/flavor.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Configuration {
   Configuration({
@@ -27,8 +26,6 @@ class Configuration {
   final AppPlatform currentPlatform;
   final AndroidDeviceInfo? androidDeviceInfo;
   final IosDeviceInfo? iosDeviceInfo;
-
-  String get apiHostUrl => dotenv.get('API_HOST_URL');
 
   // Function which setups base configuration.
   static Future<void> setup({required Flavor flavor}) async {
