@@ -1,11 +1,16 @@
 import 'dart:io';
 
-// Non-secret placeholders for compile-only CI and public mock UI previews.
-// Never embed a real project URL/key in public CI.
 const _ciEnv = '''
+API_HOST_URL=https://example.invalid
 SUPABASE_URL=
 SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_OAUTH_REDIRECT_URL=
+APP_ID=com.example.flutter_template
+APPLE_ID=000000000
+APPLE_TEAM_ID=CI00000000
+SIGNING_CERT_DEBUG_BASE64=Y2k=
+SIGNING_CERT_RELEASE_BASE64=Y2k=
+SIGNING_CERT_GOOGLE_PLAY_BASE64=Y2k=
 ''';
 
 const _envFiles = <String>[
