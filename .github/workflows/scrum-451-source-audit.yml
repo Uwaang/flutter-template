@@ -1,0 +1,44 @@
+name: SCRUM-451 temporary source reference audit
+
+on:
+  push:
+    branches: [refactor/scrum-451-drop-strv-legacy-20261119]
+    paths:
+      - '.github/workflows/scrum-451-source-audit.yml'
+permissions:
+  contents: read
+jobs:
+  references:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Enumerate project-owned imports and STRV remnants
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          library={str(p):p.read_text(encoding='utf-8',errors='replace') for p in Path('lib').rglob('*.dart') if not re.search(r'\.(?:g|freezed|gr|gen)\.dart$',str(p))}
+          others={str(p):p.read_text(encoding='utf-8',errors='replace') for folder in ['test','tool','project_setup','integration_test','qa'] for p in Path(folder).rglob('*.dart') if not re.search(r'\.(?:g|freezed|gr|gen)\.dart$',str(p))}
+          allsrc={**library,**others}
+          references={}
+          for src,contents in allsrc.items():
+              for dep in re.findall(r"(?:import|export)\s+['\"]package:flutter_app/([^'\"]+)",contents):
+                  references.setdefault('lib/'+dep,[]).append(src)
+          print('FILES',len(library),len(others))
+          for candidate in sorted(library):
+              if re.search(r'(analytics|notification|force_update|device_token|core/network|user/get_current|user/set_database|user/get_database|random_image|native_store|web_setup|custom_button|validator)',candidate):
+                  print('REF',candidate,'<-',','.join(references.get(candidate,[])))
+          for needle in ['Talsec','freerasp','createDeviceTokenUseCase','getCurrentUserUseCase','getRandomImageUrlUseCase','ForceUpdatePageContent','NotificationsService','Firebase','FirebaseAnalytics','firebase','SOPS','APP_ID','APPLE_TEAM_ID','analyticsManager','Dio','CustomTextField','STRV','strv']:
+              matched=[]
+              for f,s in allsrc.items():
+                  if needle.lower() in s.lower(): matched.append(f)
+              for p in ['makefile','pubspec.yaml','README.md']:
+                  s=Path(p).read_text(encoding='utf-8',errors='replace')
+                  if needle.lower() in s.lower(): matched.append(p)
+              print('KEY',needle,' '.join(sorted(set(matched))))
+          print('UNREFERENCED_LEAF',','.join(sorted(p for p in library if p not in references and not p.endswith('_page.dart') and not p.startswith('lib/main_') and not p.endswith('app.dart'))))
+          PY
