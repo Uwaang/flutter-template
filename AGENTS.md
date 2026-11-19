@@ -9,8 +9,8 @@ Use this file as the entrypoint for automated work in this repository.
 
 ## Repo Summary
 - This is a Flutter template, not a fully productized app.
-- Core stack: `flutter_riverpod`, `riverpod_annotation`, `freezed`, `json_serializable`, `auto_route`, `dio`, Supabase Auth (`supabase_flutter`), freeRASP, and FVM-managed Flutter.
-- The app already includes example features, navigation, theming, codegen, localization, notifications, and release scaffolding.
+- Core stack: `flutter_riverpod`, `riverpod_annotation`, `freezed`, `json_serializable`, `auto_route`, Material 3, Supabase Auth (`supabase_flutter`), and FVM-managed Flutter.
+- The app includes example features, navigation, theming, codegen, and localization; unused REST, analytics, notification, RASP, and release scaffolding was removed.
 - Some integrations are intentionally scaffolded but not fully enabled yet. Check `lib/app/setup/setup_app.dart` before assuming a service is active.
 
 ## Working Defaults
@@ -22,7 +22,7 @@ Use this file as the entrypoint for automated work in this repository.
   - `*_event.dart`
 - Keep page widgets thin. Put heavier UI in `*_page_content.dart`.
 - Prefer shared widgets and extensions from `lib/common/` before introducing new app-specific primitives.
-- Keep network payload models in `lib/common/data/dto/` and map them into entities from `lib/common/data/entity/`.
+- Introduce DTOs and a network client only when a concrete backend feature needs them; the base app has no generic REST API client.
 - Use Riverpod providers and use cases instead of wiring IO directly in widgets.
 
 ## Repository and CI Ownership
@@ -42,9 +42,9 @@ Use this file as the entrypoint for automated work in this repository.
   - `make gen`
 
 ## Safety Notes
-- Secrets and environment-specific config exist in encrypted and generated forms. Avoid touching `extras/secrets/` or decrypted `.env*` files unless the task clearly requires it.
-- Supabase Auth initializes only with a public project URL/key pair; without it, the first-screen mock is UI-only. Firebase Auth, Messaging, Analytics, Crashlytics and Remote Config are not active SDK integrations. Local notifications remain optional scaffolding.
-- Release and signing files exist in the repo. Treat versioning, tags, branch flow, and build scripts as developer-owned unless the task explicitly asks for release work.
+- Keep secrets in an external private store. Local `.env*` files are gitignored; CI-only environment fixtures contain no credentials. Never add secrets to commits, PRs, logs, or public artifacts.
+- Supabase Auth initializes only with a public project URL/key pair; without it, the first-screen mock is UI-only. Firebase Auth, Messaging, Analytics, Crashlytics and Remote Config are not active SDK integrations; local notification and freeRASP services are not bundled.
+- CI builds compile-only unsigned/synthetic platform artifacts. Production signing, releases and store distribution require separate private setup and explicit authorization.
 
 ## Documentation Ownership (mandatory)
 - **Canonical human-readable documentation belongs in `docs/`.** The only documentation entrypoints at the repository root are `README.md` (overview and quick start) and `AGENTS.md` (agent instructions).
@@ -67,13 +67,13 @@ Treat those passages as historical until updated;
 current service boundaries. Do not add a database or CRUD for SCRUM-437.
 
 Existing skills:
-- `project-setup` — inherited app customization workflow (identity, platforms, assets and secrets); verify Firebase-era instructions against the current Supabase setup
+- `project-setup` — customize app identity, icons and splash; disregard inherited Firebase/secret provisioning
 - `feature-screen` — add a new route / screen using the existing feature pattern
 - `feature-data-flow` — build a full backend-backed feature (DTOs, entities, use cases, state, UI)
 - `upgrade` — upgrade Flutter SDK and package dependencies
 - `release-prepare` — version bump, release notes, release branch, release PR
-- `release-builds` — post-merge Android tags and iOS IPA generation + archival
-- `secrets-bootstrap` — safe handling of encrypted secrets and signing material
+- `release-builds` — historical guidance only; no active signed release pipeline
+- `secrets-bootstrap` — historical guidance only; deleted SOPS fixtures must not be restored by default
 - `pr-review` — bug-first review of branches / diffs / PRs
 - `review-pr-comments` — triage and resolve AI or human GitHub PR feedback
 - `create-pr` — verify, commit, push, and create or update a GitHub PR

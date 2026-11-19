@@ -5,7 +5,7 @@ These guidelines are intended to be safe defaults for contributors and AI assist
 ## Project Structure
 - `lib/app`: app bootstrap, configuration, navigation, setup, and theme.
 - `lib/common`: shared UI, data models, providers, use cases, extensions, and validation helpers.
-- `lib/core`: wrappers around external services such as analytics, database, network, and Riverpod helpers.
+- `lib/core`: Supabase Auth, local persistence, and Riverpod helpers.
 - `lib/features`: feature folders, usually one folder per screen or flow.
 - `lib/assets`: generated localization and asset accessors.
 
@@ -76,21 +76,16 @@ Not every feature needs every file. Simple screens in the template only use `*_p
 - Other top-level routes currently include Landing, Authentication, Event Detail, and Debug Tools.
 
 ## Data And Networking
-- Network access goes through `dioProvider` in `lib/core/network/dio_provider.dart`.
-- Auth token injection is handled by `DioAuthorizationTokenInterceptor`.
-- To skip auth for a request, set `options.extra[DioAuthorizationTokenInterceptor.requiresAuthDioExtraKey] = false`.
-- Keep request and response payloads in `lib/common/data/dto/`.
-- Keep app-facing models in `lib/common/data/entity/`.
-- Map DTOs to entities close to the data layer instead of leaking transport models into widgets.
+- The base template has **no default application REST API or Dio client**. Supabase Auth handles identity only.
+- If your app needs a backend, select the client and model layer for that concrete service; keep transport DTOs separate from UI entities.
+- Keep app-facing models in `lib/common/data/entity/` when useful.
 - When parsing backend variants, nullable fields, or enum-like strings, use explicit Dart pattern matching or guarded branches so unknown values are intentional rather than accidental.
 - Keep IO-oriented logic in Riverpod use cases under `lib/common/usecase/`.
 - Use `Flogger` when extra diagnostics are useful in service or integration code.
 
-## Auth, local storage and notifications
+## Auth and local storage
 - The only configured default backend is **Supabase Auth**, via `lib/core/supabase/supabase_service.dart`. When URL/key are both absent, first-screen demo uses mock sign-in; a mock user is not a Supabase session.
 - Authorization tokens come from the authenticated Supabase session via `getAuthorizationTokenUseCase`. Google/Apple provider callbacks require external configuration and are not verified on all target devices.
-- Notification payload parsing lives in `lib/common/data/entity/notification_payload_entity.dart`.
-- `flutter_local_notifications` helpers remain in `lib/common/provider/notifications_service.dart`. Firebase Messaging/FCM is **not active**; any inherited Firebase provider filenames must not be taken as evidence of an enabled Firebase SDK.
 - SCRUM-437 expressly excludes creating database tables, migrations, application CRUD, Supabase Storage or Edge Functions. `getDatabaseUserUseCase` / `setDatabaseUserUseCase` refer to the existing **local SharedPreferences** cache, not a Supabase application table.
 
 ## Local Storage
@@ -159,7 +154,7 @@ For icon/splash generation, app renaming or keystore handling, follow `docs/PROJ
 - The repo contains release-oriented files and commands such as `release_notes.txt`, Android app bundle generation, and iOS IPA generation.
 - Keep release notes and version bumps consistent with the actual release task rather than changing them opportunistically during unrelated work.
 - Treat branching, tagging, and publishing flow as team policy. GitHub `main` is the canonical public repository; the PR/CI policy is documented in `docs/CI.md`. Confirm release targets before changing branches, tags or distribution.
-- For build-only release tasks, prefer existing make targets over inventing new commands.
+- For build validation use the current GitHub Actions compile matrix or `make build-web`; signed release tasks require separate design and private configuration.
 
 ## Adding A New Screen
 1. Create a new folder under `lib/features/<feature>/`.
@@ -170,6 +165,6 @@ For icon/splash generation, app renaming or keystore handling, follow `docs/PROJ
 6. Run `make gen` if the work changed routes, annotations, localization, DTOs, or assets.
 
 ## Template Caveats
-- This repository includes inherited STRV Firebase setup/release instructions, but those SDKs are not active in the Supabase-first branch. Treat placeholders, local notifications, OAuth callbacks, and web configuration as separate readiness checks.
+- Some historical agent skills may still describe Firebase, freeRASP or secret tooling that was removed from the base template. They are not supported runtime features; do not restore them by following outdated instructions.
 - Read `lib/app/setup/setup_app.dart` before treating a service as production-ready.
 - Prefer documenting newly discovered, stable conventions here instead of scattering AI instructions across multiple files.
