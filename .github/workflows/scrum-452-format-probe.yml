@@ -1,0 +1,25 @@
+name: SCRUM-452 temporary Dart format and lockfile probe
+on:
+  push:
+    branches: [refactor/m3-ui-and-installable-artifacts-20261119]
+    paths:
+      - '.github/workflows/scrum-452-format-probe.yml'
+permissions:
+  contents: read
+jobs:
+  format-lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - name: Resolve and format Dart
+        run: |
+          flutter pub get
+          dart format lib/features/debug_tools/page/widgets/debug_tools_widgets_page_content.dart lib/features/debug_tools/page/popups/debug_tools_popups_page_content.dart lib/features/debug_tools/page/colors/entity/debug_tools_color.dart lib/features/debug_tools/page/colors/debug_tools_colors_page_content.dart test/features/debug_tools/material3_form_sample_test.dart test/features/debug_tools/material3_theme_colors_test.dart
+          git --no-pager diff -- pubspec.lock lib/features/debug_tools/page/widgets/debug_tools_widgets_page_content.dart lib/features/debug_tools/page/popups/debug_tools_popups_page_content.dart lib/features/debug_tools/page/colors/entity/debug_tools_color.dart lib/features/debug_tools/page/colors/debug_tools_colors_page_content.dart test/features/debug_tools/material3_form_sample_test.dart test/features/debug_tools/material3_theme_colors_test.dart
