@@ -1,71 +1,119 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/common/component/custom_button/custom_button_primary.dart';
 import 'package:flutter_app/common/component/custom_snackbar/custom_snackbar_error.dart';
 import 'package:flutter_app/common/component/custom_snackbar/custom_snackbar_message.dart';
 import 'package:flutter_app/common/component/custom_snackbar/custom_snackbar_success.dart';
-import 'package:flutter_app/common/component/custom_text/custom_text.dart';
-import 'package:flutter_app/common/composition/bottom_sheet/bottom_sheet_container_widget.dart';
-import 'package:flutter_app/common/composition/dialog/custom_dialog.dart';
-import 'package:flutter_app/common/extension/build_context.dart';
 import 'package:flutter_app/core/flogger.dart';
-import 'package:flutter_app/features/debug_tools/page/popups/debug_tools_list_dialog.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class DebugToolsPopupsPageContent extends ConsumerWidget {
+/// Standard Material 3 dialogs, bottom sheets, pickers and feedback samples.
+class DebugToolsPopupsPageContent extends StatelessWidget {
   const DebugToolsPopupsPageContent({super.key});
 
+  Future<void> _confirmDeletion(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete event'),
+        content: const Text("Are you sure you want to delete this event? This action can't be recovered."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && context.mounted) {
+      await CustomSnackbarMessage(context: context, message: 'Event deleted').show();
+    }
+  }
+
+  Future<void> _showListDialog(BuildContext context) async {
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('List dialog'),
+        content: SizedBox(
+          width: 420,
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final item in const ['one', 'two', 'three', 'four', 'five'])
+                ListTile(
+                  title: Text(item),
+                  onTap: () => Navigator.of(dialogContext).pop(item),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+    if (selected != null && context.mounted) {
+      await CustomSnackbarMessage(context: context, message: 'Clicked $selected').show();
+    }
+  }
+
+  Future<void> _showBottomSheet(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(20, 8, 20, 20 + MediaQuery.viewInsetsOf(sheetContext).bottom),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Some scrollable content here', style: Theme.of(sheetContext).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              const Placeholder(fallbackHeight: 200),
+              const SizedBox(height: 8),
+              FilledButton(
+                onPressed: () => Navigator.of(sheetContext).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        CustomText(text: 'Dialogs', style: context.textTheme.headlineLarge),
+        Text('Dialogs and sheets', style: theme.textTheme.headlineLarge),
         const SizedBox(height: 20),
-        CustomButtonPrimary(
-          onPressed: () => CustomDialog.alert(
-            context: context,
-            title: 'Delete event',
-            message: "Are you sure you want to delete this event? This action will delete all data and can't be recovered.",
-            negativeActionTitle: 'Delete',
-            negativeAction: () => CustomSnackbarMessage(context: context, message: 'Event deleted').show(),
-            neutralActionTitle: 'Cancel',
-          ).show(),
-          text: 'Custom Alert dialog',
+        FilledButton(
+          onPressed: () => _confirmDeletion(context),
+          child: const Text('Material 3 alert dialog'),
         ),
         const SizedBox(height: 16),
-        CustomButtonPrimary(
-          onPressed: () => DebugToolsListDialog(
-            context: context,
-            title: 'List dialog',
-            list: ['one', 'two', 'three', 'four', 'five'],
-            onItemSelect: (item) => CustomSnackbarMessage(context: context, message: 'Clicked $item').show(),
-          ).show(),
-          text: 'Custom dialog',
+        FilledButton(
+          onPressed: () => _showListDialog(context),
+          child: const Text('Material 3 list dialog'),
         ),
         const SizedBox(height: 16),
-        CustomButtonPrimary(
-          onPressed: () => showCustomModalBottomSheet<void>(
-            context: context,
-            containerWidget: (context, animation, child) => BottomSheetContainerWidget(child: child),
-            builder: (context) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CustomText(text: 'Some scrollable content here', style: context.textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  const Placeholder(fallbackHeight: 200),
-                  const SizedBox(height: 8),
-                  CustomButtonPrimary(onPressed: () {}, text: 'Some sample button'),
-                ],
-              ),
-            ),
-          ),
-          text: 'Bottom Sheet Base Widget',
+        FilledButton(
+          onPressed: () => _showBottomSheet(context),
+          child: const Text('Material 3 bottom sheet'),
         ),
         const SizedBox(height: 20),
-        CustomButtonPrimary(
+        FilledButton(
           onPressed: () async {
             final today = DateTime.now();
             final pickedDate = await showDatePicker(
@@ -74,54 +122,47 @@ class DebugToolsPopupsPageContent extends ConsumerWidget {
               firstDate: today,
               lastDate: today.add(const Duration(days: 365)),
             );
-
-            if (pickedDate != null) {
-              Flogger.d('Picked date: $pickedDate');
-            }
+            if (pickedDate != null) Flogger.d('Picked date: $pickedDate');
           },
-          text: 'Material 3 Date Picker',
+          child: const Text('Material 3 Date Picker'),
         ),
         const SizedBox(height: 20),
-        CustomButtonPrimary(
+        FilledButton(
           onPressed: () async {
             final pickedTime = await showTimePicker(
               context: context,
               initialTime: TimeOfDay.now(),
             );
-
-            if (pickedTime != null) {
-              Flogger.d('Picked time: $pickedTime');
-            }
+            if (pickedTime != null) Flogger.d('Picked time: $pickedTime');
           },
-          text: 'Material 3 Time Picker',
+          child: const Text('Material 3 Time Picker'),
         ),
-        const SizedBox(height: 64),
-        CustomText(text: 'Snackbars', style: context.textTheme.headlineLarge),
+        const SizedBox(height: 48),
+        Text('Snackbars', style: theme.textTheme.headlineLarge),
         const SizedBox(height: 20),
-        CustomButtonPrimary(
+        FilledButton(
           onPressed: () => CustomSnackbarMessage(
             context: context,
             message: 'Example of message snackbar',
           ).show(),
-          text: 'Show Message snackbar',
+          child: const Text('Show Message snackbar'),
         ),
         const SizedBox(height: 16),
-        CustomButtonPrimary(
+        FilledButton(
           onPressed: () => CustomSnackbarError(
             context: context,
             message: 'Example of error state widget',
           ).show(),
-          text: 'Show Error snackbar',
+          child: const Text('Show Error snackbar'),
         ),
         const SizedBox(height: 16),
-        CustomButtonPrimary(
+        FilledButton(
           onPressed: () => CustomSnackbarSuccess(
             context: context,
             message: 'Example of confirmation widget',
           ).show(),
-          text: 'Show Confirmation snackbar',
+          child: const Text('Show Confirmation snackbar'),
         ),
-        const SizedBox(height: 16),
       ],
     );
   }

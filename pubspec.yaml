@@ -55,7 +55,6 @@ dependencies:
 
   # UI
   flutter_animate: 4.5.2
-  modal_bottom_sheet: 3.0.0
   # Modern browser bindings that compile to both JavaScript and WebAssembly.
   web: ^1.1.1
 

@@ -1,81 +1,87 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/common/component/custom_button/custom_button_primary.dart';
-import 'package:flutter_app/common/component/custom_snackbar/custom_snackbar_message.dart';
-import 'package:flutter_app/common/component/custom_text/custom_text.dart';
-import 'package:flutter_app/common/component/custom_text_field.dart';
-import 'package:flutter_app/common/extension/async_value.dart';
-import 'package:flutter_app/common/extension/build_context.dart';
-import 'package:flutter_app/features/debug_tools/page/widgets/debug_tools_widgets_page_event.dart';
-import 'package:flutter_app/features/debug_tools/page/widgets/debug_tools_widgets_page_state.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class DebugToolsWidgetsPageContent extends ConsumerWidget {
+/// Interactive Material 3 examples with local-only form and selection state.
+/// The template intentionally does not require a custom validation framework.
+class DebugToolsWidgetsPageContent extends StatefulWidget {
   const DebugToolsWidgetsPageContent({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(debugToolsWidgetsPageStateProvider);
+  State<DebugToolsWidgetsPageContent> createState() => _DebugToolsWidgetsPageContentState();
+}
 
-    ref.listen(
-      debugToolsWidgetsPageEventNotifierProvider,
-      (_, next) => next?.when(
-        fieldValidated: (message) => CustomSnackbarMessage(
-          context: context,
-          message: message,
-        ).show(),
-        error: (error) => error.showErrorSnackbar(context: context),
-      ),
+class _DebugToolsWidgetsPageContentState extends State<DebugToolsWidgetsPageContent> {
+  final _formKey = GlobalKey<FormState>();
+  String _selectedOption = 'Second';
+
+  void _validateName() {
+    final valid = _formKey.currentState?.validate() ?? false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(valid ? 'Name is valid' : 'Please correct the name')),
     );
+  }
 
-    return state.mapContentState(
-      provider: debugToolsWidgetsPageStateProvider,
-      data: (data) => ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          CustomText(text: 'Custom Buttons', style: context.textTheme.headlineLarge),
-          const SizedBox(height: 20),
-          CustomButtonPrimary(text: 'Primary', onPressed: () {}),
-          const SizedBox(height: 64),
-          CustomText(text: 'CustomTextField', style: context.textTheme.headlineLarge),
-          const SizedBox(height: 20),
-          CustomTextField(
-            label: 'Example of custom text field',
-            validatorController: ref.read(debugToolsWidgetsPageStateProvider.notifier).exampleTextController,
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        Text('Material 3 buttons', style: theme.textTheme.headlineLarge),
+        const SizedBox(height: 20),
+        FilledButton(onPressed: () {}, child: const Text('Primary')),
+        const SizedBox(height: 48),
+        Text('Material 3 form', style: theme.textTheme.headlineLarge),
+        const SizedBox(height: 20),
+        Form(
+          key: _formKey,
+          child: TextFormField(
+            key: const Key('debug_sample_name_field'),
             textCapitalization: TextCapitalization.words,
-          ),
-          const SizedBox(height: 20),
-          CustomButtonPrimary(
-            onPressed: () => ref.read(debugToolsWidgetsPageStateProvider.notifier).validateSampleTextField(),
-            text: 'Validate text field',
-          ),
-          const SizedBox(height: 64),
-          CustomText(text: 'Material 3 radio group', style: context.textTheme.headlineLarge),
-          const SizedBox(height: 16),
-          RadioGroup<String>(
-            groupValue: data.selectedOption,
-            onChanged: (value) {
-              if (value != null) {
-                ref.read(debugToolsWidgetsPageStateProvider.notifier).onOptionChanged(value);
-              }
-            },
-            child: const Column(
-              children: [
-                RadioListTile<String>(value: 'First', title: Text('First')),
-                RadioListTile<String>(value: 'Second', title: Text('Second')),
-                RadioListTile<String>(value: 'Third', title: Text('Third')),
-              ],
+            decoration: const InputDecoration(
+              labelText: 'Full name',
+              helperText: 'At least 3 characters',
+              border: OutlineInputBorder(),
             ),
+            validator: (value) {
+              final name = value?.trim() ?? '';
+              if (name.isEmpty) return 'Please enter a name.';
+              if (name.length < 3) return 'Enter at least 3 characters.';
+              if (name.length > 48) return 'Use 48 characters or fewer.';
+              return null;
+            },
           ),
-          const SizedBox(height: 48),
-          const Material3InteractionSamples(),
-          const SizedBox(height: 20),
-        ],
-      ),
+        ),
+        const SizedBox(height: 20),
+        FilledButton(
+          onPressed: _validateName,
+          child: const Text('Validate name'),
+        ),
+        const SizedBox(height: 48),
+        Text('Material 3 radio group', style: theme.textTheme.headlineLarge),
+        const SizedBox(height: 16),
+        RadioGroup<String>(
+          groupValue: _selectedOption,
+          onChanged: (value) {
+            if (value != null) setState(() => _selectedOption = value);
+          },
+          child: const Column(
+            children: [
+              RadioListTile<String>(value: 'First', title: Text('First')),
+              RadioListTile<String>(value: 'Second', title: Text('Second')),
+              RadioListTile<String>(value: 'Third', title: Text('Third')),
+            ],
+          ),
+        ),
+        const SizedBox(height: 48),
+        const Material3InteractionSamples(),
+        const SizedBox(height: 20),
+      ],
     );
   }
 }
 
-/// Two native Material 3 controls with local state, not mock backend data.
+/// Native Material 3 controls with local state, not mock backend data.
 class Material3InteractionSamples extends StatefulWidget {
   const Material3InteractionSamples({super.key});
 

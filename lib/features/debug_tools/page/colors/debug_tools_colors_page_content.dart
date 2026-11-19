@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/common/component/custom_text/custom_text.dart';
-import 'package:flutter_app/common/extension/build_context.dart';
+import 'package:flutter_app/app/theme/app_theme.dart';
 import 'package:flutter_app/features/debug_tools/page/colors/entity/debug_tools_color.dart';
 
 class DebugToolsColorsPageContent extends StatelessWidget {
@@ -8,64 +7,72 @@ class DebugToolsColorsPageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentTheme = Theme.of(context);
+    final lightTheme = currentTheme.brightness == Brightness.light
+        ? currentTheme
+        : AppTheme.getThemeData(brightness: Brightness.light);
+    final darkTheme = currentTheme.brightness == Brightness.dark
+        ? currentTheme
+        : AppTheme.getThemeData(brightness: Brightness.dark);
+
     return ListView(
-      shrinkWrap: true,
       padding: const EdgeInsets.all(20),
       children: [
-        CustomText(text: 'Light mode', style: context.textTheme.headlineLarge),
+        Text('Light mode', style: currentTheme.textTheme.headlineLarge),
         const SizedBox(height: 20),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 3,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          children: [
-            for (final color in DebugToolsColor.getColors(brightness: Brightness.light)) _createItem(color: color, context: context),
-            const SizedBox(height: 40),
-          ],
-        ),
+        _ColorGrid(colors: DebugToolsColor.getColors(theme: lightTheme)),
         const SizedBox(height: 40),
-        CustomText(text: 'Dark mode', style: context.textTheme.headlineLarge),
+        Text('Dark mode', style: currentTheme.textTheme.headlineLarge),
         const SizedBox(height: 20),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 3,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          children: [
-            for (final color in DebugToolsColor.getColors(brightness: Brightness.dark)) _createItem(color: color, context: context),
-          ],
-        ),
+        _ColorGrid(colors: DebugToolsColor.getColors(theme: darkTheme)),
       ],
     );
   }
+}
 
-  Widget _createItem({
-    required DebugToolsColor color,
-    required BuildContext context,
-  }) {
-    final textColor = color.color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+class _ColorGrid extends StatelessWidget {
+  const _ColorGrid({required this.colors});
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: color.color,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: textColor),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: Center(
-          child: CustomText(
-            text: color.colorName,
-            style: context.textTheme.labelSmall,
-            color: textColor,
-            textAlign: TextAlign.center,
+  final List<DebugToolsColor> colors;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 600 ? 4 : 2;
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 1.5,
           ),
-        ),
-      ),
+          itemCount: colors.length,
+          itemBuilder: (context, index) {
+            final sample = colors[index];
+            final foreground = sample.color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                color: sample.color,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: foreground.withValues(alpha: 0.4)),
+              ),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Text(
+                    sample.colorName,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: foreground),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
