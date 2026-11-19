@@ -1,0 +1,24 @@
+name: SCRUM-451 temporary pubspec and Dart formatting probe
+on:
+  push:
+    branches: [refactor/scrum-451-drop-strv-legacy-20261119]
+    paths:
+      - '.github/workflows/scrum-451-lock-format-probe.yml'
+permissions:
+  contents: read
+jobs:
+  format-lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: flutter pub get
+      - run: |
+          dart format lib/app/setup/setup_app.dart lib/app/app.dart lib/features/debug_tools/page/actions/debug_tools_actions_page_content.dart lib/features/profile/profile_state.dart lib/common/component/custom_profile_avatar.dart lib/common/data/entity/exception/custom_exception.dart lib/app/configuration/configuration.dart tool/create_ci_env.dart
+          git --no-pager diff -- pubspec.lock lib/app/setup/setup_app.dart lib/app/app.dart lib/features/debug_tools/page/actions/debug_tools_actions_page_content.dart lib/features/profile/profile_state.dart lib/common/component/custom_profile_avatar.dart lib/common/data/entity/exception/custom_exception.dart lib/app/configuration/configuration.dart tool/create_ci_env.dart
