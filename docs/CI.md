@@ -10,7 +10,8 @@ Workflow: `.github/workflows/platform-builds.yml`
 
 - On pull requests and pushes to `main`, run formatting, fixture unit tests, generated-source consistency, analyzer checks and Flutter tests.
 - After the quality job succeeds, build **seven compile targets**: Web JavaScript, WebAssembly, Linux, Windows, Android profile AAB, macOS and unsigned iOS device app.
-- Upload build artifacts for seven days using GitHub-hosted runners. The Windows ZIP includes runtime files but excludes intermediate debug/build outputs.
+- Upload build artifacts for seven days using GitHub-hosted runners. Windows ZIP includes runtime files (not an installer); Android now includes both a profile AAB and an installable synthetic/debug-signed `app-production-profile.apk` under the same `compile-only-android` artifact.
+- The `Artifact download guide` job adds an Actions run summary listing the seven artifact names, their purposes and download location. This is **not** an automatic GitHub Release or production CD deployment.
 - Use only generated **non-secret placeholders** via `tool/create_ci_env.dart` and `tool/prepare_native_ci.py`; Android profile AAB uses synthetic/debug signing. These are **not** store-signed artifacts.
 - A change consisting entirely of Markdown, agent guidance or archived workflow images is excluded using `paths-ignore`. Other changes still get the full quality and build matrix.
 - `workflow_dispatch` remains available for an authorized manual build. Branch-protection required checks should be reviewed before marking an entire skipped workflow as required.

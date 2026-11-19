@@ -147,6 +147,10 @@ jobs:
             android)
               flutter build appbundle --profile -t lib/main_production.dart --flavor production
               cp build/app/outputs/bundle/productionProfile/*.aab ci-artifacts/
+              # AABs cannot be sideloaded directly. Provide an independently
+              # installable, synthetic/debug-signed profile APK for manual checks.
+              flutter build apk --profile -t lib/main_production.dart --flavor production
+              cp build/app/outputs/flutter-apk/app-production-profile.apk ci-artifacts/
               ;;
             macos)
               flutter build macos --release -t lib/main_production.dart
@@ -170,3 +174,36 @@ jobs:
           path: ci-artifacts/*
           if-no-files-found: error
           retention-days: 7
+
+  artifact-guide:
+    name: Artifact download guide
+    if: always()
+    needs: [quality, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Document download formats and restrictions
+        env:
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+        run: |
+          {
+            echo "## Flutter template artifacts"
+            echo
+            echo "Source commit: \`${GITHUB_SHA}\`"
+            echo
+            echo "Quality: **${QUALITY_RESULT}** · platform matrix: **${BUILD_RESULT}**"
+            echo
+            echo "Open the [Artifacts section](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}#artifacts) to download outputs from successful jobs."
+            echo
+            echo "| Target | Artifact name | Contents | Intended use |"
+            echo "| --- | --- | --- | --- |"
+            echo '| Android | \`compile-only-android\` | \`*.aab\`, \`app-production-profile.apk\` | Profile APK may be sideloaded for manual checks; synthetic signing, not a Play Store release |'
+            echo '| Windows | \`compile-only-windows\` | \`windows.zip\` | Extract the whole archive and run its executable; not an installer |'
+            echo '| Linux | \`compile-only-linux\` | \`linux.tar.gz\` | Unpack with the runtime bundle; not a .deb/AppImage |'
+            echo '| Web JS / WASM | \`compile-only-web-js\` / \`compile-only-web-wasm\` | Web bundles | Use GitHub Pages for interactive mock-only previews |'
+            echo '| macOS | \`compile-only-macos\` | \`macos.tar.gz\` | Unsigned app bundle, not notarized |'
+            echo '| iOS | \`compile-only-ios\` | \`ios-unsigned.tar.gz\` | Unsigned device build; cannot be installed directly |'
+            echo
+            echo '**Limitations:** Public CI uses placeholder environment data; artifacts contain no live Supabase OAuth credentials, are not store-signed, and are kept for 7 days. Builds alone are not runtime QA.'
+          } >> "${GITHUB_STEP_SUMMARY}"

@@ -58,3 +58,7 @@ Documentation belongs under `docs/` except these two root entrypoints (`README.m
 ## Origins
 
 This project derives from [STRV Flutter Template](https://github.com/strvcom/flutter-template). Preserve the original license and contributor attribution in [LICENSE](LICENSE). Unused STRV runtime and distribution scaffolding has been removed; this attribution and the existing LICENSE remain.
+
+## Downloadable CI builds
+
+The [Platform Builds Actions workflow](https://github.com/Uwaang/flutter-template/actions/workflows/platform-builds.yml) uploads build results after quality checks. Each run includes an **Artifact download guide** summary. For manual checks, use `compile-only-android` (profile APK plus AAB), `compile-only-windows` (extract the full ZIP, including the runtime files) or the appropriate Linux/Web/macOS/iOS bundle. Artifacts expire after **7 days** and are built with non-secret placeholder configuration: they are **not** production-signed, installer packages, full runtime QA, or Google/Apple OAuth builds. The macOS and iOS bundles are unsigned. See [CI](docs/CI.md).
