@@ -26,7 +26,7 @@ class DebugToolsPopupsPageContent extends StatelessWidget {
         ],
       ),
     );
-    if (confirmed == true && context.mounted) {
+    if ((confirmed ?? false) && context.mounted) {
       await CustomSnackbarMessage(context: context, message: 'Event deleted').show();
     }
   }
