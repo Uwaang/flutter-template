@@ -70,7 +70,6 @@ Future<void> _setupWebPlatform() async {
     if (!useHashRoutingForStaticHosting) {
       usePathUrlStrategy();
     }
-
   }
 }
 

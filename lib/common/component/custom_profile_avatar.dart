@@ -54,20 +54,20 @@ class CustomProfileAvatar extends StatelessWidget {
             ? Assets.svg.icAvatarDark.svg(width: size, height: size)
             : ExtendedImage.network(
                 imageUrl!,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          loadStateChanged: (state) {
-            switch (state.extendedImageLoadState) {
-              case LoadState.loading:
-                return const Center(child: CustomProgressIndicator());
-              case LoadState.completed:
-                return state.completedWidget;
-              case LoadState.failed:
-                return Assets.svg.icAvatarDark.svg(width: size, height: size);
-            }
-          },
-        ),
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                loadStateChanged: (state) {
+                  switch (state.extendedImageLoadState) {
+                    case LoadState.loading:
+                      return const Center(child: CustomProgressIndicator());
+                    case LoadState.completed:
+                      return state.completedWidget;
+                    case LoadState.failed:
+                      return Assets.svg.icAvatarDark.svg(width: size, height: size);
+                  }
+                },
+              ),
       ),
     );
   }
