@@ -8,12 +8,8 @@ class DebugToolsColorsPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentTheme = Theme.of(context);
-    final lightTheme = currentTheme.brightness == Brightness.light
-        ? currentTheme
-        : AppTheme.getThemeData(brightness: Brightness.light);
-    final darkTheme = currentTheme.brightness == Brightness.dark
-        ? currentTheme
-        : AppTheme.getThemeData(brightness: Brightness.dark);
+    final lightTheme = currentTheme.brightness == Brightness.light ? currentTheme : AppTheme.getThemeData(brightness: Brightness.light);
+    final darkTheme = currentTheme.brightness == Brightness.dark ? currentTheme : AppTheme.getThemeData(brightness: Brightness.dark);
 
     return ListView(
       padding: const EdgeInsets.all(20),
