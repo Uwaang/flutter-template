@@ -35,5 +35,4 @@ void main() {
     expect(find.byType(ExtendedImage), findsNothing);
     expect(find.byType(SvgPicture), findsOneWidget);
   });
-
 }
