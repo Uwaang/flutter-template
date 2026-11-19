@@ -21,8 +21,8 @@ class Configuration {
   // Title: Rename
   static const renameOldAppName = 'Flutter Template';
   static const renameNewAppName = 'Flutter Template';
-  static const renameOldPackageName = 'com.strv.flutter.template';
-  static const renameNewPackageName = 'com.strv.flutter.template';
+  static const renameOldPackageName = 'com.example.fluttertemplate';
+  static const renameNewPackageName = 'com.example.fluttertemplate';
   static const renameAppNameIncludedFiles = [
     'README.md',
     'AndroidManifest.xml',

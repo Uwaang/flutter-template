@@ -37,7 +37,7 @@ android {
     compileSdkVersion compileAndroidSdkVersion
     ndkVersion flutter.ndkVersion
     flavorDimensions "env"
-    namespace "com.strv.flutter.template"
+    namespace "com.example.fluttertemplate"
 
     compileOptions {
         coreLibraryDesugaringEnabled true
@@ -77,7 +77,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.strv.flutter.template"
+        applicationId "com.example.fluttertemplate"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion minAndroidSdkVersion

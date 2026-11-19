@@ -3,7 +3,7 @@
 Use `project_setup/` to customize a new application from this starter. This project is Supabase-first, not the original STRV Firebase distribution template.
 
 ## Identity, icons and splash
-1. Update `project_setup/lib/configuration.dart` with the desired app name, package ID and visual settings.
+1. Update `project_setup/lib/configuration.dart` with the desired app name, package ID and visual settings. The starter's generic `com.example.fluttertemplate` is a placeholder, not a deployable production identity.
 2. Save a transparent 900 × 900 PNG at `project_setup/resources/icon.png` to generate icons.
 3. Save a transparent 768 × 768 PNG at `project_setup/resources/splash.png` for splash art, with the visible area inside a circle.
 4. From the repository root, run `make setup` and choose the relevant option.

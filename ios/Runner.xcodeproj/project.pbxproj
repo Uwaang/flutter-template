@@ -572,7 +572,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.develop;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.develop;
 				PRODUCT_NAME = "[DEV] Template";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -658,7 +658,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.staging;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.staging;
 				PRODUCT_NAME = "[STG] Template";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -742,7 +742,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.staging;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.staging;
 				PRODUCT_NAME = "[STG] Template";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -823,7 +823,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.staging;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.staging;
 				PRODUCT_NAME = "[STG] Template";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -909,7 +909,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate;
 				PRODUCT_NAME = Template;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -993,7 +993,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate;
 				PRODUCT_NAME = Template;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1074,7 +1074,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate;
 				PRODUCT_NAME = Template;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1212,7 +1212,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.develop;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.develop;
 				PRODUCT_NAME = "[DEV] Template";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1244,7 +1244,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.develop;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.develop;
 				PRODUCT_NAME = "[DEV] Template";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1269,7 +1269,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.develop.RunnerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.develop.RunnerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1288,7 +1288,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.develop.RunnerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.develop.RunnerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1308,7 +1308,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.develop.RunnerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.develop.RunnerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1330,7 +1330,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.staging.RunnerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.staging.RunnerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1349,7 +1349,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.staging.RunnerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.staging.RunnerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1369,7 +1369,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.staging.RunnerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.staging.RunnerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1391,7 +1391,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.RunnerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.RunnerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1410,7 +1410,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.RunnerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.RunnerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1430,7 +1430,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.strv.flutter.template.RunnerUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.fluttertemplate.RunnerUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

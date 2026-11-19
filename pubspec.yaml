@@ -98,9 +98,9 @@ patrol:
   app_name: flutter_app
   test_directory: integration_test
   android:
-    package_name: com.strv.flutter.template
+    package_name: com.example.fluttertemplate
   ios:
-    bundle_id: com.strv.flutter.template
+    bundle_id: com.example.fluttertemplate
 
 
 flutter_gen:
